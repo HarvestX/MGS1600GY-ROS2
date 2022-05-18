@@ -64,7 +64,7 @@ void Mgs1600gyNode::onConnect()
 
   std_msgs::msg::Header header;
   sensor_msgs::msg::Image::SharedPtr image_msg =
-    cv_bridge::CvImage(header, "bgr8", this->sensor_data_).toImageMsg();
+    cv_bridge::CvImage(header, "mono8", this->sensor_data_).toImageMsg();
   this->image_pub_.publish(image_msg);
 }
 
