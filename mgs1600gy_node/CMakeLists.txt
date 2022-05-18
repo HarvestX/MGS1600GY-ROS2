@@ -16,6 +16,14 @@ rclcpp_components_register_node(
 )
 # End mgs1600gy_node ================================================
 
+# show node =========================================================
+ament_auto_add_library(show_node SHARED src/show_node.cpp)
+rclcpp_components_register_node(
+  show_node PLUGIN "mgs1600gy_node::ShowNode" EXECUTABLE
+  show_node_exec
+)
+# End show node =====================================================
+
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   set(ament_cmake_copyright_FOUND TRUE)
