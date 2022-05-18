@@ -32,11 +32,11 @@
 
 namespace mgs1600gy_interface
 {
+static const int MAGNET_SENSOR_NUM = 16;
+static const int GYRO_SENSOR_NUM = 3;
 class CommandHandler
 {
 public:
-  static const int MAGNET_SENSOR_NUM = 16;
-  static const int GYRO_SENSOR_NUM = 3;
   const std::unique_ptr<const RxConfiguration> rx_config_generator;
   const std::unique_ptr<const RxRealtime> rx_realtime_generator;
   const std::unique_ptr<const TxBuffer> tx_buffer_generator;

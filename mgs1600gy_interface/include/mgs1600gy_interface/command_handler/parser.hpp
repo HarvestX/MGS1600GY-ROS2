@@ -49,7 +49,7 @@ public:
     const int equal_cnt =
       std::count(input.begin(), input.end(), '=');
     if (equal_cnt != 1) {
-      RCLCPP_ERROR(
+      RCLCPP_DEBUG(
         this->logger_,
         "Invalid number of '=' %d, expected 1", equal_cnt);
       return false;
@@ -57,7 +57,7 @@ public:
     const int sep_cnt =
       std::count(input.begin(), input.end(), ':');
     if (sep_cnt != data.size() - 1) {
-      RCLCPP_ERROR(
+      RCLCPP_DEBUG(
         this->logger_,
         "Invalid number of ':' %d, expected %ld",
         sep_cnt, data.size() - 1);
@@ -75,7 +75,7 @@ public:
     for (size_t i = 0; i < data.size(); ++i) {
       std::getline(ss, token, ':');
       if (token.empty()) {
-        RCLCPP_ERROR(
+        RCLCPP_DEBUG(
           this->logger_,
           "Empty token");
         return false;

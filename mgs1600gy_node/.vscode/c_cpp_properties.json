@@ -8,8 +8,7 @@
       "includePath": [
         "/opt/ros/galactic/include/**",
         "/usr/include/**",
-        "${workspaceFolder}/mgs1600gy_interface/include/**",
-        "${workspaceFolder}/mgs1600gy_node/include/**"
+        "${workspaceFolder}/include/**"
       ],
       "name": "ROS",
       "intelliSenseMode": "clang-x64",

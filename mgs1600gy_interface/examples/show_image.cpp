@@ -12,15 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
+#include <opencv2/opencv.hpp>
 #include "mgs1600gy_interface/command_handler.hpp"
+#include "mgs1600gy_interface/converter.hpp"
 
 int main()
 {
-  const rclcpp::Logger logger = rclcpp::get_logger("ShowData");
+  const rclcpp::Logger logger = rclcpp::get_logger("ShowImage");
   const std::string port_name =
     "/dev/serial/by-id/usb-Roboteq_Magnetic_Sensor_48F263793238-if00";
-
   auto port_handler =
     std::make_unique<mgs1600gy_interface::PortHandler>(port_name);
 
@@ -36,27 +36,28 @@ int main()
   auto command_handler =
     std::make_unique<mgs1600gy_interface::CommandHandler>(
     std::move(port_handler));
+  auto converter =
+    std::make_unique<mgs1600gy_interface::Converter<int, 16>>(0, 2000);
+  auto cv_img = converter->yieldBaseBlurCvMat();
 
   command_handler->readMZ();
-  command_handler->readANG();
 
   command_handler->writeRepeatEvery(100);
 
   std::string receive_string;
-  for (int i = 0; i < 10; ++i) {
-    // Handle gyro data
-    if (command_handler->recv(receive_string)) {
-      if (command_handler->parseGyroData(receive_string)) {
-        command_handler->showGyroData();
-      }
+  const std::string window_name = "Magnet Sensor";
+  cv::namedWindow(window_name, cv::WINDOW_NORMAL);
+  cv::resizeWindow(window_name, cv::Size(480, 10));
+  while (1) {
+    if (!command_handler->recv(receive_string)) {
+      continue;
     }
-
-    // Handle magnet data
-    if (command_handler->recv(receive_string)) {
-      if (command_handler->parseMgData(receive_string)) {
-        command_handler->showMgData();
-      }
+    if (!command_handler->parseMgData(receive_string)) {
+      continue;
     }
+    converter->convertBlur(command_handler->mg_data, cv_img);
+    cv::imshow(window_name, cv_img);
+    cv::waitKey(1);
   }
 
   return EXIT_SUCCESS;
