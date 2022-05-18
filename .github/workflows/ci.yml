@@ -29,4 +29,3 @@ jobs:
           import-token: ${{ secrets.GITHUB_TOKEN }}
           package-name: |
             mgs1600gy_interface
-          vcs-repo-file-url: h6x_eye.repos
