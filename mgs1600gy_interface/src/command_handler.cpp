@@ -47,7 +47,6 @@ bool CommandHandler::readMZ()
   if (!this->mg_parser_->parse(buf, this->mg_data)) {
     return false;
   }
-  this->mg_parser_->showParsedResult(this->mg_data);
   return true;
 }
 
@@ -60,7 +59,6 @@ bool CommandHandler::readANG()
   if (!this->gyro_parser_->parse(buf, this->gyro_data)) {
     return false;
   }
-  this->gyro_parser_->showParsedResult(this->gyro_data);
   return true;
 }
 
@@ -96,14 +94,14 @@ bool CommandHandler::send(const std::string && command)
   this->port_handler_->readPort(buf.data(), buf.size());
 
   if (command != buf) {
-    RCLCPP_ERROR(
+    RCLCPP_DEBUG(
       this->logger_,
       "Failed to send: %s",
       command.c_str());
     return false;
   }
 
-  RCLCPP_INFO(
+  RCLCPP_DEBUG(
     this->logger_,
     "Succeeded to send: %s",
     command.c_str());
@@ -128,7 +126,7 @@ bool CommandHandler::sendRecv(const std::string && command, std::string & respon
 
   // Check validity of the response, should have 2 '\r'
   if (std::count(response.begin(), response.end(), delimiter.c_str()[0]) != 2) {
-    RCLCPP_ERROR(this->logger_, "Invalid Response");
+    RCLCPP_DEBUG(this->logger_, "Invalid Response");
     return false;
   }
 
@@ -138,14 +136,14 @@ bool CommandHandler::sendRecv(const std::string && command, std::string & respon
   response.erase(0, command_pos);
 
   if (command != ret_command) {
-    RCLCPP_ERROR(
+    RCLCPP_DEBUG(
       this->logger_, "Failed to send: %s", command.c_str());
     return false;
   }
 
-  RCLCPP_INFO(
+  RCLCPP_DEBUG(
     this->logger_, "Succeeded to send: %s", command.c_str());
-  RCLCPP_INFO(
+  RCLCPP_DEBUG(
     this->logger_, "Receive: %s", response.c_str());
   return true;
 }
@@ -180,13 +178,13 @@ bool CommandHandler::recv(std::string & response)
 
   if (!token.empty()) {
     response = token;
-    RCLCPP_INFO(
+    RCLCPP_DEBUG(
       this->logger_, "Receive: %s",
       response.c_str());
     return true;
   }
 
-  RCLCPP_ERROR(
+  RCLCPP_DEBUG(
     this->logger_, "Failed to receive command");
   return false;
 }
