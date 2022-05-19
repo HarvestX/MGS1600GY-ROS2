@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot
+    xmlns:xacro="http://ros.org/wiki/xacro"
+    name="mgs1600gy">
+
+  <xacro:property
+      name="MGS1600GY_BODY_LINK"
+      value="mgs1600gy_description/meshes/body.stl" />
+  <xacro:macro
+      name="mgs1600gy"
+      params="parent prefix *origin">
+
+
+    <joint
+        name="${prefix}mgs1600gy_joint"
+        type="fixed">
+      <origin
+          xyz="0.015 0 0"
+          rpy="0 0 0" />
+      <parent link="${parent}" />
+      <child link="${prefix}mgs1600gy_link" />
+    </joint>
+
+    <link name="${prefix}mgs1600gy_link">
+      <visual>
+        <origin
+            xyz="0 0 0"
+            rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://mgs1600gy_description/meshes/body.dae" />
+        </geometry>
+      </visual>
+      <collision>
+        <origin
+            xyz="0 0 0.0125"
+            rpy="0 0 0" />
+        <geometry>
+          <box size="0.03 0.165 0.025" />
+        </geometry>
+      </collision>
+    </link>
+
+  </xacro:macro>
+</robot>

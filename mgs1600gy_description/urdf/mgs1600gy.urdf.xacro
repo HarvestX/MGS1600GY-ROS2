@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot
+    xmlns:xacro="http://ros.org/wiki/xacro"
+    name="mgs1600gy">
+  <xacro:include filename="$(find mgs1600gy_description)/urdf/mgs1600gy.xacro" />
+
+  <link name="base_link" />
+
+  <xacro:mgs1600gy
+      prefix=""
+      parent="base_link">
+    <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+  </xacro:mgs1600gy>
+</robot>

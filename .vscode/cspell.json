@@ -7,6 +7,10 @@
     "rosdistro",
     "distro",
     "colcon",
-    "roboteq"
+    "roboteq",
+    "rviz",
+    "xacro",
+    "urdf",
+    "bringup"
   ]
 }
