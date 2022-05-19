@@ -23,7 +23,9 @@ Mgs1600gyNode::Mgs1600gyNode(const rclcpp::NodeOptions & node_options)
   const std::string dev = this->declare_parameter(
     "dev", "/dev/serial/by-id/usb-Roboteq_Magnetic_Sensor_48F263793238-if00");
   auto port_handler = std::make_unique<mgs1600gy_interface::PortHandler>(dev);
-  port_handler->openPort();
+  if (!port_handler->openPort()) {
+    rclcpp::shutdown();
+  }
 
   // Setup Sensor to Read Magnetic data
   this->command_handler_ =
