@@ -14,6 +14,12 @@ RoboteQ line sensor module controller for ROS2.
 - ROS 2
   - [Galactic Geochelone](https://index.ros.org/doc/ros2/Installation/Galactic/)
 
+## Setup
+Add user to dialout group.
+```bash
+sudo adduser $USER dialout
+```
+User will need to log out & log back in again for this to take effect.
 
 ## Install
 ### Locate package in workspace
@@ -40,5 +46,5 @@ colcon build
 ## Launch
 ```bash
 source ~/<Your Workspace>/install/setup.bash
-ros2 launch mgs1600gy_bringup mgs1600gy.launch.py
+ros2 launch mgs1600gy_bringup mgs1600gy.launch.py dev:=<Your Path to Device>
 ```
