@@ -2,7 +2,10 @@
 [![lint](https://github.com/HarvestX/MGS1600GY-ROS2/actions/workflows/lint.yml/badge.svg)](https://github.com/HarvestX/MGS1600GY-ROS2/actions/workflows/lint.yml)
 
 # MGS1600GY-ROS2
-RoboteQ linetrace module controller ROS2 driver
+RoboteQ line sensor module controller for ROS2.
+
+![Image](https://github.com/HarvestX/MGS1600GY-ROS2/blob/main/media/MGS1600GY.png?raw=true)
+
 
 
 ## Requirements
@@ -11,6 +14,12 @@ RoboteQ linetrace module controller ROS2 driver
 - ROS 2
   - [Galactic Geochelone](https://index.ros.org/doc/ros2/Installation/Galactic/)
 
+## Setup
+Add user to dialout group.
+```bash
+sudo adduser $USER dialout
+```
+User will need to log out & log back in again for this to take effect.
 
 ## Install
 ### Locate package in workspace
@@ -32,4 +41,10 @@ rosdep install -r -y -i --from-paths ./src/MGS1600GY-ROS2 --rosdistro $ROS_DISTR
 ```bash
 cd ~/<Your Workspace>
 colcon build
+```
+
+## Launch
+```bash
+source ~/<Your Workspace>/install/setup.bash
+ros2 launch mgs1600gy_bringup mgs1600gy.launch.py dev:=<Your Path to Device>
 ```
