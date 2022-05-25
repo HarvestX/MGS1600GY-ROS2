@@ -14,11 +14,9 @@
     <joint
         name="${prefix}mgs1600gy_joint"
         type="fixed">
-      <origin
-          xyz="0.015 0 0"
-          rpy="0 0 0" />
       <parent link="${parent}" />
       <child link="${prefix}mgs1600gy_link" />
+      <xacro:insert_block name="origin" />
     </joint>
 
     <link name="${prefix}mgs1600gy_link">
