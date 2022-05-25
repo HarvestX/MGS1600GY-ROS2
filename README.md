@@ -48,3 +48,6 @@ colcon build
 source ~/<Your Workspace>/install/setup.bash
 ros2 launch mgs1600gy_bringup mgs1600gy.launch.py dev:=<Your Path to Device>
 ```
+
+# References
+- [RoboteQ MGS1600GY](https://www.roboteq.com/products/navigation-sensors/line-following-sensors/mgs1600cgy-magnetic-sensor-with-gyroscope-detail)
