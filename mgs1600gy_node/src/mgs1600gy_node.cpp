@@ -32,6 +32,11 @@ Mgs1600gyNode::Mgs1600gyNode(const rclcpp::NodeOptions & node_options)
   RCLCPP_INFO(
     this->get_logger(),
     "Read range: %d - %d", SENSOR_MIN, SENSOR_MAX);
+  if (FLIP) {
+    RCLCPP_INFO(
+      this->get_logger(),
+      "Flip enabled");
+  }
   auto port_handler = std::make_unique<mgs1600gy_interface::PortHandler>(DEV);
   if (!port_handler->openPort()) {
     rclcpp::shutdown();

@@ -101,8 +101,12 @@ public:
       }
       // Flip output
       val_assign = 255 - val_assign;
+      int idx_assign = i;
+      if (this->FLIP) {
+        idx_assign = sizeOfArray - i - 1;
+      }
       for (size_t j = 0; j < 10; ++j) {
-        tmp.at<uint8_t>(0, i * 10 + j) = val_assign;
+        tmp.at<uint8_t>(0, idx_assign * 10 + j) = val_assign;
       }
     }
     cv::GaussianBlur(tmp, out_data, cv::Size(this->KERNEL_SIZE, 1), 0);
