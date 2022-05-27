@@ -27,7 +27,7 @@ namespace mgs1600gy_node
 class ShowNode : public rclcpp::Node
 {
 private:
-  const std::string WINDOW_NAME_ = "Sensor Data";
+  std::string window_name_;
   image_transport::Subscriber image_sub_;
 
 public:

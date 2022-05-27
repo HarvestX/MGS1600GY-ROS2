@@ -21,37 +21,38 @@ from launch.substitutions import TextSubstitution
 from launch_ros.actions import ComposableNodeContainer
 from launch_ros.descriptions import ComposableNode
 
+from mgs1600gy_bringup.node_generator import mgs1600gy_node
+
 
 def generate_launch_description():
     """Launch sensor."""
-    dev_arg = DeclareLaunchArgument(
-        'dev',
-        default_value=TextSubstitution(
-            text='/dev/serial/by-id/usb-Roboteq_Magnetic_Sensor_48F263793238-if00')
+    launch_args = [
+        DeclareLaunchArgument(
+            'dev',
+            default_value=TextSubstitution(
+                text='/dev/serial/by-id/usb-Roboteq_Magnetic_Sensor_48F263793238-if00')),
+        DeclareLaunchArgument(
+            'sensor_min',
+            default_value=TextSubstitution(text='0')),
+        DeclareLaunchArgument(
+            'sensor_max',
+            default_value=TextSubstitution(text='2000')),
+        DeclareLaunchArgument(
+            'show',
+            default_value='True'
+        ),
+        DeclareLaunchArgument(
+            'namespace',
+            default_value=TextSubstitution(text='mgs')
+        )
+    ]
+
+    nodes = mgs1600gy_node.load(
+        show=LaunchConfiguration('show'),
+        dev=LaunchConfiguration('dev'),
+        namespace=LaunchConfiguration('namespace'),
+        sensor_min=LaunchConfiguration('sensor_min'),
+        sensor_max=LaunchConfiguration('sensor_max'),
     )
 
-    container = ComposableNodeContainer(
-        name='image_container',
-        namespace='',
-        package='rclcpp_components',
-        executable='component_container',
-        composable_node_descriptions=[
-            ComposableNode(
-                package='mgs1600gy_node',
-                plugin='mgs1600gy_node::ShowNode',
-                name='mgs1600gy_viewer',
-            ),
-            ComposableNode(
-                package='mgs1600gy_node',
-                plugin='mgs1600gy_node::Mgs1600gyNode',
-                name='mgs1600gy',
-                parameters=[{'dev': LaunchConfiguration('dev')}],
-            ),
-        ],
-        output='screen',
-    )
-
-    return LaunchDescription([
-        dev_arg,
-        container,
-    ])
+    return LaunchDescription(launch_args + nodes)
