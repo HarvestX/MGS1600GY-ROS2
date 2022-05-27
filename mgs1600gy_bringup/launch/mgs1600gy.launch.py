@@ -18,9 +18,6 @@ from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration
 from launch.substitutions import TextSubstitution
 
-from launch_ros.actions import ComposableNodeContainer
-from launch_ros.descriptions import ComposableNode
-
 from mgs1600gy_bringup.node_generator import mgs1600gy_node
 
 
@@ -30,7 +27,8 @@ def generate_launch_description():
         DeclareLaunchArgument(
             'dev',
             default_value=TextSubstitution(
-                text='/dev/serial/by-id/usb-Roboteq_Magnetic_Sensor_48F263793238-if00')),
+                text='/dev/serial/by-id/'
+                'usb-Roboteq_Magnetic_Sensor_48F263793238-if00')),
         DeclareLaunchArgument(
             'sensor_min',
             default_value=TextSubstitution(text='0')),
@@ -39,11 +37,15 @@ def generate_launch_description():
             default_value=TextSubstitution(text='2000')),
         DeclareLaunchArgument(
             'show',
-            default_value='True'
+            default_value=TextSubstitution(text='True'),
         ),
         DeclareLaunchArgument(
             'namespace',
-            default_value=TextSubstitution(text='mgs')
+            default_value=TextSubstitution(text='mgs'),
+        ),
+        DeclareLaunchArgument(
+            'flip',
+            default_value=TextSubstitution(text='False'),
         )
     ]
 
@@ -53,6 +55,7 @@ def generate_launch_description():
         namespace=LaunchConfiguration('namespace'),
         sensor_min=LaunchConfiguration('sensor_min'),
         sensor_max=LaunchConfiguration('sensor_max'),
+        flip=LaunchConfiguration('flip'),
     )
 
     return LaunchDescription(launch_args + nodes)

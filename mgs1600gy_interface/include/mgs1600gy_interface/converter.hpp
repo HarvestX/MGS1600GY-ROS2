@@ -25,11 +25,12 @@ class Converter
 public:
   const int DATA_MIN, DATA_MAX;
   const int KERNEL_SIZE = 11;
+  const bool FLIP;
 
 public:
   Converter() = delete;
-  explicit Converter(const int min, const int max)
-  : DATA_MIN(min), DATA_MAX(max)
+  explicit Converter(const int min, const int max, const bool flip = false)
+  : DATA_MIN(min), DATA_MAX(max), FLIP(flip)
   {
     if (min >= max) {
       throw std::runtime_error("MIN is greater than MAX");
@@ -48,6 +49,12 @@ public:
     return ret;
   }
 
+  /**
+   * @brief Convert line sensor data to openCV image
+   *
+   * @param in_data Line sensor data
+   * @param out_data openCV image
+   */
   void convert(const std::array<T, sizeOfArray> & in_data, cv::Mat & out_data)
   {
     for (size_t i = 0; i < sizeOfArray; ++i) {
@@ -60,12 +67,24 @@ public:
         val_assign =
           static_cast<uint8_t>(255.0 * in_data.at(i) / DATA_MAX);
       }
-      // Flip output
+      // Flip the magnitude
+      // EX. 255 -> 0, 255 -> 0
       val_assign = 255 - val_assign;
-      out_data.at<uint8_t>(0, i) = val_assign;
+
+      int idx_assign = i;
+      if (this->FLIP) {
+        idx_assign = sizeOfArray - i - 1;
+      }
+      out_data.at<uint8_t>(0, idx_assign) = val_assign;
     }
   }
 
+  /**
+   * @brief Convert line sensor data to blur openCV image
+   *
+   * @param in_data Line sensor data
+   * @param out_data openCV image and the array size should be 10x greater than in_data
+   */
   void convertBlur(
     const std::array<T, sizeOfArray> & in_data, cv::Mat & out_data)
   {
