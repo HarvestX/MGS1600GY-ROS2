@@ -20,9 +20,17 @@ namespace mgs1600gy_node
 Mgs1600gyNode::Mgs1600gyNode(const rclcpp::NodeOptions & node_options)
 : rclcpp::Node("mgs1600gy_node", node_options)
 {
-  const std::string dev = this->declare_parameter(
+  const std::string DEV = this->declare_parameter(
     "dev", "/dev/serial/by-id/usb-Roboteq_Magnetic_Sensor_48F263793238-if00");
-  auto port_handler = std::make_unique<mgs1600gy_interface::PortHandler>(dev);
+  const int SENSOR_MIN = this->declare_parameter("sensor_min", 0);
+  const int SENSOR_MAX = this->declare_parameter("sensor_max", 2000);
+  RCLCPP_INFO(
+    this->get_logger(),
+    "Selected device: %s", DEV.c_str());
+  RCLCPP_INFO(
+    this->get_logger(),
+    "Read Range: %d - %d", SENSOR_MIN, SENSOR_MAX);
+  auto port_handler = std::make_unique<mgs1600gy_interface::PortHandler>(DEV);
   if (!port_handler->openPort()) {
     rclcpp::shutdown();
   }
@@ -36,13 +44,13 @@ Mgs1600gyNode::Mgs1600gyNode(const rclcpp::NodeOptions & node_options)
 
   this->data_converter_ =
     std::make_unique<mgs1600gy_interface::Converter<
-        int, mgs1600gy_interface::MAGNET_SENSOR_NUM>>(0, 2000);
+        int, mgs1600gy_interface::MAGNET_SENSOR_NUM>>(SENSOR_MIN, SENSOR_MAX);
   this->sensor_data_ = this->data_converter_->yieldBaseBlurCvMat();
 
   rclcpp::QoS sensor_qos = rclcpp::SensorDataQoS();
   this->image_pub_ = image_transport::create_publisher(
     this,
-    "/image",
+    "image",
     sensor_qos.get_rmw_qos_profile());
 
   using namespace std::chrono_literals;

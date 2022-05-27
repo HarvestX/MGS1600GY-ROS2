@@ -20,12 +20,13 @@ namespace mgs1600gy_node
 ShowNode::ShowNode(const rclcpp::NodeOptions & node_options)
 : rclcpp::Node("show_node", node_options)
 {
+  this->window_name_ = this->declare_parameter("name", "SensorData");
   this->image_sub_ = image_transport::create_subscription(
-    this, "/image", std::bind(&ShowNode::onImage, this, std::placeholders::_1),
+    this, "image", std::bind(&ShowNode::onImage, this, std::placeholders::_1),
     "raw", rmw_qos_profile_sensor_data);
 
-  cv::namedWindow(this->WINDOW_NAME_, cv::WINDOW_NORMAL);
-  cv::resizeWindow(this->WINDOW_NAME_, cv::Size(480, 10));
+  cv::namedWindow(this->window_name_, cv::WINDOW_NORMAL);
+  cv::resizeWindow(this->window_name_, cv::Size(480, 10));
 }
 
 void ShowNode::onImage(const sensor_msgs::msg::Image::ConstSharedPtr msg)
@@ -37,7 +38,7 @@ void ShowNode::onImage(const sensor_msgs::msg::Image::ConstSharedPtr msg)
     RCLCPP_ERROR(this->get_logger(), "cv_bridge exception: %s", e.what());
     return;
   }
-  cv::imshow(this->WINDOW_NAME_, cv_image);
+  cv::imshow(this->window_name_, cv_image);
   cv::waitKey(1);
 }
 }  // namespace mgs1600gy_node
