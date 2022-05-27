@@ -30,8 +30,10 @@ def load(
         show: Condition,
         dev: str,
         namespace: str,
-        sensor_min=0,
-        sensor_max=2000,) -> List[ComposableNodeContainer]:
+        sensor_min: int = 0,
+        sensor_max: int = 2000,
+        flip: bool = False,
+) -> List[ComposableNodeContainer]:
     """Load composable node container list."""
     viewer = ComposableNode(
         package='mgs1600gy_node',
@@ -51,6 +53,7 @@ def load(
             'dev': dev,
             'sensor_min': sensor_min,
             'sensor_max': sensor_max,
+            'flip': flip
         }],
     )
 
