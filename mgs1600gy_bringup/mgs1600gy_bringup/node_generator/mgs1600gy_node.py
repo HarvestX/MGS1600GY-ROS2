@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from unicodedata import name
 from launch.condition import Condition
 from launch.conditions import (
     IfCondition,
@@ -33,6 +32,7 @@ def load(
         sensor_min: int = 0,
         sensor_max: int = 2000,
         flip: bool = False,
+        additional_composable_node_list: List[ComposableNode] = []
 ) -> List[ComposableNodeContainer]:
     """Load composable node container list."""
     viewer = ComposableNode(
@@ -66,7 +66,7 @@ def load(
             composable_node_descriptions=[
                 viewer,
                 interface,
-            ],
+            ] + additional_composable_node_list,
             condition=IfCondition(show),
             output='screen',
         ),
@@ -77,7 +77,7 @@ def load(
             executable='component_container',
             composable_node_descriptions=[
                 interface,
-            ],
+            ] + additional_composable_node_list,
             condition=UnlessCondition(show),
             output='screen',
         ),
