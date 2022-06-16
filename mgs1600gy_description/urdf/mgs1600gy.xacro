@@ -20,7 +20,7 @@
     </joint>
 
     <link name="${prefix}mgs1600gy_link">
-      <visual>
+      <inertial>
         <origin
             xyz="-1.718E-03 -1.635E-03 13.993E-03"
             rpy="0 0 0" />
@@ -32,6 +32,11 @@
             iyy="7.79E-06"
             iyz="5.94E-07"
             izz="8.56E-05" />
+      </inertial>
+      <visual>
+        <origin
+            xyz="0 0 0"
+            rpy="0 0 0" />
         <geometry>
           <mesh filename="package://mgs1600gy_description/meshes/body.dae" />
         </geometry>
