@@ -22,8 +22,16 @@
     <link name="${prefix}mgs1600gy_link">
       <visual>
         <origin
-            xyz="0 0 0"
+            xyz="-1.718E-03 -1.635E-03 13.993E-03"
             rpy="0 0 0" />
+        <mass value="3.75E-02" />
+        <inertia
+            ixx="8.56E-05"
+            ixy="-1.25E-07"
+            ixz="4.65E-07"
+            iyy="7.79E-06"
+            iyz="5.94E-07"
+            izz="8.56E-05" />
         <geometry>
           <mesh filename="package://mgs1600gy_description/meshes/body.dae" />
         </geometry>
