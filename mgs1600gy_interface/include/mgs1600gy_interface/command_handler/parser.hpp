@@ -54,12 +54,12 @@ public:
         "Invalid number of '=' %d, expected 1", equal_cnt);
       return false;
     }
-    const int sep_cnt =
+    const size_t sep_cnt =
       std::count(input.begin(), input.end(), ':');
     if (sep_cnt != data.size() - 1) {
       RCLCPP_DEBUG(
         this->logger_,
-        "Invalid number of ':' %d, expected %ld",
+        "Invalid number of ':' %ld, expected %ld",
         sep_cnt, data.size() - 1);
       return false;
     }
