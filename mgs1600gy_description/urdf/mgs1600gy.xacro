@@ -10,15 +10,7 @@
       name="mgs1600gy"
       params="parent prefix *origin">
 
-
-    <joint
-        name="${prefix}mgs1600gy_joint"
-        type="fixed">
-      <parent link="${parent}" />
-      <child link="${prefix}mgs1600gy_link" />
-      <xacro:insert_block name="origin" />
-    </joint>
-
+    <!-- Links -->
     <link name="${prefix}mgs1600gy_link">
       <inertial>
         <origin
@@ -50,6 +42,65 @@
         </geometry>
       </collision>
     </link>
+    <link name="${prefix}mgs1600gy_sensor_link">
+      <inertial>
+        <mass value="0.0" />
+      </inertial>
+    </link>
+
+    <!-- Joints -->
+    <joint
+        name="${prefix}mgs1600gy_joint"
+        type="fixed">
+      <parent link="${parent}" />
+      <child link="${prefix}mgs1600gy_link" />
+      <xacro:insert_block name="origin" />
+    </joint>
+    <joint
+        name="${prefix}mgs1600gy_sensor_joint"
+        type="fixed">
+      <parent link="${prefix}mgs1600gy_link" />
+      <child link="${prefix}mgs1600gy_sensor_link" />
+      <origin
+          xyz="0 0 ${220.0 * const.SCALE_MM}"
+          rpy="0 ${const.TO_RADIAN * 90} 0" />
+    </joint>
+
+
+    <!-- Gazebo -->
+    <gazebo reference="${prefix}mgs1600gy_sensor_link">
+      <sensor
+          type="camera"
+          name="${prefix}mgs1600gy">
+        <update_rate>10.0</update_rate>
+        <always_on>true</always_on>
+        <visualize>true</visualize>
+        <camera name="head">
+          <image>
+            <width>160</width>
+            <height>1</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.23</near>
+            <far>300</far>
+          </clip>
+          <noise>
+            <type>gaussian</type>
+            <mean>0.0</mean>
+            <stddev>0.001</stddev>
+          </noise>
+        </camera>
+        <!-- success -->
+        <plugin
+            name="camera_controller"
+            filename="libgazebo_ros_camera.so">
+          <alwaysOn>true</alwaysOn>
+          <camera_name>${prefix}mgs1600gy</camera_name>
+          <frame_name>${prefix}mgs1600gy_link</frame_name>
+        </plugin>
+      </sensor>
+    </gazebo>
 
   </xacro:macro>
 </robot>
