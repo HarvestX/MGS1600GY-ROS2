@@ -8,8 +8,7 @@
 
   <xacro:mgs1600gy
       prefix=""
-      parent="base_link"
-      is_gazebo="False">
+      parent="base_link" >
     <origin
         xyz="0.015 0 0"
         rpy="0 0 0" />
