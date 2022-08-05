@@ -29,7 +29,7 @@ def load(
         show: Condition,
         dev: str,
         namespace: str,
-        sensor_min: int = 0,
+        sensor_min: int = -2000,
         sensor_max: int = 2000,
         flip: bool = False,
         additional_composable_node_list: List[ComposableNode] = []
