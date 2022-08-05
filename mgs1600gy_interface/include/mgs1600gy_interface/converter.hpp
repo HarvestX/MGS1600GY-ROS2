@@ -16,6 +16,7 @@
 
 
 #include <opencv2/opencv.hpp>
+#include <rclcpp/rclcpp.hpp>
 
 namespace mgs1600gy_interface
 {
@@ -46,6 +47,12 @@ public:
   cv::Mat yieldBaseBlurCvMat()
   {
     cv::Mat ret(1, sizeOfArray * 10, CV_8UC1);
+    return ret;
+  }
+
+  cv::Mat yieldBaseRGBCvMat()
+  {
+    cv::Mat ret(1, sizeOfArray, CV_8UC3);
     return ret;
   }
 
@@ -110,6 +117,40 @@ public:
       }
     }
     cv::GaussianBlur(tmp, out_data, cv::Size(this->KERNEL_SIZE, 1), 0);
+  }
+
+  /**
+   * @brief Convert line sensor data to RGB openCV image
+   *
+   * @param in_data Line sensor data
+   * @param out_data openCV image and the array depth shoud be 3 for each RGB color
+   */
+  void convertRGB(const std::array<T, sizeOfArray> & in_data, cv::Mat & out_data)
+  {
+    for (size_t i = 0; i < sizeOfArray; ++i) {
+      uint8_t val_S = 0, val_N = 0;
+      if (in_data.at(i) < DATA_MIN) {
+        val_N = 255;
+      } else if (in_data.at(i) > DATA_MAX) {
+        val_S = 255;
+      } else {
+        if (in_data.at(i) > 0) {
+          val_S =
+            static_cast<uint8_t>(255.0 * in_data.at(i) / DATA_MAX);
+        } else {
+          val_N =
+            static_cast<uint8_t>(-255.0 * in_data.at(i) / DATA_MAX);
+        }
+      }
+
+      int idx_assign = i;
+      if (this->FLIP) {
+        idx_assign = sizeOfArray - i - 1;
+      }
+      out_data.at<cv::Vec3b>(0, idx_assign)[0] = val_S; // Blue
+      out_data.at<cv::Vec3b>(0, idx_assign)[1] = 0; // Green
+      out_data.at<cv::Vec3b>(0, idx_assign)[2] = val_N; // Red
+    }
   }
 };
 }  // namespace mgs1600gy_interface

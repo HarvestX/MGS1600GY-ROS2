@@ -31,7 +31,7 @@ def generate_launch_description():
                 'usb-Roboteq_Magnetic_Sensor_48F263793238-if00')),
         DeclareLaunchArgument(
             'sensor_min',
-            default_value=TextSubstitution(text='0')),
+            default_value=TextSubstitution(text='-2000')),
         DeclareLaunchArgument(
             'sensor_max',
             default_value=TextSubstitution(text='2000')),

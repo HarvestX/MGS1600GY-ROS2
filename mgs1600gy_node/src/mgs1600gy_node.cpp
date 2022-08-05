@@ -22,7 +22,7 @@ Mgs1600gyNode::Mgs1600gyNode(const rclcpp::NodeOptions & node_options)
 {
   const std::string DEV = this->declare_parameter(
     "dev", "/dev/serial/by-id/usb-Roboteq_Magnetic_Sensor_48F263793238-if00");
-  const int SENSOR_MIN = this->declare_parameter("sensor_min", 0);
+  const int SENSOR_MIN = this->declare_parameter("sensor_min", -2000);
   const int SENSOR_MAX = this->declare_parameter("sensor_max", 2000);
   const bool FLIP = this->declare_parameter("flip", false);
 
@@ -52,7 +52,7 @@ Mgs1600gyNode::Mgs1600gyNode(const rclcpp::NodeOptions & node_options)
   this->data_converter_ =
     std::make_unique<mgs1600gy_interface::Converter<
         int, mgs1600gy_interface::MAGNET_SENSOR_NUM>>(SENSOR_MIN, SENSOR_MAX, FLIP);
-  this->sensor_data_ = this->data_converter_->yieldBaseBlurCvMat();
+  this->sensor_data_ = this->data_converter_->yieldBaseRGBCvMat();
 
   rclcpp::QoS sensor_qos = rclcpp::SensorDataQoS();
   this->image_pub_ = image_transport::create_publisher(
@@ -76,12 +76,12 @@ void Mgs1600gyNode::onConnect()
   if (!this->command_handler_->parseMgData(recv)) {
     return;
   }
-  this->data_converter_->convertBlur(
+  this->data_converter_->convertRGB(
     command_handler_->mg_data, this->sensor_data_);
 
   std_msgs::msg::Header header;
   sensor_msgs::msg::Image::SharedPtr image_msg =
-    cv_bridge::CvImage(header, "mono8", this->sensor_data_).toImageMsg();
+    cv_bridge::CvImage(header, "rgb8", this->sensor_data_).toImageMsg();
   this->image_pub_.publish(image_msg);
 }
 
