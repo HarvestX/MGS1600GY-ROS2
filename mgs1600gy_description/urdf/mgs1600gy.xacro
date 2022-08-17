@@ -69,10 +69,11 @@
             <pose>0 0 0.18 0 ${90.0 * const.TO_RADIAN} 0</pose>
           </xacro:unless>
           <camera>
+            <segmentation_type>semantic</segmentation_type>
             <image>
-              <width>160</width>
+              <width>16</width>
               <height>1</height>
-              <format>L8</format>
+              <format>R8G8B8</format>
             </image>
             <clip>
               <near>0.19</near>
