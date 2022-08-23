@@ -3,9 +3,6 @@
     xmlns:xacro="http://ros.org/wiki/xacro"
     name="mgs1600gy">
 
-  <xacro:property
-      name="MGS1600GY_BODY_LINK"
-      value="mgs1600gy_description/meshes/body.stl" />
   <xacro:macro
       name="mgs1600gy"
       params="parent prefix is_gazebo:=False flip:=False *origin">
