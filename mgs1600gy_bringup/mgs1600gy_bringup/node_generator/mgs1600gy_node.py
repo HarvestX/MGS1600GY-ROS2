@@ -59,7 +59,7 @@ def load(
 
     return [
         ComposableNodeContainer(
-            name='mgs1600',
+            name='mgs1600gy',
             namespace=namespace,
             package='rclcpp_components',
             executable='component_container',
@@ -71,7 +71,7 @@ def load(
             output='screen',
         ),
         ComposableNodeContainer(
-            name='mgs1600',
+            name='mgs1600gy',
             namespace=namespace,
             package='rclcpp_components',
             executable='component_container',
