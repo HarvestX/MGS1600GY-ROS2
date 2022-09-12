@@ -33,7 +33,7 @@ protected:
   virtual void TearDown() {}
 };
 
-class TestFlipedConverter : public ::testing::Test
+class TestFlippedConverter : public ::testing::Test
 {
 protected:
   static const size_t NUM_SENSOR = 16;
@@ -89,7 +89,7 @@ TEST_F(TestConverter, convertGoodData1) {
   }
 }
 
-TEST_F(TestFlipedConverter, convertGoodData1) {
+TEST_F(TestFlippedConverter, convertGoodData1) {
   const std::array<int, NUM_SENSOR> input_data = {
     0, 0, 0, 0,
     2000, 2000, 2000, 2000,

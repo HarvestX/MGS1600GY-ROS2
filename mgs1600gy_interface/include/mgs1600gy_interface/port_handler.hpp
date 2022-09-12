@@ -24,15 +24,15 @@
 #include <string>
 #include <rclcpp/rclcpp.hpp>
 
+#include "mgs1600gy_interface/port_handler_base.hpp"
+
 
 namespace mgs1600gy_interface
 {
 
-class PortHandler
+class PortHandler final : public PortHandlerBase
 {
 private:
-  const rclcpp::Logger logger_ = rclcpp::get_logger("PortHandler");
-
   int socket_fd_;
   int baudrate_;
   std::string port_name_;
@@ -46,15 +46,16 @@ public:
   int getBaudRate() const noexcept;
   std::string getPortName() const noexcept;
 
-  int getBytesAvailable();
-  int readPort(uint8_t * const, int);
-  int readPort(char * const, int);
-  int writePort(const uint8_t * const, int);
-  int writePort(const char * const, int);
+  size_t getBytesAvailable() const override;
+  size_t readPort(char * const, const size_t) const override;
+  size_t writePort(const char * const, const size_t) const override;
 
 private:
   bool setupPort(const speed_t);
   speed_t getCFlagBaud(const int) const noexcept;
+
+  static const std::string fixEscapeSequence(const std::string &);
+  static const rclcpp::Logger getLogger();
 };
 
 }  // namespace mgs1600gy_interface

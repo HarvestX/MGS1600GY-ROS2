@@ -14,6 +14,7 @@ ament_auto_add_library(
   ${PROJECT_NAME}
   STATIC
     ./src/port_handler.cpp
+    ./src/packet_pool.cpp
     ./src/command_handler.cpp
     ./src/command_handler/prettier.cpp
     ./src/command_handler/rx_configuration.cpp
@@ -69,6 +70,13 @@ if(BUILD_TESTING)
 
   ament_add_gtest(test_parser test/src/test_parser.cpp)
   target_link_libraries(test_parser ${PROJECT_NAME})
+
+  # ===================================================================
+  ament_add_gtest(
+    test_packet_pool
+    test/src/test_packet_pool.cpp)
+  target_include_directories(test_packet_pool PRIVATE "include")
+  target_link_libraries(test_packet_pool ${PROJECT_NAME})
 endif()
 
 ament_auto_package()
