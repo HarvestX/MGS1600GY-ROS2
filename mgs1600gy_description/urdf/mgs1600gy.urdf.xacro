@@ -4,11 +4,18 @@
     name="mgs1600gy">
   <xacro:include filename="$(find mgs1600gy_description)/urdf/mgs1600gy.xacro" />
 
+  <!-- arguments -->
+  <xacro:arg
+      name="use_nominal_extrinsics"
+      default="False" />
+
   <link name="base_link" />
 
   <xacro:mgs1600gy
       prefix=""
-      parent="base_link" >
+      parent="base_link"
+      use_nominal_extrinsics="$(arg use_nominal_extrinsics)"
+      >
     <origin
         xyz="0.015 0 0"
         rpy="0 0 0" />

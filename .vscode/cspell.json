@@ -11,6 +11,7 @@
     "rviz",
     "xacro",
     "urdf",
-    "bringup"
+    "bringup",
+    "extrinsics"
   ]
 }
