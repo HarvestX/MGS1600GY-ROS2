@@ -13,3 +13,31 @@
 // limitations under the License.
 
 #pragma once
+
+#include <memory>
+#include <rclcpp/rclcpp.hpp>
+
+#include "mgs1600gy_interface/packet_handler.hpp"
+
+namespace mgs1600gy_interface
+{
+using namespace std::chrono_literals;
+// TODO(m12watanabe1a)
+// Not implemented yet
+class MaintenanceCommander
+{
+private:
+  std::shared_ptr<PacketHandler> packet_handler_;
+  rclcpp::Clock::SharedPtr clock_;
+  const rclcpp::Duration TIMEOUT_;
+
+public:
+  MaintenanceCommander() = delete;
+  explicit MaintenanceCommander(
+    std::shared_ptr<PacketHandler>,
+    const std::chrono::nanoseconds = 1s);
+
+private:
+  static const rclcpp::Logger getLogger() noexcept;
+};
+}  // namespace mgs1600gy_interface

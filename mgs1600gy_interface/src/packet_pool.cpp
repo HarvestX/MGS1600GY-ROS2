@@ -20,9 +20,15 @@ namespace mgs1600gy_interface
 {
 PacketPool::PacketPool()
 {
+  this->clear();
 }
 
 PacketPool::~PacketPool()
+{
+  this->clear();
+}
+
+void PacketPool::clear()
 {
   for (size_t i = 0;
     i < static_cast<size_t>(PACKET_TYPE::END_PACKET_TYPE);
@@ -52,9 +58,9 @@ void PacketPool::enqueue(const std::string & in_packet)
       continue;
     }
 
-    if (item.rfind("MZ", 0) == 0) {
+    if (item.rfind("MZ=", 0) == 0) {
       this->queue_map_[PACKET_TYPE::MZ].push(item);
-    } else if (item.rfind("ANG", 0) == 0) {
+    } else if (item.rfind("ANG=", 0) == 0) {
       this->queue_map_[PACKET_TYPE::ANG].push(item);
     } else {
       RCLCPP_WARN(
@@ -74,7 +80,7 @@ void PacketPool::enqueue(const std::string & in_packet)
   }
 }
 
-bool PacketPool::takeValue(
+bool PacketPool::takePacket(
   const PACKET_TYPE & target,
   std::string & packet)
 {
@@ -86,6 +92,43 @@ bool PacketPool::takeValue(
     res = true;
   }
   return res;
+}
+
+bool PacketPool::parseResponse(
+  const std::string & response,
+  std::vector<float> & out) noexcept
+{
+  bool scanning_started = false;
+  std::string val_candidate;
+  out.clear();
+  for (char ch : response) {
+    if (ch == '=') {
+      scanning_started = true;
+      val_candidate.clear();
+      continue;
+    }
+    if (!scanning_started) {
+      continue;
+    }
+    if (ch == '\r' || ch == ':') {
+      try {
+        out.emplace_back(
+          std::stof(val_candidate));
+      } catch (std::invalid_argument & e) {
+        RCLCPP_ERROR(
+          PacketPool::getLogger(),
+          "%s", e.what());
+        out.clear();
+        return false;
+      }
+      val_candidate.clear();
+      continue;
+    }
+
+    val_candidate += ch;
+  }
+
+  return true;
 }
 
 const rclcpp::Logger PacketPool::getLogger() noexcept

@@ -12,29 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "mgs1600gy_interface/command_handler/tx_buffer.hpp"
 
-namespace mgs1600gy_interface
-{
-TxBuffer::TxBuffer()
-:  prettier_(std::make_unique<Prettier>(this->prefix_))
-{
-}
-
-std::string TxBuffer::yieldRepeat() const noexcept
-{
-  return this->prettier_->exec(" ");
-}
-
-std::string TxBuffer::yieldRepeatEvery(const int ms) const noexcept
-{
-  return this->prettier_->exec("", ms);
-}
-
-std::string TxBuffer::yieldClear() const noexcept
-{
-  return this->prettier_->exec(" C");
-}
-
-
-}  // namespace mgs1600gy_interface
+// TODO(m12watanabe1a)
+// Not implemented yet

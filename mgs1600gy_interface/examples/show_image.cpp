@@ -13,7 +13,6 @@
 // limitations under the License.
 
 #include <opencv2/opencv.hpp>
-#include "mgs1600gy_interface/command_handler.hpp"
 #include "mgs1600gy_interface/converter.hpp"
 
 int main()

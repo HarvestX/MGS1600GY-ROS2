@@ -18,6 +18,7 @@
 #include <memory>
 #include <rclcpp/rclcpp.hpp>
 
+#include "mgs1600gy_interface/commander/common.hpp"
 #include "mgs1600gy_interface/packet_pool.hpp"
 #include "mgs1600gy_interface/port_handler_base.hpp"
 
@@ -28,16 +29,18 @@ namespace mgs1600gy_interface
 class PacketHandler
 {
 private:
-  PortHandlerBase const * const post_handler_;
+  PortHandlerBase const * const port_handler_;
   std::unique_ptr<PacketPool> pool_;
 
 public:
   PacketHandler() = delete;
   explicit PacketHandler(
-    const PortHandlerBase const * const);
+    PortHandlerBase const * const);
 
   size_t getBytesAvailable() const;
   size_t writePort(char const * const, const size_t) const;
   size_t readPortIntoQueue();
+
+  bool takePacket(const PacketPool::PACKET_TYPE &, std::string &);
 };
 }  // namespace mgs1600gy_interface

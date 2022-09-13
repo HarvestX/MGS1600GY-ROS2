@@ -15,22 +15,43 @@
 #pragma once
 
 #include <string>
+#include <memory>
 #include <array>
 #include <rclcpp/rclcpp.hpp>
 
+
+#include "mgs1600gy_interface/packet_handler.hpp"
+
 namespace mgs1600gy_interface
 {
+using namespace std::chrono_literals;
 class RealtimeCommander
 {
 public:
-  RealtimeCommander();
-  void readMZ(std::array<int, 16> &);
-  void readMZ(const std::string &, std::array<int, 16> &);
+  enum class MODE
+  {
+    NORMAL,
+    QUERY,
+  };
 
-  void readANG(std::array<double, 3> &);
-  void readANG(const std::string &, std::array<double, 3> &);
+private:
+  std::shared_ptr<PacketHandler> packet_handler_;
+  rclcpp::Clock::SharedPtr clock_;
+  const rclcpp::Duration TIMEOUT_;
+
+public:
+  RealtimeCommander() = delete;
+  explicit RealtimeCommander(
+    std::shared_ptr<PacketHandler>,
+    const std::chrono::nanoseconds = 1s);
+
+  RESPONSE_STATE readMZ(std::array<float, 16> &, const MODE);
+  RESPONSE_STATE readANG(std::array<float, 3> &, const MODE);
 
 private:
   static const rclcpp::Logger getLogger() noexcept;
+  bool waitForResponse(
+    const PacketPool::PACKET_TYPE &, std::string &) const noexcept;
+
 };
 }  // namespace mgs1600gy_interface

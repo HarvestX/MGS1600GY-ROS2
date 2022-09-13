@@ -25,7 +25,7 @@ public:
   PortHandlerBase() {}
 
   virtual size_t getBytesAvailable() const = 0;
-  virtual size_t readPort(char *, const size_t) const = 0;
-  virtual size_t writePort(const char *, const size_t) const = 0;
+  virtual size_t readPort(char * const, const size_t) const = 0;
+  virtual size_t writePort(const char * const, const size_t) const = 0;
 };
 }  // namespace mgs1600gy_interface

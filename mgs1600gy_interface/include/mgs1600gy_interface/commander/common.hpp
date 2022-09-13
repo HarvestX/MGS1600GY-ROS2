@@ -12,31 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
 
-#include <string>
-#include <memory>
-#include "mgs1600gy_interface/command_handler/prettier.hpp"
+#include <rclcpp/rclcpp.hpp>
 
 
 namespace mgs1600gy_interface
 {
-class TxRealtime
+
+enum class RESPONSE_STATE
 {
-private:
-  const std::string prefix_ = "!";
-  const std::unique_ptr<const Prettier> prettier_;
-
-public:
-  TxRealtime();
-
-  std::string yieldB(const int, const int) const noexcept;
-  std::string yieldR(const int) const noexcept;
-  std::string yieldTV() const noexcept;
-  std::string yieldVAR(const int, const int) const noexcept;
-  std::string yieldTX() const noexcept;
-  std::string yieldANG(const int, const int) const noexcept;
-  std::string yieldZER() const noexcept;
+  OK,
+  ERROR_NO_RESPONSE,
+  ERROR_PARSE_FAILED,
+  ERROR_PARSE_RESULT_INCOMPATIBLE,
+  ERROR_UNKNOWN,
 };
 
 }  // namespace mgs1600gy_interface

@@ -17,11 +17,9 @@
 #include <queue>
 #include <memory>
 #include <string>
+#include <vector>
 #include <map>
 #include <rclcpp/rclcpp.hpp>
-
-#include "mgs1600gy_interface/common.hpp"
-
 
 namespace mgs1600gy_interface
 {
@@ -43,9 +41,10 @@ public:
   PacketPool();
   ~PacketPool();
 
+  void clear();
   void enqueue(const std::string &);
-
-  bool takeValue(const PACKET_TYPE &, std::string &);
+  bool takePacket(const PACKET_TYPE &, std::string &);
+  static bool parseResponse(const std::string &, std::vector<float> &) noexcept;
 
 private:
   static const rclcpp::Logger getLogger() noexcept;

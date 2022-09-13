@@ -8,6 +8,7 @@
       "includePath": [
         "/opt/ros/galactic/include/**",
         "/usr/include/**",
+        "/opt/ros/galactic/src/gmock_vendor/include/**",
         "${workspaceFolder}/include/**"
       ],
       "name": "ROS",

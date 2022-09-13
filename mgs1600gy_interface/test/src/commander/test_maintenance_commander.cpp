@@ -12,9 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
 
-namespace mgs1600gy_interface
-{
-
-}  // mgs1600gy_interface
+// TODO(m12watanabe1a)
+// Not implemented yet
