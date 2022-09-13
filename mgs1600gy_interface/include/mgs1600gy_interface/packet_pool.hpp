@@ -14,30 +14,41 @@
 
 #pragma once
 
-#include <string>
+#include <queue>
 #include <memory>
-#include "mgs1600gy_interface/command_handler/prettier.hpp"
-
+#include <string>
+#include <vector>
+#include <map>
+#include <rclcpp/rclcpp.hpp>
 
 namespace mgs1600gy_interface
 {
-class TxMaintenance
+
+class PacketPool
 {
+public:
+  enum class PACKET_TYPE
+  {
+    MZ,
+    ANG,
+    END_PACKET_TYPE
+  };
+
 private:
-  const std::string prefix_ = "%";
-  const std::unique_ptr<const Prettier> prettier_;
+  std::map<PACKET_TYPE, std::queue<std::string>> queue_map_;
 
 public:
-  TxMaintenance();
+  PacketPool();
+  ~PacketPool();
 
-  std::string yieldCLSAV() const noexcept;
-  std::string yieldCLRST(const int) const noexcept;
-  std::string yieldEELD() const noexcept;
-  std::string yieldEERST(const int) const noexcept;
-  std::string yieldEESAV() const noexcept;
-  std::string yieldGREF() const noexcept;
-  std::string yieldGZER() const noexcept;
-  std::string yieldZERO() const noexcept;
+  void clear();
+  void enqueue(const std::string &);
+  bool takePacket(const PACKET_TYPE &, std::string &);
+  static bool parseResponse(const std::string &, std::vector<float> &) noexcept;
+  static std::string packetTypeToString(const PACKET_TYPE &) noexcept;
+
+private:
+  static const rclcpp::Logger getLogger() noexcept;
+  static const std::string fixEscapeSequence(const std::string &);
 };
-
 }  // namespace mgs1600gy_interface

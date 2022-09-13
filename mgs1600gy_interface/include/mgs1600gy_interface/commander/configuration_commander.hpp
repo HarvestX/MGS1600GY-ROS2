@@ -14,25 +14,33 @@
 
 #pragma once
 
-#include <string>
-#include "mgs1600gy_interface/port_handler.hpp"
+
+#include <memory>
 #include <rclcpp/rclcpp.hpp>
+
+
+#include "mgs1600gy_interface/packet_handler.hpp"
+
 
 namespace mgs1600gy_interface
 {
-class Prettier
+using namespace std::chrono_literals;
+// TODO(m12watanabe1a)
+// Not implemented yet
+class ConfigurationCommander
 {
 private:
-  const std::string realtime_write_prefix_ = "!";
-  const std::string maintenance_write_prefix_ = "%";
-  const std::string prefix_;
-  const std::string suffix_;
+  std::shared_ptr<PacketHandler> packet_handler_;
+  rclcpp::Clock::SharedPtr clock_;
+  const rclcpp::Duration TIMEOUT_;
 
 public:
-  Prettier() = delete;
-  explicit Prettier(const std::string &);
-  std::string exec(const std::string &&) const noexcept;
-  std::string exec(const std::string &&, const int) const noexcept;
-  std::string exec(const std::string &&, const int, const int) const noexcept;
+  ConfigurationCommander() = delete;
+  explicit ConfigurationCommander(
+    std::shared_ptr<PacketHandler>,
+    const rclcpp::Duration &);
+
+private:
+  static const rclcpp::Logger getLogger() noexcept;
 };
 }  // namespace mgs1600gy_interface

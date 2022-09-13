@@ -12,38 +12,35 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "mgs1600gy_interface/command_handler/prettier.hpp"
+#pragma once
+
+#include <string>
+#include <memory>
+#include <rclcpp/rclcpp.hpp>
+
+#include "mgs1600gy_interface/commander/common.hpp"
+#include "mgs1600gy_interface/packet_pool.hpp"
+#include "mgs1600gy_interface/port_handler_base.hpp"
+
 
 namespace mgs1600gy_interface
 {
-Prettier::Prettier(
-  const std::string & prefix
-)
-: prefix_(prefix),
-  suffix_("\r")
-{
-}
 
-std::string Prettier::exec(
-  const std::string && command)
-const noexcept
+class PacketHandler
 {
-  return this->prefix_ + command + this->suffix_;
-}
+private:
+  PortHandlerBase const * const port_handler_;
+  std::unique_ptr<PacketPool> pool_;
 
-std::string Prettier::exec(
-  const std::string && command,
-  const int arg) const noexcept
-{
-  return this->exec(command + " " + std::to_string(arg));
-}
+public:
+  PacketHandler() = delete;
+  explicit PacketHandler(
+    PortHandlerBase const * const);
 
-std::string Prettier::exec(
-  const std::string && command,
-  const int idx,
-  const int arg
-) const noexcept
-{
-  return this->exec(command + " " + std::to_string(idx), arg);
-}
+  size_t getBytesAvailable() const;
+  size_t writePort(char const * const, const size_t) const;
+  size_t readPortIntoQueue();
+
+  bool takePacket(const PacketPool::PACKET_TYPE &, std::string &);
+};
 }  // namespace mgs1600gy_interface

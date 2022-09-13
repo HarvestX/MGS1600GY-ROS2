@@ -13,29 +13,22 @@
 // limitations under the License.
 
 
-#include <gtest/gtest.h>
-
-#include <mgs1600gy_interface/command_handler/tx_buffer.hpp>
+#include "mgs1600gy_interface/commander/configuration_commander.hpp"
 
 
-class TestTxBuffer : public ::testing::Test
+namespace mgs1600gy_interface
 {
-protected:
-  std::unique_ptr<const mgs1600gy_interface::TxBuffer> generator;
-  virtual void SetUp()
-  {
-    this->generator =
-      std::make_unique<const mgs1600gy_interface::TxBuffer>();
-  }
-
-  virtual void TearDown() {}
-};
-
-TEST_F(TestTxBuffer, commandGenerationTest) {
-  ASSERT_EQ(
-    "# \r", this->generator->yieldRepeat());
-  ASSERT_EQ(
-    "# 100\r", this->generator->yieldRepeatEvery(100));
-  ASSERT_EQ(
-    "# C\r", this->generator->yieldClear());
+ConfigurationCommander::ConfigurationCommander(
+  std::shared_ptr<PacketHandler> _packet_handler,
+  const rclcpp::Duration & timeout)
+: packet_handler_(_packet_handler),
+  clock_(std::make_shared<rclcpp::Clock>(RCL_STEADY_TIME)),
+  TIMEOUT_(timeout)
+{
 }
+
+const rclcpp::Logger ConfigurationCommander::getLogger() noexcept
+{
+  return rclcpp::get_logger("ConfigurationCommander");
+}
+}  // namespace mgs1600gy_interface

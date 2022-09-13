@@ -12,29 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "mgs1600gy_interface/command_handler/tx_buffer.hpp"
+#pragma once
+
+#include <opencv2/opencv.hpp>
+#include <rclcpp/rclcpp.hpp>
+
 
 namespace mgs1600gy_interface
 {
-TxBuffer::TxBuffer()
-:  prettier_(std::make_unique<Prettier>(this->prefix_))
+
+class Utils
 {
-}
-
-std::string TxBuffer::yieldRepeat() const noexcept
-{
-  return this->prettier_->exec(" ");
-}
-
-std::string TxBuffer::yieldRepeatEvery(const int ms) const noexcept
-{
-  return this->prettier_->exec("", ms);
-}
-
-std::string TxBuffer::yieldClear() const noexcept
-{
-  return this->prettier_->exec(" C");
-}
-
-
+public:
+  static void convertBGR(
+    const std::array<float, 16> &, cv::Mat *,
+    const float, const float, const bool = true);
+};
 }  // namespace mgs1600gy_interface

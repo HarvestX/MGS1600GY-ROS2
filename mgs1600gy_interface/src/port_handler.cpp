@@ -70,7 +70,7 @@ bool PortHandler::setupPort(const speed_t cflag_baud)
 
   if (socket_fd_ < 0) {
     RCLCPP_ERROR(
-      this->logger_,
+      this->getLogger(),
       "Error opening serial port");
     return false;
   }
@@ -91,30 +91,34 @@ bool PortHandler::setupPort(const speed_t cflag_baud)
   return true;
 }
 
-int PortHandler::getBytesAvailable()
+size_t PortHandler::getBytesAvailable() const
 {
   int bytes_available;
   ioctl(this->socket_fd_, FIONREAD, &bytes_available);
-  return bytes_available;
+  RCLCPP_DEBUG(
+    this->getLogger(),
+    "Available: %d", bytes_available);
+  return static_cast<size_t>(bytes_available);
 }
 
-int PortHandler::readPort(uint8_t * const packet, int length)
+size_t PortHandler::readPort(char * packet, const size_t length) const
 {
-  return read(this->socket_fd_, packet, length);
+  const size_t ret = read(this->socket_fd_, packet, length);
+  if (ret > 0) {
+    RCLCPP_DEBUG(
+      this->getLogger(),
+      "Recv: %s Length: %zu",
+      this->fixEscapeSequence(packet).c_str(), ret);
+  }
+  return ret;
 }
 
-int PortHandler::readPort(char * const packet, int length)
+size_t PortHandler::writePort(const char * packet, const size_t length) const
 {
-  return read(this->socket_fd_, packet, length);
-}
-
-int PortHandler::writePort(const uint8_t * const packet, int length)
-{
-  return write(this->socket_fd_, packet, length);
-}
-
-int PortHandler::writePort(const char * const packet, int length)
-{
+  RCLCPP_DEBUG(
+    this->getLogger(),
+    "Send: %s Length: %zu",
+    this->fixEscapeSequence(packet).c_str(), length);
   return write(this->socket_fd_, packet, length);
 }
 
@@ -159,10 +163,36 @@ speed_t PortHandler::getCFlagBaud(const int baudrate) const noexcept
       return B4000000;
     default:
       RCLCPP_ERROR(
-        this->logger_,
+        this->getLogger(),
         "Invalid baudrate given: %d", baudrate);
       return -1;
   }
+}
+
+const std::string PortHandler::fixEscapeSequence(const std::string & in)
+{
+  std::string out;
+  for (auto c : in) {
+    switch (c) {
+      case '\r':
+        out += "\\r";
+        break;
+      case '\n':
+        out += "\\n";
+        break;
+      case '\0':
+        out += "\\0";
+        break;
+      default:
+        out += c;
+    }
+  }
+  return out;
+}
+
+const rclcpp::Logger PortHandler::getLogger()
+{
+  return rclcpp::get_logger("PortHandler");
 }
 
 }  // namespace mgs1600gy_interface

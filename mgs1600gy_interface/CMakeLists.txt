@@ -13,15 +13,14 @@ find_package(OpenCV REQUIRED)
 ament_auto_add_library(
   ${PROJECT_NAME}
   STATIC
+    ./src/commander/configuration_commander.cpp
+    ./src/commander/maintenance_commander.cpp
+    ./src/commander/realtime_commander.cpp
+    ./src/mgs1600gy_interface.cpp
+    ./src/packet_handler.cpp
+    ./src/packet_pool.cpp
     ./src/port_handler.cpp
-    ./src/command_handler.cpp
-    ./src/command_handler/prettier.cpp
-    ./src/command_handler/rx_configuration.cpp
-    ./src/command_handler/rx_realtime.cpp
-    ./src/command_handler/tx_buffer.cpp
-    ./src/command_handler/tx_configuration.cpp
-    ./src/command_handler/tx_maintenance.cpp
-    ./src/command_handler/tx_realtime.cpp
+    ./src/utils.cpp
 )
 ament_target_dependencies(${PROJECT_NAME} OpenCV)
 set_property(TARGET ${PROJECT_NAME} PROPERTY POSITION_INDEPENDENT_CODE ON)
@@ -45,30 +44,19 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 
   find_package(ament_cmake_gtest REQUIRED)
+  find_package(ament_cmake_gmock REQUIRED)
 
-  ament_add_gtest(test_converter test/src/test_converter.cpp)
-  target_link_libraries(test_converter ${PROJECT_NAME})
+  ament_add_gtest(
+    test_packet_pool
+    test/src/test_packet_pool.cpp)
+  target_include_directories(test_packet_pool PRIVATE "include")
+  target_link_libraries(test_packet_pool ${PROJECT_NAME})
 
-  ament_add_gtest(test_rx_realtime test/src/test_rx_realtime.cpp)
-  target_link_libraries(test_rx_realtime ${PROJECT_NAME})
-
-  ament_add_gtest(test_rx_configuration test/src/test_rx_configuration.cpp)
-  target_link_libraries(test_rx_configuration ${PROJECT_NAME})
-
-  ament_add_gtest(test_tx_configuration test/src/test_tx_configuration.cpp)
-  target_link_libraries(test_tx_configuration ${PROJECT_NAME})
-
-  ament_add_gtest(test_tx_maintenance test/src/test_tx_maintenance.cpp)
-  target_link_libraries(test_tx_maintenance ${PROJECT_NAME})
-
-  ament_add_gtest(test_tx_buffer test/src/test_tx_buffer.cpp)
-  target_link_libraries(test_tx_buffer ${PROJECT_NAME})
-
-  ament_add_gtest(test_tx_realtime test/src/test_tx_realtime.cpp)
-  target_link_libraries(test_tx_realtime ${PROJECT_NAME})
-
-  ament_add_gtest(test_parser test/src/test_parser.cpp)
-  target_link_libraries(test_parser ${PROJECT_NAME})
+  set(TARGET test_realtime_commander)
+  ament_add_gmock(
+    ${TARGET}
+    test/src/commander/${TARGET}.cpp)
+  target_link_libraries(${TARGET} ${PROJECT_NAME})
 endif()
 
 ament_auto_package()

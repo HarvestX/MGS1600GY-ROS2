@@ -13,51 +13,49 @@
 // limitations under the License.
 
 
-#include "mgs1600gy_interface/command_handler.hpp"
+#include "mgs1600gy_interface/mgs1600gy_interface.hpp"
 
-int main()
+int main(int argc, char ** argv)
 {
-  const rclcpp::Logger logger = rclcpp::get_logger("ShowData");
+  using namespace std::chrono_literals;
+  rclcpp::init(argc, argv);
+
   const std::string port_name =
-    "/dev/serial/by-id/usb-Roboteq_Magnetic_Sensor_48F263793238-if00";
+    "/dev/ttyUSB0";
 
-  auto port_handler =
-    std::make_unique<mgs1600gy_interface::PortHandler>(port_name);
+  auto mgs1600gy_interface = std::make_unique<
+    mgs1600gy_interface::Mgs1600gyInterface>(
+    port_name, 500ms);
 
-  if (!port_handler->openPort()) {
-    RCLCPP_ERROR(logger, "Failed to open the port!");
+  if (!mgs1600gy_interface->init()) {
     return EXIT_FAILURE;
   }
-  RCLCPP_INFO(
-    logger, "Succeeded to open the port!");
-  RCLCPP_INFO(
-    logger, "BaudRate: %d", port_handler->getBaudRate());
-
-  auto command_handler =
-    std::make_unique<mgs1600gy_interface::CommandHandler>(
-    std::move(port_handler));
-
-  command_handler->readMZ();
-  command_handler->readANG();
-
-  command_handler->writeRepeatEvery(100);
-
-  std::string receive_string;
-  for (int i = 0; i < 10; ++i) {
-    // Handle gyro data
-    if (command_handler->recv(receive_string)) {
-      if (command_handler->parseGyroData(receive_string)) {
-        command_handler->showGyroData();
-      }
-    }
-
-    // Handle magnet data
-    if (command_handler->recv(receive_string)) {
-      if (command_handler->parseMgData(receive_string)) {
-        command_handler->showMgData();
-      }
-    }
+  if (!mgs1600gy_interface->activate()) {
+    return EXIT_FAILURE;
   }
+
+  if (!mgs1600gy_interface->setQueries(
+      mgs1600gy_interface::PacketPool::PACKET_TYPE::MZ))
+  {
+    return EXIT_FAILURE;
+  }
+
+  if (!mgs1600gy_interface->setQueries(
+      mgs1600gy_interface::PacketPool::PACKET_TYPE::ANG))
+  {
+    return EXIT_FAILURE;
+  }
+
+  mgs1600gy_interface->startQueries(10);
+
+  for (int i = 0; i < 10; ++i) {
+    if (!mgs1600gy_interface->readAll()) {
+      // Do nothing
+    }
+    rclcpp::sleep_for(10ms);
+  }
+
+  mgs1600gy_interface->deactivate();
 
   return EXIT_SUCCESS;
 }

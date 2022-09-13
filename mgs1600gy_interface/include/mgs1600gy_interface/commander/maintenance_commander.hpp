@@ -12,26 +12,32 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 #pragma once
 
-#include <string>
 #include <memory>
-#include "mgs1600gy_interface/command_handler/prettier.hpp"
+#include <rclcpp/rclcpp.hpp>
+
+#include "mgs1600gy_interface/packet_handler.hpp"
 
 namespace mgs1600gy_interface
 {
-class TxBuffer
+using namespace std::chrono_literals;
+// TODO(m12watanabe1a)
+// Not implemented yet
+class MaintenanceCommander
 {
 private:
-  const std::string prefix_ = "#";
-  const std::unique_ptr<const Prettier> prettier_;
+  std::shared_ptr<PacketHandler> packet_handler_;
+  rclcpp::Clock::SharedPtr clock_;
+  const rclcpp::Duration TIMEOUT_;
 
 public:
-  TxBuffer();
+  MaintenanceCommander() = delete;
+  explicit MaintenanceCommander(
+    std::shared_ptr<PacketHandler>,
+    const rclcpp::Duration &);
 
-  std::string yieldRepeat() const noexcept;
-  std::string yieldRepeatEvery(const int) const noexcept;
-  std::string yieldClear() const noexcept;
+private:
+  static const rclcpp::Logger getLogger() noexcept;
 };
 }  // namespace mgs1600gy_interface

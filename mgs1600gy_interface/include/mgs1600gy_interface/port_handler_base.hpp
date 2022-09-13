@@ -15,28 +15,17 @@
 #pragma once
 
 #include <string>
-#include <memory>
-#include "mgs1600gy_interface/command_handler/prettier.hpp"
-
 
 namespace mgs1600gy_interface
 {
-class TxRealtime
+
+class PortHandlerBase
 {
-private:
-  const std::string prefix_ = "!";
-  const std::unique_ptr<const Prettier> prettier_;
-
 public:
-  TxRealtime();
+  PortHandlerBase() {}
 
-  std::string yieldB(const int, const int) const noexcept;
-  std::string yieldR(const int) const noexcept;
-  std::string yieldTV() const noexcept;
-  std::string yieldVAR(const int, const int) const noexcept;
-  std::string yieldTX() const noexcept;
-  std::string yieldANG(const int, const int) const noexcept;
-  std::string yieldZER() const noexcept;
+  virtual size_t getBytesAvailable() const = 0;
+  virtual size_t readPort(char * const, const size_t) const = 0;
+  virtual size_t writePort(const char * const, const size_t) const = 0;
 };
-
 }  // namespace mgs1600gy_interface
