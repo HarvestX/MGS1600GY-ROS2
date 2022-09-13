@@ -45,6 +45,7 @@ public:
   void enqueue(const std::string &);
   bool takePacket(const PACKET_TYPE &, std::string &);
   static bool parseResponse(const std::string &, std::vector<float> &) noexcept;
+  static std::string packetTypeToString(const PACKET_TYPE &) noexcept;
 
 private:
   static const rclcpp::Logger getLogger() noexcept;

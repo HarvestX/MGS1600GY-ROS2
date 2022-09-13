@@ -20,10 +20,10 @@ namespace mgs1600gy_interface
 
 MaintenanceCommander::MaintenanceCommander(
   std::shared_ptr<PacketHandler> _packet_handler,
-  std::chrono::nanoseconds timeout)
+  const rclcpp::Duration & timeout)
 : packet_handler_(_packet_handler),
   clock_(std::make_shared<rclcpp::Clock>(RCL_STEADY_TIME)),
-  TIMEOUT_(rclcpp::Duration(timeout))
+  TIMEOUT_(timeout)
 {
 }
 

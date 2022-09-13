@@ -35,7 +35,7 @@ public:
   MaintenanceCommander() = delete;
   explicit MaintenanceCommander(
     std::shared_ptr<PacketHandler>,
-    const std::chrono::nanoseconds = 1s);
+    const rclcpp::Duration &);
 
 private:
   static const rclcpp::Logger getLogger() noexcept;

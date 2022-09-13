@@ -38,7 +38,7 @@ public:
   ConfigurationCommander() = delete;
   explicit ConfigurationCommander(
     std::shared_ptr<PacketHandler>,
-    std::chrono::nanoseconds = 1s);
+    const rclcpp::Duration &);
 
 private:
   static const rclcpp::Logger getLogger() noexcept;

@@ -43,10 +43,13 @@ public:
   RealtimeCommander() = delete;
   explicit RealtimeCommander(
     std::shared_ptr<PacketHandler>,
-    const std::chrono::nanoseconds = 1s);
+    const rclcpp::Duration &);
 
-  RESPONSE_STATE readMZ(std::array<float, 16> &, const MODE);
-  RESPONSE_STATE readANG(std::array<float, 3> &, const MODE);
+  RESPONSE_STATE readMZ(std::array<float, 16> &, const MODE) const noexcept;
+  RESPONSE_STATE readANG(std::array<float, 3> &, const MODE) const noexcept;
+
+  RESPONSE_STATE startQuery(const uint32_t every_ms) const noexcept;
+  RESPONSE_STATE clearQuery() const noexcept;
 
 private:
   static const rclcpp::Logger getLogger() noexcept;

@@ -16,6 +16,7 @@ ament_auto_add_library(
     ./src/commander/configuration_commander.cpp
     ./src/commander/maintenance_commander.cpp
     ./src/commander/realtime_commander.cpp
+    ./src/mgs1600gy_interface.cpp
     ./src/packet_handler.cpp
     ./src/packet_pool.cpp
     ./src/port_handler.cpp
@@ -25,8 +26,8 @@ set_property(TARGET ${PROJECT_NAME} PROPERTY POSITION_INDEPENDENT_CODE ON)
 # End mgs1600gy interface ===========================================
 
 # show data executable ==============================================
-# ament_auto_add_executable(show_data ./examples/show_data.cpp)
-# target_link_libraries(show_data ${PROJECT_NAME})
+ament_auto_add_executable(show_data ./examples/show_data.cpp)
+target_link_libraries(show_data ${PROJECT_NAME})
 # End show data executable ==========================================
 
 # show image executabe ==============================================

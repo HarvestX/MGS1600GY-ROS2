@@ -155,10 +155,10 @@ TEST_F(TestRealtimeCommander, readAngOK)
   .Times(1);
 
   EXPECT_CALL(mock_port_handler, getBytesAvailable())
-  .WillRepeatedly(Return(response.size()));
+  .WillOnce(Return(response.size()));
 
   EXPECT_CALL(mock_port_handler, readPort(_, _))
-  .WillRepeatedly(
+  .WillOnce(
     DoAll(
       StrCpyToArg0(response.c_str()),
       Return(response.size())));

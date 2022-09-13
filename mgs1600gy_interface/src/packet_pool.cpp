@@ -45,6 +45,7 @@ void PacketPool::enqueue(const std::string & in_packet)
 {
   static std::string previous_chunk = "";
   std::string chunk = previous_chunk + in_packet;
+  previous_chunk.clear();
 
   std::vector<std::string> packet_candidates;
 
@@ -59,9 +60,24 @@ void PacketPool::enqueue(const std::string & in_packet)
     }
 
     if (item.rfind("MZ=", 0) == 0) {
+      RCLCPP_DEBUG(
+        this->getLogger(),
+        "MZ packet stocked : %s",
+        item.c_str());
       this->queue_map_[PACKET_TYPE::MZ].push(item);
     } else if (item.rfind("ANG=", 0) == 0) {
+      RCLCPP_DEBUG(
+        this->getLogger(),
+        "ANG packet stocked : %s",
+        item.c_str());
       this->queue_map_[PACKET_TYPE::ANG].push(item);
+    } else if (
+      item.at(0) == '?' ||
+      item.at(0) == '#' ||
+      item.at(0) == '\r')
+    {
+      // Skip
+      // This is echo back from previous packet
     } else {
       RCLCPP_WARN(
         this->getLogger(),
@@ -130,6 +146,23 @@ bool PacketPool::parseResponse(
 
   return true;
 }
+
+
+std::string PacketPool::packetTypeToString(
+  const PACKET_TYPE & packet_type) noexcept
+{
+  switch (packet_type) {
+    case PACKET_TYPE::MZ:
+      return "MZ";
+    case PACKET_TYPE::ANG:
+      return "ANG";
+    default:
+      // Do nothing
+      break;
+  }
+  return "";
+}
+
 
 const rclcpp::Logger PacketPool::getLogger() noexcept
 {

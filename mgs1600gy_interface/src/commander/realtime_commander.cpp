@@ -17,23 +17,22 @@
 
 namespace  mgs1600gy_interface
 {
-
 RealtimeCommander::RealtimeCommander(
   std::shared_ptr<PacketHandler> _packet_handler,
-  std::chrono::nanoseconds timeout
+  const rclcpp::Duration & timeout
 )
 : packet_handler_(_packet_handler),
   clock_(std::make_shared<rclcpp::Clock>(RCL_STEADY_TIME)),
-  TIMEOUT_(rclcpp::Duration(timeout))
-{
-}
+  TIMEOUT_(timeout)
+{}
+
 
 RESPONSE_STATE RealtimeCommander::readMZ(
   std::array<float, 16> & _out,
-  const MODE mode)
+  const MODE mode) const noexcept
 {
   if (mode == MODE::NORMAL) {
-    char write_buf[128];
+    static char write_buf[128];
     int cx = snprintf(
       write_buf, sizeof(write_buf), "?MZ\r");
     this->packet_handler_->writePort(write_buf, cx);
@@ -59,10 +58,10 @@ RESPONSE_STATE RealtimeCommander::readMZ(
 
 RESPONSE_STATE RealtimeCommander::readANG(
   std::array<float, 3> & _out,
-  const MODE mode)
+  const MODE mode) const noexcept
 {
   if (mode == MODE::NORMAL) {
-    char write_buf[128];
+    static char write_buf[128];
     int cx = snprintf(
       write_buf, sizeof(write_buf), "?ANG\r");
     this->packet_handler_->writePort(write_buf, cx);
@@ -86,6 +85,29 @@ RESPONSE_STATE RealtimeCommander::readANG(
   return RESPONSE_STATE::OK;
 }
 
+RESPONSE_STATE RealtimeCommander::startQuery(
+  const uint32_t every_ms) const noexcept
+{
+  if (every_ms < 10) {
+    return RESPONSE_STATE::ERROR_INVALID_INPUT;
+  }
+
+  static char write_buf[128];
+  int cx = snprintf(
+    write_buf, sizeof(write_buf), "# %d\r", every_ms);
+  this->packet_handler_->writePort(write_buf, cx);
+  return RESPONSE_STATE::OK;
+}
+
+RESPONSE_STATE RealtimeCommander::clearQuery() const noexcept
+{
+  static char write_buf[128];
+  int cx = snprintf(
+    write_buf, sizeof(write_buf), "# C\r");
+  this->packet_handler_->writePort(write_buf, cx);
+  return RESPONSE_STATE::OK;
+}
+
 
 bool RealtimeCommander::waitForResponse(
   const PacketPool::PACKET_TYPE & type,
@@ -95,6 +117,7 @@ bool RealtimeCommander::waitForResponse(
   const auto start = this->clock_->now();
   while (this->clock_->now() - start < this->TIMEOUT_) {
     if (this->packet_handler_->getBytesAvailable() < 1) {
+      rclcpp::sleep_for(10ms);
       continue;
     }
     this->packet_handler_->readPortIntoQueue();
@@ -102,7 +125,7 @@ bool RealtimeCommander::waitForResponse(
       has_response = true;
       break;
     }
-    rclcpp::sleep_for(100ms);
+    rclcpp::sleep_for(10ms);
   }
 
   return has_response;
