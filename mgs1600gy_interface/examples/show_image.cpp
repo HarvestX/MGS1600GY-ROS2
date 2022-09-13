@@ -12,52 +12,46 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <opencv2/opencv.hpp>
-#include "mgs1600gy_interface/converter.hpp"
+#include "mgs1600gy_interface/mgs1600gy_interface.hpp"
 
-int main()
+int main(int argc, char ** argv)
 {
-  const rclcpp::Logger logger = rclcpp::get_logger("ShowImage");
-  const std::string port_name =
-    "/dev/serial/by-id/usb-Roboteq_Magnetic_Sensor_48F263793238-if00";
-  auto port_handler =
-    std::make_unique<mgs1600gy_interface::PortHandler>(port_name);
+  using namespace std::chrono_literals;
+  rclcpp::init(argc, argv);
 
-  if (!port_handler->openPort()) {
-    RCLCPP_ERROR(logger, "Failed to open the port!");
+  const std::string port_name = "/dev/ttyUSB0";
+
+  auto mgs1600gy_interface = std::make_unique<
+    mgs1600gy_interface::Mgs1600gyInterface>(
+    port_name, 500ms);
+
+  if (!mgs1600gy_interface->init()) {
     return EXIT_FAILURE;
   }
-  RCLCPP_INFO(
-    logger, "Succeeded to open the port!");
-  RCLCPP_INFO(
-    logger, "BaudRate: %d", port_handler->getBaudRate());
-
-  auto command_handler =
-    std::make_unique<mgs1600gy_interface::CommandHandler>(
-    std::move(port_handler));
-  auto converter =
-    std::make_unique<mgs1600gy_interface::Converter<int, 16>>(0, 2000);
-  auto cv_img = converter->yieldBaseBlurCvMat();
-
-  command_handler->readMZ();
-
-  command_handler->writeRepeatEvery(100);
-
-  std::string receive_string;
-  const std::string window_name = "Magnet Sensor";
-  cv::namedWindow(window_name, cv::WINDOW_NORMAL);
-  cv::resizeWindow(window_name, cv::Size(480, 10));
-  while (1) {
-    if (!command_handler->recv(receive_string)) {
-      continue;
-    }
-    if (!command_handler->parseMgData(receive_string)) {
-      continue;
-    }
-    converter->convertBlur(command_handler->mg_data, cv_img);
-    cv::imshow(window_name, cv_img);
-    cv::waitKey(1);
+  if (!mgs1600gy_interface->activate()) {
+    return EXIT_FAILURE;
   }
 
+  if (!mgs1600gy_interface->setQueries(
+      mgs1600gy_interface::PacketPool::PACKET_TYPE::MZ))
+  {
+    return EXIT_FAILURE;
+  }
+
+  mgs1600gy_interface->startQueries(10);
+
+  cv::namedWindow("MGS1600gy", cv::WINDOW_NORMAL);
+  cv::resizeWindow("MGS1600gy", cv::Size(640, 120));
+  cv::Mat img(1, 16, CV_8UC3);
+  for (int i = 0; i < 1000; ++i) {
+    if (mgs1600gy_interface->read(
+        mgs1600gy_interface::PacketPool::PACKET_TYPE::MZ))
+    {
+      mgs1600gy_interface->getImage(&img);
+      cv::imshow("MGS1600gy", img);
+      cv::waitKey(1);
+    }
+    rclcpp::sleep_for(10ms);
+  }
   return EXIT_SUCCESS;
 }

@@ -20,12 +20,15 @@
 
 #include <rclcpp/rclcpp.hpp>
 
-#include "mgs1600gy_interface/port_handler.hpp"
 #include "mgs1600gy_interface/packet_handler.hpp"
+#include "mgs1600gy_interface/port_handler.hpp"
+#include "mgs1600gy_interface/utils.hpp"
 // TODO(m12watanabe1a): Uncomment those after implementation
 // #include "mgs1600gy_interface/commander/configuration_commander.hpp"
 // #include "mgs1600gy_interface/commander/maintenance_commander.hpp"
 #include "mgs1600gy_interface/commander/realtime_commander.hpp"
+
+#include <opencv2/opencv.hpp>
 
 
 namespace mgs1600gy_interface
@@ -43,6 +46,8 @@ private:
   std::vector<PacketPool::PACKET_TYPE> queries_;
 
   std::array<float, 16> mz_data_;
+  cv::Mat img_data_;
+
   std::array<float, 3> ang_data_;
 
 public:
@@ -61,6 +66,8 @@ public:
 
   bool read(const PacketPool::PACKET_TYPE &);
   bool readAll();
+
+  void getImage(cv::Mat *) const noexcept;
 
 private:
   static const rclcpp::Logger getLogger() noexcept;

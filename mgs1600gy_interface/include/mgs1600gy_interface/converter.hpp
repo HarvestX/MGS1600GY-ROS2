@@ -19,12 +19,10 @@
 
 namespace mgs1600gy_interface
 {
-template<typename T, size_t sizeOfArray>
 class Converter
 {
 public:
   const int DATA_MIN, DATA_MAX;
-  const int KERNEL_SIZE = 11;
   const bool FLIP;
 
 public:
@@ -37,21 +35,9 @@ public:
     }
   }
 
-  cv::Mat yieldBaseCvMat()
+  cv::Mat yieldBaseColorCvMat()
   {
-    cv::Mat ret(1, sizeOfArray, CV_8UC1);
-    return ret;
-  }
-
-  cv::Mat yieldBaseBlurCvMat()
-  {
-    cv::Mat ret(1, sizeOfArray * 10, CV_8UC1);
-    return ret;
-  }
-
-  cv::Mat yieldBaseRGBCvMat()
-  {
-    cv::Mat ret(1, sizeOfArray, CV_8UC3);
+    cv::Mat ret(1, 16, CV_8UC3);
     return ret;
   }
 
@@ -61,9 +47,11 @@ public:
    * @param in_data Line sensor data
    * @param out_data openCV image
    */
-  void convert(const std::array<T, sizeOfArray> & in_data, cv::Mat & out_data)
+  void convert(
+    const std::array<float, 16> & in_data,
+    cv::Mat * out_data)
   {
-    for (size_t i = 0; i < sizeOfArray; ++i) {
+    for (size_t i = 0; i < in_data.size(); ++i) {
       uint8_t val_assign;
       if (in_data.at(i) < DATA_MIN) {
         val_assign = 0;
@@ -79,54 +67,22 @@ public:
 
       int idx_assign = i;
       if (this->FLIP) {
-        idx_assign = sizeOfArray - i - 1;
+        idx_assign = in_data.size() - i - 1;
       }
-      out_data.at<uint8_t>(0, idx_assign) = val_assign;
+      out_data->at<uint8_t>(0, idx_assign) = val_assign;
     }
-  }
-
-  /**
-   * @brief Convert line sensor data to blur openCV image
-   *
-   * @param in_data Line sensor data
-   * @param out_data openCV image and the array size should be 10x greater than in_data
-   */
-  void convertBlur(
-    const std::array<T, sizeOfArray> & in_data, cv::Mat & out_data)
-  {
-    cv::Mat tmp = out_data;
-    for (size_t i = 0; i < sizeOfArray; ++i) {
-      uint8_t val_assign;
-      if (in_data.at(i) < DATA_MIN) {
-        val_assign = 0;
-      } else if (in_data.at(i) > DATA_MAX) {
-        val_assign = 255;
-      } else {
-        val_assign =
-          static_cast<uint8_t>(255.0 * in_data.at(i) / DATA_MAX);
-      }
-      // Flip output
-      val_assign = 255 - val_assign;
-      int idx_assign = i;
-      if (this->FLIP) {
-        idx_assign = sizeOfArray - i - 1;
-      }
-      for (size_t j = 0; j < 10; ++j) {
-        tmp.at<uint8_t>(0, idx_assign * 10 + j) = val_assign;
-      }
-    }
-    cv::GaussianBlur(tmp, out_data, cv::Size(this->KERNEL_SIZE, 1), 0);
   }
 
   /**
    * @brief Convert line sensor data to RGB openCV image
    *
    * @param in_data Line sensor data
-   * @param out_data openCV image and the array depth shoud be 3 for each RGB color
+   * @param out_data openCV image and the array depth should be 3 for each RGB color
    */
-  void convertRGB(const std::array<T, sizeOfArray> & in_data, cv::Mat & out_data)
+  void convertRGB(
+    const std::array<float, 16> & in_data, cv::Mat * out_data)
   {
-    for (size_t i = 0; i < sizeOfArray; ++i) {
+    for (size_t i = 0; i < in_data.size(); ++i) {
       uint8_t val_S = 0, val_N = 0;
       if (in_data.at(i) < DATA_MIN) {
         val_N = 255;
@@ -144,11 +100,11 @@ public:
 
       int idx_assign = i;
       if (this->FLIP) {
-        idx_assign = sizeOfArray - i - 1;
+        idx_assign = in_data.size() - i - 1;
       }
-      out_data.at<cv::Vec3b>(0, idx_assign)[0] = val_S; // Blue
-      out_data.at<cv::Vec3b>(0, idx_assign)[1] = 0; // Green
-      out_data.at<cv::Vec3b>(0, idx_assign)[2] = val_N; // Red
+      out_data->at<cv::Vec3b>(0, idx_assign)[0] = val_S;  // Blue
+      out_data->at<cv::Vec3b>(0, idx_assign)[1] = 0;  // Green
+      out_data->at<cv::Vec3b>(0, idx_assign)[2] = val_N;  // Red
     }
   }
 };

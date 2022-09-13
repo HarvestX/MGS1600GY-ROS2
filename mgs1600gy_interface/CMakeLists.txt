@@ -20,6 +20,7 @@ ament_auto_add_library(
     ./src/packet_handler.cpp
     ./src/packet_pool.cpp
     ./src/port_handler.cpp
+    ./src/utils.cpp
 )
 ament_target_dependencies(${PROJECT_NAME} OpenCV)
 set_property(TARGET ${PROJECT_NAME} PROPERTY POSITION_INDEPENDENT_CODE ON)
@@ -31,8 +32,8 @@ target_link_libraries(show_data ${PROJECT_NAME})
 # End show data executable ==========================================
 
 # show image executabe ==============================================
-# ament_auto_add_executable(show_image ./examples/show_image.cpp)
-# target_link_libraries(show_image ${PROJECT_NAME})
+ament_auto_add_executable(show_image ./examples/show_image.cpp)
+target_link_libraries(show_image ${PROJECT_NAME})
 # End show image executable =========================================
 
 

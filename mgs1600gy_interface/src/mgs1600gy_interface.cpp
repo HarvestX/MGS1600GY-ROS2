@@ -176,6 +176,14 @@ bool Mgs1600gyInterface::readAll()
   return true;
 }
 
+
+void Mgs1600gyInterface::getImage(cv::Mat * out) const noexcept
+{
+  Utils::convertBGR(
+    this->mz_data_, out,
+    -2000, 2000, false);
+}
+
 const rclcpp::Logger Mgs1600gyInterface::getLogger() noexcept
 {
   return rclcpp::get_logger("Mgs1600gyInterface");
