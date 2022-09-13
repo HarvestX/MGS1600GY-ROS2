@@ -17,11 +17,13 @@
 
 #include <cv_bridge/cv_bridge.h>
 #include <memory>
-#include <opencv2/opencv.hpp>
-#include <mgs1600gy_interface/command_handler.hpp>
-#include <mgs1600gy_interface/converter.hpp>
+#include <string>
+
 #include <image_transport/image_transport.hpp>
+#include <opencv2/opencv.hpp>
 #include <rclcpp/rclcpp.hpp>
+
+#include <mgs1600gy_interface/mgs1600gy_interface.hpp>
 
 namespace mgs1600gy_node
 {
@@ -29,11 +31,18 @@ namespace mgs1600gy_node
 class Mgs1600gyNode : public rclcpp::Node
 {
 private:
+  const float SENSOR_MIN_;
+  const float SENSOR_MAX_;
+  const bool FLIP_;
+
+  std::string camera_name_;
+  std::string camera_base_link_;
+  std::string camera_magnet_link_;
+  std::string camera_gyro_link_;
+
   image_transport::Publisher image_pub_;
   rclcpp::TimerBase::SharedPtr timer_;
-  std::unique_ptr<mgs1600gy_interface::CommandHandler> command_handler_;
-  std::unique_ptr<mgs1600gy_interface::Converter<int,
-    mgs1600gy_interface::MAGNET_SENSOR_NUM>> data_converter_;
+  std::unique_ptr<mgs1600gy_interface::Mgs1600gyInterface> interface_;
   cv::Mat sensor_data_;
 
 public:

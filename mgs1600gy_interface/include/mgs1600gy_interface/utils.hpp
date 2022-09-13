@@ -27,6 +27,5 @@ public:
   static void convertBGR(
     const std::array<float, 16> &, cv::Mat *,
     const float, const float, const bool = true);
-
 };
 }  // namespace mgs1600gy_interface

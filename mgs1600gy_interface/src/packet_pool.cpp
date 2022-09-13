@@ -102,7 +102,8 @@ bool PacketPool::takePacket(
 {
   bool res = false;
   packet.clear();
-  if (!this->queue_map_[target].empty()) {
+  // Take all value
+  while (!this->queue_map_[target].empty()) {
     packet = this->queue_map_[target].front();
     this->queue_map_[target].pop();
     res = true;

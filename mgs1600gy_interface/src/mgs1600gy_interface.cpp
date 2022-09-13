@@ -177,11 +177,15 @@ bool Mgs1600gyInterface::readAll()
 }
 
 
-void Mgs1600gyInterface::getImage(cv::Mat * out) const noexcept
+void Mgs1600gyInterface::getImage(
+  cv::Mat * out,
+  const float & MIN,
+  const float & MAX,
+  const bool & FLIP
+) const noexcept
 {
   Utils::convertBGR(
-    this->mz_data_, out,
-    -2000, 2000, false);
+    this->mz_data_, out, MIN, MAX, FLIP);
 }
 
 const rclcpp::Logger Mgs1600gyInterface::getLogger() noexcept

@@ -67,7 +67,9 @@ public:
   bool read(const PacketPool::PACKET_TYPE &);
   bool readAll();
 
-  void getImage(cv::Mat *) const noexcept;
+  void getImage(
+    cv::Mat *, const float & = -2000, const float & = 2000,
+    const bool & = false) const noexcept;
 
 private:
   static const rclcpp::Logger getLogger() noexcept;
