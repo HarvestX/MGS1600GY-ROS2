@@ -15,6 +15,26 @@
 
 #include "mgs1600gy_interface/mgs1600gy_interface.hpp"
 
+void showMzData(const std::array<float, 16> & data)
+{
+  std::cout << "Mz: [";
+  std::cout << std::setprecision(3);
+  for (const auto val : data) {
+    std::cout << val << " ";
+  }
+  std::cout << "]" << std::endl;
+}
+
+void showAngData(const std::array<float, 3> & data)
+{
+  std::cout << "Ang: [";
+  std::cout << std::setprecision(5);
+  for (const auto val : data) {
+    std::cout << val << " ";
+  }
+  std::cout << "]" << std::endl;
+}
+
 int main(int argc, char ** argv)
 {
   using namespace std::chrono_literals;
@@ -34,23 +54,28 @@ int main(int argc, char ** argv)
     return EXIT_FAILURE;
   }
 
-  if (!mgs1600gy_interface->setQueries(
-      mgs1600gy_interface::PacketPool::PACKET_TYPE::MZ))
-  {
+  using PACKET_TYPE = mgs1600gy_interface::PacketPool::PACKET_TYPE;
+
+  if (!mgs1600gy_interface->setQueries(PACKET_TYPE::MZ)) {
     return EXIT_FAILURE;
   }
 
-  if (!mgs1600gy_interface->setQueries(
-      mgs1600gy_interface::PacketPool::PACKET_TYPE::ANG))
-  {
+  if (!mgs1600gy_interface->setQueries(PACKET_TYPE::ANG)) {
     return EXIT_FAILURE;
   }
 
   mgs1600gy_interface->startQueries(10);
+  std::array<float, 16> mz_data;
+  std::array<float, 3> ang_data;
 
   for (int i = 0; i < 10; ++i) {
-    if (!mgs1600gy_interface->readAll()) {
-      // Do nothing
+    if (mgs1600gy_interface->read(PACKET_TYPE::MZ)) {
+      mgs1600gy_interface->getMzData(mz_data);
+      showMzData(mz_data);
+    }
+    if (mgs1600gy_interface->read(PACKET_TYPE::ANG)) {
+      mgs1600gy_interface->getAngData(ang_data);
+      showAngData(ang_data);
     }
     rclcpp::sleep_for(10ms);
   }
