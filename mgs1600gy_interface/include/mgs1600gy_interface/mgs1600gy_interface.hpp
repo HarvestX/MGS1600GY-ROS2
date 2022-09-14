@@ -69,6 +69,7 @@ public:
 
   void getMzData(std::array<float, 16> &) const noexcept;
   void getAngData(std::array<float, 3> &) const noexcept;
+  void getRotation(std::array<float, 3> &) const noexcept;
   void getImage(
     cv::Mat *, const float & = -2000, const float & = 2000,
     const bool & = false) const noexcept;

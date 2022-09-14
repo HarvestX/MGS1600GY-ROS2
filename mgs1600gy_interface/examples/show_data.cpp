@@ -77,6 +77,10 @@ int main(int argc, char ** argv)
       mgs1600gy_interface->getAngData(ang_data);
       showAngData(ang_data);
     }
+    if (mgs1600gy_interface->read(PACKET_TYPE::ANG)) {
+      mgs1600gy_interface->getRotation(ang_data);
+      showAngData(ang_data);
+    }
     rclcpp::sleep_for(10ms);
   }
 

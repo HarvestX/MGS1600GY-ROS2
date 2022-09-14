@@ -186,6 +186,13 @@ void Mgs1600gyInterface::getAngData(std::array<float, 3> & out) const noexcept
   std::copy(this->ang_data_.begin(), this->ang_data_.end(), out.begin());
 }
 
+void Mgs1600gyInterface::getRotation(std::array<float, 3> & out) const noexcept
+{
+  std::copy(this->ang_data_.begin(), this->ang_data_.end(), out.begin());
+  for (int i = 0; i < out.size(); i++) {
+    out[i] = fmod(out[i] / 10, 360);
+  }
+}
 
 void Mgs1600gyInterface::getImage(
   cv::Mat * out,
