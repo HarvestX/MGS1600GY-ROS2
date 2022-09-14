@@ -176,12 +176,12 @@ bool Mgs1600gyInterface::readAll()
   return true;
 }
 
-void Mgs1600gyInterface::getMzData(std::array<float, 16> &out) const noexcept
+void Mgs1600gyInterface::getMzData(std::array<float, 16> & out) const noexcept
 {
   std::copy(this->mz_data_.begin(), this->mz_data_.end(), out.begin());
 }
 
-void Mgs1600gyInterface::getAngData(std::array<float, 3> &out) const noexcept
+void Mgs1600gyInterface::getAngData(std::array<float, 3> & out) const noexcept
 {
   std::copy(this->ang_data_.begin(), this->ang_data_.end(), out.begin());
 }
