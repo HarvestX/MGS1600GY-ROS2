@@ -81,6 +81,10 @@ Mgs1600gyNode::Mgs1600gyNode(const rclcpp::NodeOptions & node_options)
     "image",
     sensor_qos.get_rmw_qos_profile());
 
+  this->imu_pub_ = create_publisher<sensor_msgs::msg::Imu>(
+    "imu",
+    10);
+
   this->timer_ = rclcpp::create_timer(
     this, this->get_clock(),
     100ms, std::bind(&Mgs1600gyNode::onConnect, this));
@@ -105,6 +109,16 @@ void Mgs1600gyNode::onConnect()
   sensor_msgs::msg::Image::SharedPtr image_msg =
     cv_bridge::CvImage(header, "bgr8", this->sensor_data_).toImageMsg();
   this->image_pub_.publish(image_msg);
+
+  std::array<float, 3> ang_data;
+  this->interface_->getRotation(ang_data);
+
+  sensor_msgs::msg::Imu imu_msg;
+  imu_msg.header = header;
+  tf2::Quaternion myQuaternion;
+  myQuaternion.setRPY(ang_data[0], ang_data[1], ang_data[2]);
+  imu_msg.orientation = tf2::toMsg(myQuaternion);
+  this->imu_pub_->publish(imu_msg);
 }
 
 }  // namespace mgs1600gy_node

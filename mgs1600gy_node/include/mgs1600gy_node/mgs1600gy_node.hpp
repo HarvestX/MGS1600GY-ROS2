@@ -20,8 +20,12 @@
 #include <string>
 
 #include <image_transport/image_transport.hpp>
+#include <sensor_msgs/msg/imu.hpp>
 #include <opencv2/opencv.hpp>
 #include <rclcpp/rclcpp.hpp>
+#include <tf2/utils.h>
+#include <tf2/convert.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
 #include <mgs1600gy_interface/mgs1600gy_interface.hpp>
 
@@ -41,6 +45,7 @@ private:
   std::string camera_gyro_link_;
 
   image_transport::Publisher image_pub_;
+  rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imu_pub_;
   rclcpp::TimerBase::SharedPtr timer_;
   std::unique_ptr<mgs1600gy_interface::Mgs1600gyInterface> interface_;
   cv::Mat sensor_data_;
