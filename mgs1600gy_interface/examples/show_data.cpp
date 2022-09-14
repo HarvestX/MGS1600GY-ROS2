@@ -41,7 +41,7 @@ int main(int argc, char ** argv)
   rclcpp::init(argc, argv);
 
   const std::string port_name =
-    "/dev/ttyACM0";
+    "/dev/ttyUSB0";
 
   auto mgs1600gy_interface = std::make_unique<
     mgs1600gy_interface::Mgs1600gyInterface>(
