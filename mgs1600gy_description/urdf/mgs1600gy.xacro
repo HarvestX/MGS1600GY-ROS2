@@ -47,9 +47,8 @@
           type="fixed">
         <parent link="${prefix}mgs1600gy_link" />
         <child link="${prefix}mgs1600gy_magnet_link" />
-        <!-- TODO(m12watanabe1a) fix origin -->
         <origin
-            xyz="0 0 0"
+            xyz="8.0E-03 0 0"
             rpy="0 0 0" />
       </joint>
 
@@ -60,9 +59,8 @@
           type="fixed">
         <parent link="${prefix}mgs1600gy_link" />
         <child link="${prefix}mgs1600gy_gyro_link" />
-        <!-- TODO(m12watanabe1a) fix origin -->
         <origin
-            xyz="0 0 0"
+            xyz="0 0 12.5E-03"
             rpy="0 0 0" />
       </joint>
     </xacro:if>
