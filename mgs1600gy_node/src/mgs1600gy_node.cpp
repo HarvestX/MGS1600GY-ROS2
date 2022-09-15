@@ -26,7 +26,6 @@ Mgs1600gyNode::Mgs1600gyNode(const rclcpp::NodeOptions & node_options)
   this->name_ = this->declare_parameter("NAME", "mgs1600gy");
   this->base_link_ = this->name_ + "_link";
   this->magnet_link_ = this->name_ + "_magnet_link";
-  this->gyro_link_ = this->name_ + "_gyro_link";
 
   const std::string DEV = this->declare_parameter(
     "dev", "/dev/serial/by-id/usb-Roboteq_Magnetic_Sensor_48F263793238-if00");
@@ -38,9 +37,6 @@ Mgs1600gyNode::Mgs1600gyNode(const rclcpp::NodeOptions & node_options)
   RCLCPP_INFO(
     this->get_logger(),
     "Magnet link name: %s", this->magnet_link_.c_str());
-  RCLCPP_INFO(
-    this->get_logger(),
-    "Gyro link name: %s", this->gyro_link_.c_str());
   RCLCPP_INFO(
     this->get_logger(),
     "Selected device: %s", DEV.c_str());
@@ -131,7 +127,7 @@ void Mgs1600gyNode::onImuTimer()
 
   auto imu_msg = std::make_unique<sensor_msgs::msg::Imu>();
   std_msgs::msg::Header header;
-  header.frame_id = this->gyro_link_;
+  header.frame_id = this->base_link_;
   header.stamp = this->get_clock()->now();
 
   this->interface_->setOrientation(header, imu_msg);

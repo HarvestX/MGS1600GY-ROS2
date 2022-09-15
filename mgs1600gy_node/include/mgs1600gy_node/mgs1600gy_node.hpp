@@ -42,7 +42,6 @@ private:
   std::string name_;
   std::string base_link_;
   std::string magnet_link_;
-  std::string gyro_link_;
 
   image_transport::Publisher image_pub_;
   rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imu_pub_;
