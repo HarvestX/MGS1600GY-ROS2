@@ -198,8 +198,8 @@ void Mgs1600gyInterface::setOrientation(
   static const float TO_RADIAN = 0.1 * M_PI / 180.0;
   tf2::Quaternion quat;
   quat.setEuler(
-    fmod(this->ang_data_[0] * TO_RADIAN, 2.0 * M_PI),
     fmod(this->ang_data_[1] * TO_RADIAN, 2.0 * M_PI),
+    fmod(this->ang_data_[0] * TO_RADIAN, 2.0 * M_PI),
     fmod(this->ang_data_[2] * TO_RADIAN, 2.0 * M_PI));
   imu_msg_ptr_ref.get()->header = header;
   imu_msg_ptr_ref.get()->orientation = tf2::toMsg(quat);

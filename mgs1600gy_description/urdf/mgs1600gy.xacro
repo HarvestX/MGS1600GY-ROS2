@@ -2,6 +2,11 @@
 <robot
     xmlns:xacro="http://ros.org/wiki/xacro"
     name="mgs1600gy">
+  <!-- constants -->
+  <xacro:include
+      filename="$(find mgs1600gy_description)/urdf/common/constants.xacro"
+      ns="const" />
+
 
   <xacro:macro
       name="mgs1600gy"
