@@ -32,10 +32,8 @@ RESPONSE_STATE RealtimeCommander::readMZ(
   const MODE mode) const noexcept
 {
   if (mode == MODE::NORMAL) {
-    static char write_buf[128];
-    int cx = snprintf(
-      write_buf, sizeof(write_buf), "?MZ\r");
-    this->packet_handler_->writePort(write_buf, cx);
+    static const char write_buf[] = "?MZ\r";
+    this->packet_handler_->writePort(write_buf, sizeof(write_buf));
   }
 
   std::string response;
@@ -61,10 +59,8 @@ RESPONSE_STATE RealtimeCommander::readANG(
   const MODE mode) const noexcept
 {
   if (mode == MODE::NORMAL) {
-    static char write_buf[128];
-    int cx = snprintf(
-      write_buf, sizeof(write_buf), "?ANG\r");
-    this->packet_handler_->writePort(write_buf, cx);
+    static const char write_buf[] = "?ANG\r";
+    this->packet_handler_->writePort(write_buf, sizeof(write_buf));
   }
 
   std::string response;
@@ -101,13 +97,22 @@ RESPONSE_STATE RealtimeCommander::startQuery(
 
 RESPONSE_STATE RealtimeCommander::clearQuery() const noexcept
 {
-  static char write_buf[128];
-  int cx = snprintf(
-    write_buf, sizeof(write_buf), "# C\r");
-  this->packet_handler_->writePort(write_buf, cx);
+  static const char write_buf[] = "# C\r";
+  this->packet_handler_->writePort(write_buf, sizeof(write_buf));
   return RESPONSE_STATE::OK;
 }
 
+RESPONSE_STATE RealtimeCommander::setAngZero(const int i) const noexcept
+{
+  if (i < 1 || i > 3) {
+    return RESPONSE_STATE::ERROR_INVALID_INPUT;
+  }
+  static char write_buf[128];
+  int cx = snprintf(
+    write_buf, sizeof(write_buf), "!ANG %d 0\r", i);
+  this->packet_handler_->writePort(write_buf, cx);
+  return RESPONSE_STATE::OK;
+}
 
 bool RealtimeCommander::waitForResponse(
   const PacketPool::PACKET_TYPE & type,

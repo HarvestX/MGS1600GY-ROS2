@@ -57,7 +57,7 @@ int main(int argc, char ** argv)
   std_msgs::msg::Header header;
   header.frame_id = "base_link";
 
-  for (int i = 0; i < 10; ++i) {
+  for (int i = 0; i < 100; ++i) {
     if (mgs1600gy_interface->read(PACKET_TYPE::ANG)) {
       header.stamp = rclcpp::Clock().now();
       mgs1600gy_interface->setOrientation(

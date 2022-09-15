@@ -22,8 +22,6 @@
 namespace mgs1600gy_interface
 {
 using namespace std::chrono_literals;
-// TODO(m12watanabe1a)
-// Not implemented yet
 class MaintenanceCommander
 {
 private:
@@ -37,6 +35,10 @@ public:
     std::shared_ptr<PacketHandler>,
     const rclcpp::Duration &);
 
+  RESPONSE_STATE calibrateMagnet() const noexcept;
+  RESPONSE_STATE calibrateGyro() const noexcept;
+
+  RESPONSE_STATE saveConfig() const noexcept;
 private:
   static const rclcpp::Logger getLogger() noexcept;
 };

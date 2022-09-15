@@ -27,6 +27,27 @@ MaintenanceCommander::MaintenanceCommander(
 {
 }
 
+RESPONSE_STATE MaintenanceCommander::calibrateMagnet() const noexcept
+{
+  static const char write_buf[] = "%ZERO\r";
+  this->packet_handler_->writePort(write_buf, sizeof(write_buf));
+  return RESPONSE_STATE::OK;
+}
+
+RESPONSE_STATE MaintenanceCommander::calibrateGyro() const noexcept
+{
+  static const char write_buf[] = "%GZER\r";
+  this->packet_handler_->writePort(write_buf, sizeof(write_buf));
+  return RESPONSE_STATE::OK;
+}
+
+RESPONSE_STATE MaintenanceCommander::saveConfig() const noexcept
+{
+  static const char write_buf[] = "%CLSAV\r";
+  this->packet_handler_->writePort(write_buf, sizeof(write_buf));
+  return RESPONSE_STATE::OK;
+}
+
 const rclcpp::Logger MaintenanceCommander::getLogger() noexcept
 {
   return rclcpp::get_logger("MaintenanceCommander");

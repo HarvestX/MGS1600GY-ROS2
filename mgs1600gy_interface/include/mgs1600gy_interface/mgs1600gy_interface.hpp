@@ -30,7 +30,7 @@
 #include "mgs1600gy_interface/utils.hpp"
 // TODO(m12watanabe1a): Uncomment those after implementation
 // #include "mgs1600gy_interface/commander/configuration_commander.hpp"
-// #include "mgs1600gy_interface/commander/maintenance_commander.hpp"
+#include "mgs1600gy_interface/commander/maintenance_commander.hpp"
 #include "mgs1600gy_interface/commander/realtime_commander.hpp"
 
 #include <opencv2/opencv.hpp>
@@ -47,6 +47,7 @@ private:
   std::unique_ptr<PortHandler> port_handler_;
   std::shared_ptr<PacketHandler> packet_handler_;
   std::unique_ptr<RealtimeCommander> realtime_commander_;
+  std::unique_ptr<MaintenanceCommander> maintenance_commander_;
 
   std::vector<PacketPool::PACKET_TYPE> queries_;
 
@@ -65,6 +66,7 @@ public:
   bool activate();
   bool deactivate();
 
+  // Query commands
   bool setQueries(const PacketPool::PACKET_TYPE &) noexcept;
   bool startQueries(const uint32_t & every_ms) noexcept;
   bool stopQueries() noexcept;
@@ -79,10 +81,19 @@ public:
     const std_msgs::msg::Header &,
     const std::reference_wrapper<sensor_msgs::msg::Imu::UniquePtr>)
   const noexcept;
-
   void getImage(
     cv::Mat *, const float & = -2000, const float & = 2000,
     const bool & = false) const noexcept;
+  // End Query Commands
+
+  // Realtime Commands
+  bool setAngZero() const noexcept;
+  // End Realtime Commands
+
+  // Calibration Commands
+  bool calibrateMagnet() const noexcept;
+  bool calibrateGyro() const noexcept;
+  // End Calibration Commands
 
 private:
   static const rclcpp::Logger getLogger() noexcept;

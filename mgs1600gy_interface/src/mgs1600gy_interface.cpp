@@ -53,6 +53,10 @@ bool Mgs1600gyInterface::activate()
     std::make_shared<PacketHandler>(
     this->port_handler_.get());
 
+  this->maintenance_commander_ =
+    std::make_unique<MaintenanceCommander>(
+    this->packet_handler_,
+    this->TIMEOUT_);
   this->realtime_commander_ =
     std::make_unique<RealtimeCommander>(
     this->packet_handler_,
@@ -191,12 +195,12 @@ void Mgs1600gyInterface::setOrientation(
   const std::reference_wrapper<sensor_msgs::msg::Imu::UniquePtr> imu_msg_ptr_ref
 ) const noexcept
 {
-  static const float TO_RADIAN = 0.1 * 180 / M_PI;
+  static const float TO_RADIAN = 0.1 * M_PI / 180.0;
   tf2::Quaternion quat;
-  quat.setRPY(
-    this->ang_data_[0] * TO_RADIAN,
-    this->ang_data_[1] * TO_RADIAN,
-    this->ang_data_[2] * TO_RADIAN);
+  quat.setEuler(
+    fmod(this->ang_data_[0] * TO_RADIAN, 2.0 * M_PI),
+    fmod(this->ang_data_[1] * TO_RADIAN, 2.0 * M_PI),
+    fmod(this->ang_data_[2] * TO_RADIAN, 2.0 * M_PI));
   imu_msg_ptr_ref.get()->header = header;
   imu_msg_ptr_ref.get()->orientation = tf2::toMsg(quat);
 }
@@ -210,6 +214,57 @@ void Mgs1600gyInterface::getImage(
 {
   Utils::convertBGR(
     this->mz_data_, out, MIN, MAX, FLIP);
+}
+
+bool Mgs1600gyInterface::setAngZero() const noexcept
+{
+  for (int i = 1; i <= 3; i++) {
+    if (!this->processResponse(
+        this->realtime_commander_->setAngZero(i)))
+    {
+      return false;
+    }
+    rclcpp::sleep_for(10ms);
+  }
+  return true;
+}
+
+bool Mgs1600gyInterface::calibrateMagnet() const noexcept
+{
+  RCLCPP_WARN(
+    this->getLogger(),
+    "Calibrating for magnet sensor. "
+    "Position the sensor away from any magnetic or ferrous material...");
+  if (!this->processResponse(this->maintenance_commander_->calibrateMagnet())) {
+    return false;
+  }
+  rclcpp::sleep_for(10ms);
+  if (!this->processResponse(this->maintenance_commander_->saveConfig())) {
+    return false;
+  }
+  return true;
+}
+
+bool Mgs1600gyInterface::calibrateGyro() const noexcept
+{
+  RCLCPP_WARN(
+    this->getLogger(),
+    "Calibrating for Gyro. Keep the sensor totally immobile...");
+  if (!this->processResponse(this->maintenance_commander_->calibrateGyro())) {
+    return false;
+  }
+  rclcpp::sleep_for(10ms);
+  if (!this->processResponse(this->maintenance_commander_->saveConfig())) {
+    return false;
+  }
+
+  for (int i = 5; i > 0; --i) {
+    RCLCPP_INFO(
+      this->getLogger(),
+      "Waiting for calibration finish %ds ...", i);
+    rclcpp::sleep_for(1s);
+  }
+  return true;
 }
 
 const rclcpp::Logger Mgs1600gyInterface::getLogger() noexcept

@@ -24,6 +24,7 @@ ament_auto_add_library(
 )
 ament_target_dependencies(${PROJECT_NAME} OpenCV)
 set_property(TARGET ${PROJECT_NAME} PROPERTY POSITION_INDEPENDENT_CODE ON)
+ament_export_dependencies(OpenCV)
 # End mgs1600gy interface ===========================================
 
 

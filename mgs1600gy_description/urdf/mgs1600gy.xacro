@@ -40,6 +40,26 @@
       </collision>
     </link>
     <xacro:if value="${use_nominal_extrinsics}">
+      <!-- Gyro sensor link -->
+      <!-- Joints -->
+      <joint
+          name="${prefix}mgs1600gy_joint"
+          type="floating">
+        <parent link="${parent}" />
+        <child link="${prefix}mgs1600gy_gyro_link" />
+        <xacro:insert_block name="origin" />
+      </joint>
+      <link name="${prefix}mgs1600gy_gyro_link" />
+      <joint
+          name="${prefix}mgs1600gy_gyro_joint"
+          type="fixed">
+        <parent link="${prefix}mgs1600gy_gyro_link" />
+        <child link="${prefix}mgs1600gy_link" />
+        <origin
+            xyz="0 0 -12.5E-03"
+            rpy="0 0 0" />
+      </joint>
+
       <!-- Magnet sensor link -->
       <link name="${prefix}mgs1600gy_magnet_link" />
       <joint
@@ -51,28 +71,18 @@
             xyz="8.0E-03 0 0"
             rpy="0 0 0" />
       </joint>
-
-      <!-- Gyro sensor link -->
-      <link name="${prefix}mgs1600gy_gyro_link" />
-      <joint
-          name="${prefix}mgs1600gy_gyro_joint"
-          type="fixed">
-        <parent link="${prefix}mgs1600gy_link" />
-        <child link="${prefix}mgs1600gy_gyro_link" />
-        <origin
-            xyz="0 0 12.5E-03"
-            rpy="0 0 0" />
-      </joint>
     </xacro:if>
+    <xacro:unless value="${use_nominal_extrinsics}">
+      <!-- Joints -->
+      <joint
+          name="${prefix}mgs1600gy_joint"
+          type="fixed">
+        <parent link="${parent}" />
+        <child link="${prefix}mgs1600gy_link" />
+        <xacro:insert_block name="origin" />
+      </joint>
+    </xacro:unless>
 
-    <!-- Joints -->
-    <joint
-        name="${prefix}mgs1600gy_joint"
-        type="fixed">
-      <parent link="${parent}" />
-      <child link="${prefix}mgs1600gy_link" />
-      <xacro:insert_block name="origin" />
-    </joint>
 
     <!-- Gazebo -->
     <xacro:if value="${is_gazebo}">
