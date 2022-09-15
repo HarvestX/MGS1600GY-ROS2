@@ -39,14 +39,15 @@ private:
   const float SENSOR_MAX_;
   const bool FLIP_;
 
-  std::string camera_name_;
-  std::string camera_base_link_;
-  std::string camera_magnet_link_;
-  std::string camera_gyro_link_;
+  std::string name_;
+  std::string base_link_;
+  std::string magnet_link_;
+  std::string gyro_link_;
 
   image_transport::Publisher image_pub_;
   rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imu_pub_;
-  rclcpp::TimerBase::SharedPtr timer_;
+  rclcpp::TimerBase::SharedPtr image_timer_;
+  rclcpp::TimerBase::SharedPtr imu_timer_;
   std::unique_ptr<mgs1600gy_interface::Mgs1600gyInterface> interface_;
   cv::Mat sensor_data_;
 
@@ -54,7 +55,8 @@ public:
   explicit Mgs1600gyNode(const rclcpp::NodeOptions &);
 
 private:
-  void onConnect();
+  void onImageTimer();
+  void onImuTimer();
 };
 }  // namespace mgs1600gy_node
 

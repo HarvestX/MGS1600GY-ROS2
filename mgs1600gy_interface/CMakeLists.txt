@@ -26,16 +26,17 @@ ament_target_dependencies(${PROJECT_NAME} OpenCV)
 set_property(TARGET ${PROJECT_NAME} PROPERTY POSITION_INDEPENDENT_CODE ON)
 # End mgs1600gy interface ===========================================
 
-# show data executable ==============================================
-ament_auto_add_executable(show_data ./examples/show_data.cpp)
-target_link_libraries(show_data ${PROJECT_NAME})
-# End show data executable ==========================================
 
-# show image executabe ==============================================
-ament_auto_add_executable(show_image ./examples/show_image.cpp)
-target_link_libraries(show_image ${PROJECT_NAME})
-# End show image executable =========================================
-
+# Examples ==========================================================
+set(EXAMPLES
+  show_data
+  show_image
+  show_imu)
+foreach(TARGET ${EXAMPLES})
+  ament_auto_add_executable(${TARGET} ./examples/${TARGET}.cpp)
+  target_link_libraries(${TARGET} ${PROJECT_NAME})
+endforeach()
+# End examples ======================================================
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

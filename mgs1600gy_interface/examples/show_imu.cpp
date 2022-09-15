@@ -12,27 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 #include "mgs1600gy_interface/mgs1600gy_interface.hpp"
 
-void showMzData(const std::array<float, 16> & data)
+void showImuData(
+  const std::reference_wrapper<const sensor_msgs::msg::Imu::UniquePtr>
+  imu_msg_ptr_ref
+)
 {
-  std::cout << "Mz: [";
-  std::cout << std::setprecision(3);
-  for (const auto val : data) {
-    std::cout << val << " ";
-  }
-  std::cout << "]" << std::endl;
-}
-
-void showAngData(const std::array<float, 3> & data)
-{
-  std::cout << "Ang: [";
-  std::cout << std::setprecision(5);
-  for (const auto val : data) {
-    std::cout << val << " ";
-  }
-  std::cout << "]" << std::endl;
+  std::cout << "IMU: " << std::setprecision(2);
+  std::cout << " x: " << imu_msg_ptr_ref.get()->orientation.x;
+  std::cout << " y: " << imu_msg_ptr_ref.get()->orientation.y;
+  std::cout << " z: " << imu_msg_ptr_ref.get()->orientation.z;
+  std::cout << " w: " << imu_msg_ptr_ref.get()->orientation.w;
+  std::cout << std::endl;
 }
 
 int main(int argc, char ** argv)
@@ -41,7 +33,7 @@ int main(int argc, char ** argv)
   rclcpp::init(argc, argv);
 
   const std::string port_name =
-    "/dev/ttyUSB0";
+    "/dev/ttyACM0";
 
   auto mgs1600gy_interface = std::make_unique<
     mgs1600gy_interface::Mgs1600gyInterface>(
@@ -56,26 +48,21 @@ int main(int argc, char ** argv)
 
   using PACKET_TYPE = mgs1600gy_interface::PacketPool::PACKET_TYPE;
 
-  if (!mgs1600gy_interface->setQueries(PACKET_TYPE::MZ)) {
-    return EXIT_FAILURE;
-  }
-
   if (!mgs1600gy_interface->setQueries(PACKET_TYPE::ANG)) {
     return EXIT_FAILURE;
   }
 
   mgs1600gy_interface->startQueries(10);
-  std::array<float, 16> mz_data;
-  std::array<float, 3> ang_data;
+  auto imu_msg = std::make_unique<sensor_msgs::msg::Imu>();
+  std_msgs::msg::Header header;
+  header.frame_id = "base_link";
 
   for (int i = 0; i < 10; ++i) {
-    if (mgs1600gy_interface->read(PACKET_TYPE::MZ)) {
-      mgs1600gy_interface->getMzData(mz_data);
-      showMzData(mz_data);
-    }
     if (mgs1600gy_interface->read(PACKET_TYPE::ANG)) {
-      mgs1600gy_interface->getAngData(ang_data);
-      showAngData(ang_data);
+      header.stamp = rclcpp::Clock().now();
+      mgs1600gy_interface->setOrientation(
+        header, imu_msg);
+      showImuData(imu_msg);
     }
     rclcpp::sleep_for(10ms);
   }

@@ -186,12 +186,19 @@ void Mgs1600gyInterface::getAngData(std::array<float, 3> & out) const noexcept
   std::copy(this->ang_data_.begin(), this->ang_data_.end(), out.begin());
 }
 
-void Mgs1600gyInterface::getRotation(std::array<float, 3> & out) const noexcept
+void Mgs1600gyInterface::setOrientation(
+  const std_msgs::msg::Header & header,
+  const std::reference_wrapper<sensor_msgs::msg::Imu::UniquePtr> imu_msg_ptr_ref
+) const noexcept
 {
-  std::copy(this->ang_data_.begin(), this->ang_data_.end(), out.begin());
-  for (int i = 0; i < out.size(); i++) {
-    out[i] = fmod(out[i] / 10, 360);
-  }
+  static const float TO_RADIAN = 0.1 * 180 / M_PI;
+  tf2::Quaternion quat;
+  quat.setRPY(
+    this->ang_data_[0] * TO_RADIAN,
+    this->ang_data_[1] * TO_RADIAN,
+    this->ang_data_[2] * TO_RADIAN);
+  imu_msg_ptr_ref.get()->header = header;
+  imu_msg_ptr_ref.get()->orientation = tf2::toMsg(quat);
 }
 
 void Mgs1600gyInterface::getImage(

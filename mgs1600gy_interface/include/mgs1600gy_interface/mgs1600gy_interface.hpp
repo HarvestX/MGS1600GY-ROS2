@@ -14,10 +14,15 @@
 
 #pragma once
 
+#include <tf2/convert.h>
+#include <tf2/utils.h>
+
 #include <memory>
 #include <string>
 #include <vector>
 
+#include <sensor_msgs/msg/image.hpp>
+#include <sensor_msgs/msg/imu.hpp>
 #include <rclcpp/rclcpp.hpp>
 
 #include "mgs1600gy_interface/packet_handler.hpp"
@@ -69,7 +74,12 @@ public:
 
   void getMzData(std::array<float, 16> &) const noexcept;
   void getAngData(std::array<float, 3> &) const noexcept;
-  void getRotation(std::array<float, 3> &) const noexcept;
+
+  void setOrientation(
+    const std_msgs::msg::Header &,
+    const std::reference_wrapper<sensor_msgs::msg::Imu::UniquePtr>)
+  const noexcept;
+
   void getImage(
     cv::Mat *, const float & = -2000, const float & = 2000,
     const bool & = false) const noexcept;
