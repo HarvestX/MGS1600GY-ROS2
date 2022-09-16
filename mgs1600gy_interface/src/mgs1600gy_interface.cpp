@@ -198,9 +198,9 @@ void Mgs1600gyInterface::setOrientation(
   static const float TO_RADIAN = 0.1 * M_PI / 180.0;
   tf2::Quaternion quat;
   quat.setEuler(
-    fmod(this->ang_data_[1] * TO_RADIAN, 2.0 * M_PI),
-    fmod(this->ang_data_[0] * TO_RADIAN, 2.0 * M_PI),
-    fmod(this->ang_data_[2] * TO_RADIAN, 2.0 * M_PI));
+    fmod(this->ang_data_[static_cast<size_t>(AxisIndex::YAW)] * TO_RADIAN, 2.0 * M_PI),
+    fmod(this->ang_data_[static_cast<size_t>(AxisIndex::PITCH)] * TO_RADIAN, 2.0 * M_PI),
+    fmod(this->ang_data_[static_cast<size_t>(AxisIndex::ROLL)] * TO_RADIAN, 2.0 * M_PI));
   imu_msg_ptr_ref.get()->header = header;
   imu_msg_ptr_ref.get()->orientation = tf2::toMsg(quat);
 }
@@ -216,17 +216,31 @@ void Mgs1600gyInterface::getImage(
     this->mz_data_, out, MIN, MAX, FLIP);
 }
 
-bool Mgs1600gyInterface::setAngZero() const noexcept
+bool Mgs1600gyInterface::setAllAngleZero() const noexcept
 {
-  for (int i = 1; i <= 3; i++) {
-    if (!this->processResponse(
-        this->realtime_commander_->setAngZero(i)))
-    {
-      return false;
-    }
-    rclcpp::sleep_for(10ms);
+  if (!this->setAngle(AxisIndex::PITCH, 0.0)) {
+    return false;
+  }
+  if (!this->setAngle(AxisIndex::YAW, 0.0)) {
+    return false;
+  }
+  if (!this->setAngle(AxisIndex::ROLL, 0.0)) {
+    return false;
   }
   return true;
+}
+
+bool Mgs1600gyInterface::setAngle(
+  const AxisIndex & idx, const float & rad) const noexcept
+{
+  // degree times 100
+  static const float RAD2STEP = 100.0 * 180.0 / M_PI;
+  const bool ret = this->processResponse(
+    this->realtime_commander_->writeANG(
+      static_cast<int>(idx) + 1,
+      static_cast<int>(std::round(rad * RAD2STEP))));
+  rclcpp::sleep_for(10ms);
+  return ret;
 }
 
 bool Mgs1600gyInterface::calibrateMagnet() const noexcept
@@ -235,11 +249,13 @@ bool Mgs1600gyInterface::calibrateMagnet() const noexcept
     this->getLogger(),
     "Calibrating for magnet sensor. "
     "Position the sensor away from any magnetic or ferrous material...");
-  if (!this->processResponse(this->maintenance_commander_->calibrateMagnet())) {
+  if (!this->processResponse(
+      this->maintenance_commander_->writeZERO()))
+  {
     return false;
   }
   rclcpp::sleep_for(10ms);
-  if (!this->processResponse(this->maintenance_commander_->saveConfig())) {
+  if (!this->processResponse(this->maintenance_commander_->writeCLSAV())) {
     return false;
   }
   return true;
@@ -250,11 +266,13 @@ bool Mgs1600gyInterface::calibrateGyro() const noexcept
   RCLCPP_WARN(
     this->getLogger(),
     "Calibrating for Gyro. Keep the sensor totally immobile...");
-  if (!this->processResponse(this->maintenance_commander_->calibrateGyro())) {
+  if (!this->processResponse(
+      this->maintenance_commander_->writeGZER()))
+  {
     return false;
   }
   rclcpp::sleep_for(10ms);
-  if (!this->processResponse(this->maintenance_commander_->saveConfig())) {
+  if (!this->processResponse(this->maintenance_commander_->writeCLSAV())) {
     return false;
   }
 

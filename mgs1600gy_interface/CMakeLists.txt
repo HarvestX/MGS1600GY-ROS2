@@ -54,11 +54,16 @@ if(BUILD_TESTING)
   target_include_directories(test_packet_pool PRIVATE "include")
   target_link_libraries(test_packet_pool ${PROJECT_NAME})
 
-  set(TARGET test_realtime_commander)
-  ament_add_gmock(
-    ${TARGET}
-    test/src/commander/${TARGET}.cpp)
-  target_link_libraries(${TARGET} ${PROJECT_NAME})
+  set(
+    COMMANDER_TEST_CASES
+      test_realtime_commander
+      test_maintenance_commander)
+  foreach(TARGET ${COMMANDER_TEST_CASES})
+    ament_add_gmock(
+      ${TARGET}
+      test/src/commander/${TARGET}.cpp)
+    target_link_libraries(${TARGET} ${PROJECT_NAME})
+  endforeach()
 endif()
 
 ament_auto_package()

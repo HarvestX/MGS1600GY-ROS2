@@ -40,6 +40,14 @@ namespace mgs1600gy_interface
 {
 class Mgs1600gyInterface
 {
+public:
+  enum class AxisIndex
+  {
+    PITCH = 0,
+    YAW = 1,
+    ROLL = 2,
+  };
+
 private:
   const rclcpp::Duration TIMEOUT_;
   RealtimeCommander::MODE mode_;
@@ -87,7 +95,8 @@ public:
   // End Query Commands
 
   // Realtime Commands
-  bool setAngZero() const noexcept;
+  bool setAllAngleZero() const noexcept;
+  bool setAngle(const AxisIndex &, const float &) const noexcept;
   // End Realtime Commands
 
   // Calibration Commands

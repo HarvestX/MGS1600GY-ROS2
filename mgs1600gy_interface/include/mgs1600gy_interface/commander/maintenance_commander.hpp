@@ -35,10 +35,10 @@ public:
     std::shared_ptr<PacketHandler>,
     const rclcpp::Duration &);
 
-  RESPONSE_STATE calibrateMagnet() const noexcept;
-  RESPONSE_STATE calibrateGyro() const noexcept;
+  RESPONSE_STATE writeZERO() const noexcept;
+  RESPONSE_STATE writeGZER() const noexcept;
 
-  RESPONSE_STATE saveConfig() const noexcept;
+  RESPONSE_STATE writeCLSAV() const noexcept;
 
 private:
   static const rclcpp::Logger getLogger() noexcept;

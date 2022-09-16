@@ -102,14 +102,15 @@ RESPONSE_STATE RealtimeCommander::clearQuery() const noexcept
   return RESPONSE_STATE::OK;
 }
 
-RESPONSE_STATE RealtimeCommander::setAngZero(const int i) const noexcept
+RESPONSE_STATE RealtimeCommander::writeANG(
+  const int idx, const int val) const noexcept
 {
-  if (i < 1 || i > 3) {
+  if (idx < 1 || idx > 3) {
     return RESPONSE_STATE::ERROR_INVALID_INPUT;
   }
   static char write_buf[128];
   int cx = snprintf(
-    write_buf, sizeof(write_buf), "!ANG %d 0\r", i);
+    write_buf, sizeof(write_buf), "!ANG %d %d\r", idx, val);
   this->packet_handler_->writePort(write_buf, cx);
   return RESPONSE_STATE::OK;
 }
@@ -134,6 +135,11 @@ bool RealtimeCommander::waitForResponse(
   }
 
   return has_response;
+}
+
+const rclcpp::Logger RealtimeCommander::getLogger() noexcept
+{
+  return rclcpp::get_logger("RealtimerCommander");
 }
 
 }  // namespace  mgs1600gy_interface

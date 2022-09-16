@@ -27,6 +27,10 @@ Mgs1600gyNode::Mgs1600gyNode(const rclcpp::NodeOptions & node_options)
   this->base_link_ = this->name_ + "_link";
   this->magnet_link_ = this->name_ + "_magnet_link";
 
+  const float init_r = this->declare_parameter("roll", NAN);
+  const float init_p = this->declare_parameter("pitch", NAN);
+  const float init_y = this->declare_parameter("yaw", NAN);
+
   const std::string DEV = this->declare_parameter(
     "dev", "/dev/serial/by-id/usb-Roboteq_Magnetic_Sensor_48F263793238-if00");
 
@@ -48,6 +52,22 @@ Mgs1600gyNode::Mgs1600gyNode(const rclcpp::NodeOptions & node_options)
       this->get_logger(),
       "Flip enabled");
   }
+
+  std::stringstream log_ss;
+  if (!std::isnan(init_p)) {
+    log_ss << "pitch: " << init_p << " ";
+  }
+  if (!std::isnan(init_r)) {
+    log_ss << "roll: " << init_r << " ";
+  }
+  if (!std::isnan(init_y)) {
+    log_ss << "yaw: " << init_y << " ";
+  }
+  if (!log_ss.str().empty()) {
+    RCLCPP_INFO_STREAM(
+      this->get_logger(), log_ss.str());
+  }
+
   // Setup Sensor to Read Magnetic data
   using namespace std::chrono_literals;
   this->interface_ =
@@ -58,11 +78,31 @@ Mgs1600gyNode::Mgs1600gyNode(const rclcpp::NodeOptions & node_options)
   if (!this->interface_->activate()) {
     rclcpp::shutdown();
   }
+
+  // Initialize angles
+  using AxisIndex = mgs1600gy_interface::Mgs1600gyInterface::AxisIndex;
+  if (!std::isnan(init_r) &&
+    !this->interface_->setAngle(AxisIndex::ROLL, init_r))
+  {
+    rclcpp::shutdown();
+  }
+  if (!std::isnan(init_p) &&
+    !this->interface_->setAngle(AxisIndex::PITCH, init_p))
+  {
+    rclcpp::shutdown();
+  }
+  if (!std::isnan(init_y) &&
+    !this->interface_->setAngle(AxisIndex::YAW, init_y))
+  {
+    rclcpp::shutdown();
+  }
+
   if (!this->interface_->setQueries(
       mgs1600gy_interface::PacketPool::PACKET_TYPE::MZ))
   {
     rclcpp::shutdown();
   }
+
   if (!this->interface_->setQueries(
       mgs1600gy_interface::PacketPool::PACKET_TYPE::ANG))
   {

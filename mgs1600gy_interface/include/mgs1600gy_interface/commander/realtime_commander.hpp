@@ -51,7 +51,7 @@ public:
   RESPONSE_STATE startQuery(const uint32_t every_ms) const noexcept;
   RESPONSE_STATE clearQuery() const noexcept;
 
-  RESPONSE_STATE setAngZero(const int) const noexcept;
+  RESPONSE_STATE writeANG(const int, const int) const noexcept;
 
 private:
   static const rclcpp::Logger getLogger() noexcept;

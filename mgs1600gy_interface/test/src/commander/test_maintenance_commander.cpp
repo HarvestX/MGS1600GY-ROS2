@@ -12,6 +12,83 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <gmock/gmock.h>
+#include <mgs1600gy_interface/commander/maintenance_commander.hpp>
 
-// TODO(m12watanabe1a)
-// Not implemented yet
+using namespace std::chrono_literals;
+using ::testing::_;
+using ::testing::StrEq;
+using ::testing::Return;
+using ::testing::DoAll;
+using RS = mgs1600gy_interface::RESPONSE_STATE;
+
+
+ACTION_P(StrCpyToArg0, str) {
+  strcpy(arg0, str);
+}
+
+class MockPortHandler : public mgs1600gy_interface::PortHandlerBase
+{
+public:
+  MockPortHandler()
+  : mgs1600gy_interface::PortHandlerBase()
+  {
+  }
+
+  MOCK_METHOD(size_t, getBytesAvailable, (), (const override));
+  MOCK_METHOD(size_t, readPort, (char * const, const size_t), (const override));
+  MOCK_METHOD(
+    size_t, writePort,
+    (const char * const, const size_t), (const override));
+};
+
+
+class TestMaintenanceCommander : public ::testing::Test
+{
+protected:
+  std::shared_ptr<mgs1600gy_interface::PacketHandler> packet_handler;
+  std::unique_ptr<mgs1600gy_interface::MaintenanceCommander> commander;
+
+  MockPortHandler mock_port_handler;
+
+  virtual void SetUp()
+  {
+    this->packet_handler =
+      std::make_shared<mgs1600gy_interface::PacketHandler>(
+      &mock_port_handler);
+    this->commander =
+      std::make_unique<mgs1600gy_interface::MaintenanceCommander>(
+      this->packet_handler, 1ms);
+  }
+};
+
+
+TEST_F(TestMaintenanceCommander, writeZeroOK)
+{
+  const char sending[] = "%ZERO\r";
+
+  EXPECT_CALL(
+    mock_port_handler, writePort(StrEq(sending), sizeof(sending))).Times(1);
+
+  ASSERT_EQ(this->commander->writeZERO(), RS::OK);
+}
+
+TEST_F(TestMaintenanceCommander, writeGzerOK)
+{
+  const char sending[] = "%GZER\r";
+
+  EXPECT_CALL(
+    mock_port_handler, writePort(StrEq(sending), sizeof(sending))).Times(1);
+
+  ASSERT_EQ(this->commander->writeGZER(), RS::OK);
+}
+
+TEST_F(TestMaintenanceCommander, writeClsavOK)
+{
+  const char sending[] = "%CLSAV\r";
+
+  EXPECT_CALL(
+    mock_port_handler, writePort(StrEq(sending), sizeof(sending))).Times(1);
+
+  ASSERT_EQ(this->commander->writeCLSAV(), RS::OK);
+}

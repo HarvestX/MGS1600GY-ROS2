@@ -56,7 +56,7 @@ void GyroCalibrator::calibrate()
     this->get_logger(),
     "Gyro sensor successfully calibrated!");
 
-  if (!this->interface_->setAngZero()) {
+  if (!this->interface_->setAllAngleZero()) {
     RCLCPP_ERROR(
       this->get_logger(),
       "Failed to set ANG zero");

@@ -64,12 +64,12 @@ protected:
 
 TEST_F(TestRealtimeCommander, readMzOK)
 {
-  const std::string sending = "?MZ\r";
+  const char sending[] = "?MZ\r";
   const std::string response =
-    sending +
+    std::string(sending) +
     "MZ=-56:-45:-39:-45:-53:-53:-42:-35:-45:-40:-53:-36:-37:-29:-24:-28\r";
 
-  EXPECT_CALL(mock_port_handler, writePort(StrEq(sending), sending.size()))
+  EXPECT_CALL(mock_port_handler, writePort(StrEq(sending), sizeof(sending)))
   .Times(1);
 
   EXPECT_CALL(mock_port_handler, getBytesAvailable())
@@ -98,11 +98,11 @@ TEST_F(TestRealtimeCommander, readMzOK)
 
 TEST_F(TestRealtimeCommander, readMzQueryModeOK)
 {
-  const std::string sending = "?MZ\r";
+  const char sending[] = "?MZ\r";
   const std::string response =
     "MZ=-56:-45:-39:-45:-53:-53:-42:-35:-45:-40:-53:-36:-37:-29:-24:-28\r";
 
-  EXPECT_CALL(mock_port_handler, writePort(StrEq(sending), sending.size()))
+  EXPECT_CALL(mock_port_handler, writePort(StrEq(sending), sizeof(sending)))
   .Times(0);
 
   EXPECT_CALL(mock_port_handler, getBytesAvailable())
@@ -131,9 +131,9 @@ TEST_F(TestRealtimeCommander, readMzQueryModeOK)
 
 TEST_F(TestRealtimeCommander, readMzNG)
 {
-  const std::string sending = "?MZ\r";
+  const char sending[] = "?MZ\r";
 
-  EXPECT_CALL(mock_port_handler, writePort(StrEq(sending), sending.size()))
+  EXPECT_CALL(mock_port_handler, writePort(StrEq(sending), sizeof(sending)))
   .Times(1);
   EXPECT_CALL(mock_port_handler, getBytesAvailable())
   .WillRepeatedly(Return(0));
@@ -146,12 +146,12 @@ TEST_F(TestRealtimeCommander, readMzNG)
 
 TEST_F(TestRealtimeCommander, readAngOK)
 {
-  const std::string sending = "?ANG\r";
+  const char sending[] = "?ANG\r";
   const std::string response =
-    sending +
+    std::string(sending) +
     "ANG=17:5:-9\r";
 
-  EXPECT_CALL(mock_port_handler, writePort(StrEq(sending), sending.size()))
+  EXPECT_CALL(mock_port_handler, writePort(StrEq(sending), sizeof(sending)))
   .Times(1);
 
   EXPECT_CALL(mock_port_handler, getBytesAvailable())
@@ -176,10 +176,10 @@ TEST_F(TestRealtimeCommander, readAngOK)
 
 TEST_F(TestRealtimeCommander, readAngQueryModeOK)
 {
-  const std::string sending = "?ANG\r";
+  const char sending[] = "?ANG\r";
   const std::string response = "ANG=17:5:-9\r";
 
-  EXPECT_CALL(mock_port_handler, writePort(StrEq(sending), sending.size()))
+  EXPECT_CALL(mock_port_handler, writePort(StrEq(sending), sizeof(sending)))
   .Times(0);
 
   EXPECT_CALL(mock_port_handler, getBytesAvailable())
@@ -204,9 +204,9 @@ TEST_F(TestRealtimeCommander, readAngQueryModeOK)
 
 TEST_F(TestRealtimeCommander, readAngNG)
 {
-  const std::string sending = "?ANG\r";
+  const char sending[] = "?ANG\r";
 
-  EXPECT_CALL(mock_port_handler, writePort(StrEq(sending), sending.size()))
+  EXPECT_CALL(mock_port_handler, writePort(StrEq(sending), sizeof(sending)))
   .Times(1);
 
   EXPECT_CALL(mock_port_handler, getBytesAvailable())
@@ -216,4 +216,16 @@ TEST_F(TestRealtimeCommander, readAngNG)
   ASSERT_EQ(
     this->commander->readANG(actual, MD::NORMAL),
     RS::ERROR_NO_RESPONSE);
+}
+
+TEST_F(TestRealtimeCommander, writeAngOK)
+{
+  std::string sending = "!ANG 1 300\r";
+
+  EXPECT_CALL(mock_port_handler, writePort(StrEq(sending), sending.size()))
+  .Times(1);
+
+  ASSERT_EQ(
+    this->commander->writeANG(1, 300),
+    RS::OK);
 }

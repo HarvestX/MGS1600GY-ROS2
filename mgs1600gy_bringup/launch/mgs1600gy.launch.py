@@ -67,6 +67,9 @@ def generate_launch_description():
             'sensor_min': sensor_min,
             'sensor_max': sensor_max,
             'flip': flip,
+            'yaw': 0.0,
+            'roll': 0.0,
+            'pitch': 0.0,
         }])
     tf_comp_node = ComposableNode(
         package='mgs1600gy_node',
