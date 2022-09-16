@@ -39,6 +39,7 @@ public:
   RESPONSE_STATE calibrateGyro() const noexcept;
 
   RESPONSE_STATE saveConfig() const noexcept;
+
 private:
   static const rclcpp::Logger getLogger() noexcept;
 };
