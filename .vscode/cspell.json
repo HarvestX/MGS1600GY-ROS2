@@ -12,6 +12,8 @@
     "xacro",
     "urdf",
     "bringup",
-    "extrinsics"
+    "extrinsics",
+    "CLSAV",
+    "GZER"
   ]
 }

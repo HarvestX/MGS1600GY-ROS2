@@ -53,6 +53,10 @@ bool Mgs1600gyInterface::activate()
     std::make_shared<PacketHandler>(
     this->port_handler_.get());
 
+  this->maintenance_commander_ =
+    std::make_unique<MaintenanceCommander>(
+    this->packet_handler_,
+    this->TIMEOUT_);
   this->realtime_commander_ =
     std::make_unique<RealtimeCommander>(
     this->packet_handler_,
@@ -186,6 +190,20 @@ void Mgs1600gyInterface::getAngData(std::array<float, 3> & out) const noexcept
   std::copy(this->ang_data_.begin(), this->ang_data_.end(), out.begin());
 }
 
+void Mgs1600gyInterface::setOrientation(
+  const std_msgs::msg::Header & header,
+  const std::reference_wrapper<sensor_msgs::msg::Imu::UniquePtr> imu_msg_ptr_ref
+) const noexcept
+{
+  static const float TO_RADIAN = 0.1 * M_PI / 180.0;
+  tf2::Quaternion quat;
+  quat.setEuler(
+    fmod(this->ang_data_[static_cast<size_t>(AxisIndex::YAW)] * TO_RADIAN, 2.0 * M_PI),
+    fmod(this->ang_data_[static_cast<size_t>(AxisIndex::PITCH)] * TO_RADIAN, 2.0 * M_PI),
+    fmod(this->ang_data_[static_cast<size_t>(AxisIndex::ROLL)] * TO_RADIAN, 2.0 * M_PI));
+  imu_msg_ptr_ref.get()->header = header;
+  imu_msg_ptr_ref.get()->orientation = tf2::toMsg(quat);
+}
 
 void Mgs1600gyInterface::getImage(
   cv::Mat * out,
@@ -196,6 +214,75 @@ void Mgs1600gyInterface::getImage(
 {
   Utils::convertBGR(
     this->mz_data_, out, MIN, MAX, FLIP);
+}
+
+bool Mgs1600gyInterface::setAllAngleZero() const noexcept
+{
+  if (!this->setAngle(AxisIndex::PITCH, 0.0)) {
+    return false;
+  }
+  if (!this->setAngle(AxisIndex::YAW, 0.0)) {
+    return false;
+  }
+  if (!this->setAngle(AxisIndex::ROLL, 0.0)) {
+    return false;
+  }
+  return true;
+}
+
+bool Mgs1600gyInterface::setAngle(
+  const AxisIndex & idx, const float & rad) const noexcept
+{
+  // degree times 100
+  static const float RAD2STEP = 100.0 * 180.0 / M_PI;
+  const bool ret = this->processResponse(
+    this->realtime_commander_->writeANG(
+      static_cast<int>(idx) + 1,
+      static_cast<int>(std::round(rad * RAD2STEP))));
+  rclcpp::sleep_for(10ms);
+  return ret;
+}
+
+bool Mgs1600gyInterface::calibrateMagnet() const noexcept
+{
+  RCLCPP_WARN(
+    this->getLogger(),
+    "Calibrating for magnet sensor. "
+    "Position the sensor away from any magnetic or ferrous material...");
+  if (!this->processResponse(
+      this->maintenance_commander_->writeZERO()))
+  {
+    return false;
+  }
+  rclcpp::sleep_for(10ms);
+  if (!this->processResponse(this->maintenance_commander_->writeCLSAV())) {
+    return false;
+  }
+  return true;
+}
+
+bool Mgs1600gyInterface::calibrateGyro() const noexcept
+{
+  RCLCPP_WARN(
+    this->getLogger(),
+    "Calibrating for Gyro. Keep the sensor totally immobile...");
+  if (!this->processResponse(
+      this->maintenance_commander_->writeGZER()))
+  {
+    return false;
+  }
+  rclcpp::sleep_for(10ms);
+  if (!this->processResponse(this->maintenance_commander_->writeCLSAV())) {
+    return false;
+  }
+
+  for (int i = 5; i > 0; --i) {
+    RCLCPP_INFO(
+      this->getLogger(),
+      "Waiting for calibration finish %ds ...", i);
+    rclcpp::sleep_for(1s);
+  }
+  return true;
 }
 
 const rclcpp::Logger Mgs1600gyInterface::getLogger() noexcept

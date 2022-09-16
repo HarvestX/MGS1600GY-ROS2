@@ -13,20 +13,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from launch.condition import Condition
-from launch.conditions import (
-    IfCondition,
-    UnlessCondition,
-)
+from typing import List
 
+from launch.conditions import IfCondition
+from launch.conditions import UnlessCondition
 from launch_ros.actions import ComposableNodeContainer
 from launch_ros.descriptions import ComposableNode
 
-from typing import List
-
 
 def load(
-        show: Condition,
         dev: str,
         namespace: str,
         sensor_min: int = -2000,

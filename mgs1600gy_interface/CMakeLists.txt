@@ -24,18 +24,20 @@ ament_auto_add_library(
 )
 ament_target_dependencies(${PROJECT_NAME} OpenCV)
 set_property(TARGET ${PROJECT_NAME} PROPERTY POSITION_INDEPENDENT_CODE ON)
+ament_export_dependencies(OpenCV)
 # End mgs1600gy interface ===========================================
 
-# show data executable ==============================================
-ament_auto_add_executable(show_data ./examples/show_data.cpp)
-target_link_libraries(show_data ${PROJECT_NAME})
-# End show data executable ==========================================
 
-# show image executabe ==============================================
-ament_auto_add_executable(show_image ./examples/show_image.cpp)
-target_link_libraries(show_image ${PROJECT_NAME})
-# End show image executable =========================================
-
+# Examples ==========================================================
+set(EXAMPLES
+  show_data
+  show_image
+  show_imu)
+foreach(TARGET ${EXAMPLES})
+  ament_auto_add_executable(${TARGET} ./examples/${TARGET}.cpp)
+  target_link_libraries(${TARGET} ${PROJECT_NAME})
+endforeach()
+# End examples ======================================================
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -52,11 +54,16 @@ if(BUILD_TESTING)
   target_include_directories(test_packet_pool PRIVATE "include")
   target_link_libraries(test_packet_pool ${PROJECT_NAME})
 
-  set(TARGET test_realtime_commander)
-  ament_add_gmock(
-    ${TARGET}
-    test/src/commander/${TARGET}.cpp)
-  target_link_libraries(${TARGET} ${PROJECT_NAME})
+  set(
+    COMMANDER_TEST_CASES
+      test_realtime_commander
+      test_maintenance_commander)
+  foreach(TARGET ${COMMANDER_TEST_CASES})
+    ament_add_gmock(
+      ${TARGET}
+      test/src/commander/${TARGET}.cpp)
+    target_link_libraries(${TARGET} ${PROJECT_NAME})
+  endforeach()
 endif()
 
 ament_auto_package()

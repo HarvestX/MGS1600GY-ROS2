@@ -23,10 +23,13 @@ Mgs1600gyNode::Mgs1600gyNode(const rclcpp::NodeOptions & node_options)
   SENSOR_MAX_(this->declare_parameter("sensor_max", 2000)),
   FLIP_(this->declare_parameter("flip", false))
 {
-  this->camera_name_ = this->declare_parameter("CAMERA_NAME", "mgs1600gy");
-  this->camera_base_link_ = this->camera_name_ + "_link";
-  this->camera_magnet_link_ = this->camera_name_ + "_magnet_link";
-  this->camera_gyro_link_ = this->camera_name_ + "_gyro_link";
+  this->name_ = this->declare_parameter("NAME", "mgs1600gy");
+  this->base_link_ = this->name_ + "_link";
+  this->magnet_link_ = this->name_ + "_magnet_link";
+
+  const float init_r = this->declare_parameter("roll", NAN);
+  const float init_p = this->declare_parameter("pitch", NAN);
+  const float init_y = this->declare_parameter("yaw", NAN);
 
   const std::string DEV = this->declare_parameter(
     "dev", "/dev/serial/by-id/usb-Roboteq_Magnetic_Sensor_48F263793238-if00");
@@ -34,13 +37,10 @@ Mgs1600gyNode::Mgs1600gyNode(const rclcpp::NodeOptions & node_options)
 
   RCLCPP_INFO(
     this->get_logger(),
-    "Camera base link name: %s", this->camera_base_link_.c_str());
+    "Base link name: %s", this->base_link_.c_str());
   RCLCPP_INFO(
     this->get_logger(),
-    "Camera magnet link name: %s", this->camera_magnet_link_.c_str());
-  RCLCPP_INFO(
-    this->get_logger(),
-    "Camera gyro link name: %s", this->camera_gyro_link_.c_str());
+    "Magnet link name: %s", this->magnet_link_.c_str());
   RCLCPP_INFO(
     this->get_logger(),
     "Selected device: %s", DEV.c_str());
@@ -52,6 +52,22 @@ Mgs1600gyNode::Mgs1600gyNode(const rclcpp::NodeOptions & node_options)
       this->get_logger(),
       "Flip enabled");
   }
+
+  std::stringstream log_ss;
+  if (!std::isnan(init_p)) {
+    log_ss << "pitch: " << init_p << " ";
+  }
+  if (!std::isnan(init_r)) {
+    log_ss << "roll: " << init_r << " ";
+  }
+  if (!std::isnan(init_y)) {
+    log_ss << "yaw: " << init_y << " ";
+  }
+  if (!log_ss.str().empty()) {
+    RCLCPP_INFO_STREAM(
+      this->get_logger(), log_ss.str());
+  }
+
   // Setup Sensor to Read Magnetic data
   using namespace std::chrono_literals;
   this->interface_ =
@@ -62,8 +78,33 @@ Mgs1600gyNode::Mgs1600gyNode(const rclcpp::NodeOptions & node_options)
   if (!this->interface_->activate()) {
     rclcpp::shutdown();
   }
+
+  // Initialize angles
+  using AxisIndex = mgs1600gy_interface::Mgs1600gyInterface::AxisIndex;
+  if (!std::isnan(init_r) &&
+    !this->interface_->setAngle(AxisIndex::ROLL, init_r))
+  {
+    rclcpp::shutdown();
+  }
+  if (!std::isnan(init_p) &&
+    !this->interface_->setAngle(AxisIndex::PITCH, init_p))
+  {
+    rclcpp::shutdown();
+  }
+  if (!std::isnan(init_y) &&
+    !this->interface_->setAngle(AxisIndex::YAW, init_y))
+  {
+    rclcpp::shutdown();
+  }
+
   if (!this->interface_->setQueries(
       mgs1600gy_interface::PacketPool::PACKET_TYPE::MZ))
+  {
+    rclcpp::shutdown();
+  }
+
+  if (!this->interface_->setQueries(
+      mgs1600gy_interface::PacketPool::PACKET_TYPE::ANG))
   {
     rclcpp::shutdown();
   }
@@ -81,13 +122,21 @@ Mgs1600gyNode::Mgs1600gyNode(const rclcpp::NodeOptions & node_options)
     "image",
     sensor_qos.get_rmw_qos_profile());
 
-  this->timer_ = rclcpp::create_timer(
+  this->imu_pub_ = create_publisher<sensor_msgs::msg::Imu>(
+    "imu",
+    10);
+
+  this->image_timer_ = rclcpp::create_timer(
     this, this->get_clock(),
-    100ms, std::bind(&Mgs1600gyNode::onConnect, this));
+    100ms, std::bind(&Mgs1600gyNode::onImageTimer, this));
+
+  this->imu_timer_ = rclcpp::create_timer(
+    this, this->get_clock(),
+    100ms, std::bind(&Mgs1600gyNode::onImuTimer, this));
 }
 
 
-void Mgs1600gyNode::onConnect()
+void Mgs1600gyNode::onImageTimer()
 {
   std::string recv;
   if (!this->interface_->read(
@@ -100,11 +149,30 @@ void Mgs1600gyNode::onConnect()
     &this->sensor_data_,
     this->SENSOR_MIN_, this->SENSOR_MAX_, this->FLIP_);
   std_msgs::msg::Header header;
-  header.frame_id = this->camera_magnet_link_;
+  header.frame_id = this->magnet_link_;
   header.stamp = this->get_clock()->now();
   sensor_msgs::msg::Image::SharedPtr image_msg =
     cv_bridge::CvImage(header, "bgr8", this->sensor_data_).toImageMsg();
   this->image_pub_.publish(image_msg);
+}
+
+void Mgs1600gyNode::onImuTimer()
+{
+  std::string recv;
+  if (!this->interface_->read(
+      mgs1600gy_interface::PacketPool::PACKET_TYPE::ANG))
+  {
+    return;
+  }
+
+  auto imu_msg = std::make_unique<sensor_msgs::msg::Imu>();
+  std_msgs::msg::Header header;
+  header.frame_id = this->base_link_;
+  header.stamp = this->get_clock()->now();
+
+  this->interface_->setOrientation(header, imu_msg);
+
+  this->imu_pub_->publish(std::move(imu_msg));
 }
 
 }  // namespace mgs1600gy_node

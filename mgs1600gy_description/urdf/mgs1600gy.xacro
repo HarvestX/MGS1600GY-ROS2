@@ -2,10 +2,15 @@
 <robot
     xmlns:xacro="http://ros.org/wiki/xacro"
     name="mgs1600gy">
+  <!-- constants -->
+  <xacro:include
+      filename="$(find mgs1600gy_description)/urdf/common/constants.xacro"
+      ns="const" />
+
 
   <xacro:macro
       name="mgs1600gy"
-      params="parent prefix is_gazebo:=False flip:=False  use_nominal_extrinsics:=False *origin">
+      params="parent prefix is_gazebo:=False flip:=False use_nominal_extrinsics:=False *origin">
 
     <!-- Links -->
     <link name="${prefix}mgs1600gy_link">
@@ -51,20 +56,7 @@
             xyz="8.0E-03 0 0"
             rpy="0 0 0" />
       </joint>
-
-      <!-- Gyro sensor link -->
-      <link name="${prefix}mgs1600gy_gyro_link" />
-      <joint
-          name="${prefix}mgs1600gy_gyro_joint"
-          type="fixed">
-        <parent link="${prefix}mgs1600gy_link" />
-        <child link="${prefix}mgs1600gy_gyro_link" />
-        <origin
-            xyz="0 0 12.5E-03"
-            rpy="0 0 0" />
-      </joint>
     </xacro:if>
-
     <!-- Joints -->
     <joint
         name="${prefix}mgs1600gy_joint"
@@ -73,6 +65,7 @@
       <child link="${prefix}mgs1600gy_link" />
       <xacro:insert_block name="origin" />
     </joint>
+
 
     <!-- Gazebo -->
     <xacro:if value="${is_gazebo}">
