@@ -2,7 +2,7 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>mgs1600gy_description</name>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
   <description>MGS1600GY bringup package.</description>
   <maintainer email="m12watanabe1a@gmail.com">m12watanabe1a</maintainer>
   <license>Apache License 2.0</license>
@@ -16,6 +16,6 @@
 
   <export>
     <build_type>ament_cmake</build_type>
-    <gazebo_ros gazebo_model_path="${prefix}/../" />
+    <gazebo_ros gazebo_model_path="${prefix}/../"/>
   </export>
 </package>
