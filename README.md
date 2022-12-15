@@ -1,5 +1,4 @@
-[![ci](https://github.com/HarvestX/MGS1600GY-ROS2/actions/workflows/ci.yml/badge.svg)](https://github.com/HarvestX/MGS1600GY-ROS2/actions/workflows/ci.yml)
-[![lint](https://github.com/HarvestX/MGS1600GY-ROS2/actions/workflows/lint.yml/badge.svg)](https://github.com/HarvestX/MGS1600GY-ROS2/actions/workflows/lint.yml)
+[![ci_galactic](https://github.com/HarvestX/MGS1600GY-ROS2/actions/workflows/ci_galactic.yml/badge.svg)](https://github.com/HarvestX/MGS1600GY-ROS2/actions/workflows/ci_galactic.yml)
 
 # MGS1600GY-ROS2
 RoboteQ line sensor module controller for ROS2.
@@ -31,7 +30,7 @@ git clone git@github.com:HarvestX/MGS1600GY-ROS2.git
 
 ### Install dependencies
 ```bash
-source /opt/ros/galactic/setup.bash
+source /opt/ros/$ROS_DISTRO/setup.bash
 cd ~/<Your Workspace>
 rosdep update
 rosdep install -r -y -i --from-paths ./src/MGS1600GY-ROS2 --rosdistro $ROS_DISTRO
