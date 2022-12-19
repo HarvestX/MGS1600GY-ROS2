@@ -2,18 +2,21 @@
   "version": "0.2",
   "language": "en",
   "words": [
+    "adduser",
     "bringup",
     "CLSAV",
     "colcon",
+    "dialout",
     "distro",
     "extrinsics",
     "GZER",
     "m12watanabe1a",
     "rclcpp",
     "roboteq",
+    "rosdep",
     "rosdistro",
     "rviz",
     "urdf",
-    "xacro",
+    "xacro"
   ]
 }
