@@ -106,7 +106,7 @@ Mgs1600gyNode::Mgs1600gyNode(const rclcpp::NodeOptions & node_options)
     this, "image", sensor_qos.get_rmw_qos_profile());
 
   this->imu_pub_ = create_publisher<sensor_msgs::msg::Imu>(
-    "imu", rclcpp::SensorDataQoS().keep_last(1));
+    "imu", rclcpp::SensorDataQoS());
 
   this->image_timer_ = rclcpp::create_timer(
     this, this->get_clock(),
