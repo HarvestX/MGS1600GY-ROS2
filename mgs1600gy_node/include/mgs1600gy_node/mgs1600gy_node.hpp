@@ -25,7 +25,6 @@
 #include <rclcpp/rclcpp.hpp>
 #include <tf2/utils.h>
 #include <tf2/convert.h>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
 #include <mgs1600gy_interface/mgs1600gy_interface.hpp>
 
