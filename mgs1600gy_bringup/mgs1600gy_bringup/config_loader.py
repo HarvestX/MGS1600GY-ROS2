@@ -50,9 +50,9 @@ def load_robot_description(
 
     return {'robot_description': robot_description_content}
 
+
 def load_rviz2(filename: str):
     """Load rviz configuration file."""
     return str(
         get_package_share_path('mgs1600gy_bringup') /
-        'rviz' /
-        filename)
+        'rviz' / filename)
