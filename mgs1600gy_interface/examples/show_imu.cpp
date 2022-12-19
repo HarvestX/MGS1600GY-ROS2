@@ -15,15 +15,14 @@
 #include "mgs1600gy_interface/mgs1600gy_interface.hpp"
 
 void showImuData(
-  const std::reference_wrapper<const sensor_msgs::msg::Imu::UniquePtr>
-  imu_msg_ptr_ref
+  sensor_msgs::msg::Imu const * const imu_msg
 )
 {
   std::cout << "IMU: " << std::setprecision(2);
-  std::cout << " x: " << imu_msg_ptr_ref.get()->orientation.x;
-  std::cout << " y: " << imu_msg_ptr_ref.get()->orientation.y;
-  std::cout << " z: " << imu_msg_ptr_ref.get()->orientation.z;
-  std::cout << " w: " << imu_msg_ptr_ref.get()->orientation.w;
+  std::cout << " x: " << imu_msg->orientation.x;
+  std::cout << " y: " << imu_msg->orientation.y;
+  std::cout << " z: " << imu_msg->orientation.z;
+  std::cout << " w: " << imu_msg->orientation.w;
   std::cout << std::endl;
 }
 
@@ -73,9 +72,8 @@ int main(int argc, char ** argv)
   for (int i = 0; i < 100; ++i) {
     if (mgs1600gy_interface->read(PACKET_TYPE::ANG)) {
       header.stamp = rclcpp::Clock().now();
-      mgs1600gy_interface->setOrientation(
-        header, imu_msg);
-      showImuData(imu_msg);
+      const auto imu_msg = mgs1600gy_interface->getImu(header);
+      showImuData(imu_msg.get());
     }
     rclcpp::sleep_for(10ms);
   }
