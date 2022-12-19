@@ -4,10 +4,10 @@ RoboteQ line sensor module controller for ROS2.
 ![Image](https://github.com/HarvestX/MGS1600GY-ROS2/blob/main/media/MGS1600GY.png?raw=true)
 
 
-| ROS2 Distro  | Build status                                                                                                                                                                                       |
-| ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **galactic** |  |
-| **humble**   |  |
+| ROS2 Distro  | Build status                                                                                                                                                                           |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **galactic** | [![ci_galactic](https://github.com/HarvestX/MGS1600GY-ROS2/actions/workflows/ci_galactic.yml/badge.svg)](https://github.com/HarvestX/MGS1600GY-ROS2/actions/workflows/ci_galactic.yml) |
+| **humble**   | [![ci_humble](https://github.com/HarvestX/MGS1600GY-ROS2/actions/workflows/ci_humble.yml/badge.svg)](https://github.com/HarvestX/MGS1600GY-ROS2/actions/workflows/ci_humble.yml)       |
 
 ## Requirements
 - Linux OS
