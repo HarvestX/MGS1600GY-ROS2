@@ -3,7 +3,7 @@ name: ci_galactic
 on:
   push:
     branches:
-      - "main"
+      - "galactic"
   pull_request:
     types: [opened, synchronize, labeled]
 
