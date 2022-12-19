@@ -38,11 +38,13 @@
 namespace mgs1600gy_interface
 {
 using namespace std::chrono_literals;  // NOLINT
+using Imu = sensor_msgs::msg::Imu;
 
 class Mgs1600gyInterface
 {
 public:
   using UniquePtr = std::unique_ptr<Mgs1600gyInterface>;
+
   enum class AxisIndex
   {
     PITCH = 0,
@@ -90,10 +92,7 @@ public:
   void getMzData(std::array<float, 16> &) const noexcept;
   void getAngData(std::array<float, 3> &) const noexcept;
 
-  void setOrientation(
-    const std_msgs::msg::Header &,
-    const std::reference_wrapper<sensor_msgs::msg::Imu::UniquePtr>)
-  const noexcept;
+  Imu::UniquePtr getImu(const std_msgs::msg::Header &) const noexcept;
   void getImage(
     cv::Mat *, const float & = -2000, const float & = 2000,
     const bool & = false) const noexcept;

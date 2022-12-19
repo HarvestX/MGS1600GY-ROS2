@@ -146,14 +146,12 @@ void Mgs1600gyNode::onImuTimer()
     return;
   }
 
-  auto imu_msg = std::make_unique<sensor_msgs::msg::Imu>();
+  auto imu_msg = std::make_shared<sensor_msgs::msg::Imu>();
   std_msgs::msg::Header header;
   header.frame_id = this->BASE_LINK_;
   header.stamp = this->get_clock()->now();
 
-  this->interface_->setOrientation(header, imu_msg);
-
-  this->imu_pub_->publish(std::move(imu_msg));
+  this->imu_pub_->publish(this->interface_->getImu(header));
 }
 
 }  // namespace mgs1600gy_node

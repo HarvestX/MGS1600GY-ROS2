@@ -180,10 +180,7 @@ void Mgs1600gyInterface::getAngData(std::array<float, 3> & out) const noexcept
   std::copy(this->ang_data_.begin(), this->ang_data_.end(), out.begin());
 }
 
-void Mgs1600gyInterface::setOrientation(
-  const std_msgs::msg::Header & header,
-  const std::reference_wrapper<sensor_msgs::msg::Imu::UniquePtr> imu_msg_ptr_ref
-) const noexcept
+Imu::UniquePtr Mgs1600gyInterface::getImu(const std_msgs::msg::Header & header) const noexcept
 {
   static const float TO_RADIAN = 0.1 * M_PI / 180.0;
   tf2::Quaternion quat;
@@ -191,8 +188,13 @@ void Mgs1600gyInterface::setOrientation(
     fmod(this->ang_data_[static_cast<size_t>(AxisIndex::YAW)] * TO_RADIAN, 2.0 * M_PI),
     fmod(this->ang_data_[static_cast<size_t>(AxisIndex::PITCH)] * TO_RADIAN, 2.0 * M_PI),
     fmod(this->ang_data_[static_cast<size_t>(AxisIndex::ROLL)] * TO_RADIAN, 2.0 * M_PI));
-  imu_msg_ptr_ref.get()->header = header;
-  imu_msg_ptr_ref.get()->orientation = tf2::toMsg(quat);
+  auto imu_msg = std::make_unique<Imu>();
+  imu_msg->header = header;
+  imu_msg->orientation.w = quat.getW();
+  imu_msg->orientation.x = quat.getX();
+  imu_msg->orientation.y = quat.getY();
+  imu_msg->orientation.z = quat.getZ();
+  return imu_msg;
 }
 
 void Mgs1600gyInterface::getImage(
