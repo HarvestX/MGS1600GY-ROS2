@@ -27,17 +27,30 @@ void showImuData(
   std::cout << std::endl;
 }
 
+class Logger : public rclcpp::node_interfaces::NodeLoggingInterface
+{
+public:
+  rclcpp::Logger get_logger() const override
+  {
+    return rclcpp::get_logger(this->get_logger_name());
+  }
+
+  const char * get_logger_name() const override
+  {
+    return "ShowImu";
+  }
+};
+
 int main(int argc, char ** argv)
 {
-  using namespace std::chrono_literals;
+  using namespace std::chrono_literals;  // NOLINT
   rclcpp::init(argc, argv);
 
-  const std::string port_name =
-    "/dev/ttyACM0";
+  const std::string port_name = "/dev/ttyACM0";
 
-  auto mgs1600gy_interface = std::make_unique<
-    mgs1600gy_interface::Mgs1600gyInterface>(
-    port_name, 500ms);
+  const auto logger = std::make_shared<Logger>();
+  auto mgs1600gy_interface =
+    std::make_unique<mgs1600gy_interface::Mgs1600gyInterface>(port_name, logger, 500ms);
 
   if (!mgs1600gy_interface->init()) {
     return EXIT_FAILURE;

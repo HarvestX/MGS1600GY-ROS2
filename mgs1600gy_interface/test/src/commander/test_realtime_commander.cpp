@@ -15,7 +15,7 @@
 #include <gmock/gmock.h>
 #include <mgs1600gy_interface/commander/realtime_commander.hpp>
 
-using namespace std::chrono_literals;
+using namespace std::chrono_literals;  // NOLINT
 using ::testing::_;
 using ::testing::StrEq;
 using ::testing::Return;
@@ -24,21 +24,36 @@ using MD = mgs1600gy_interface::RealtimeCommander::MODE;
 using RS = mgs1600gy_interface::RESPONSE_STATE;
 
 ACTION_P(StrCpyToArg0, str) {
-  strcpy(arg0, str);
+  strcpy(arg0, str);  // NOLINT
 }
 
-class MockPortHandler : public mgs1600gy_interface::PortHandlerBase
+class Logger : public rclcpp::node_interfaces::NodeLoggingInterface
+{
+public:
+  rclcpp::Logger get_logger() const override
+  {
+    return rclcpp::get_logger(this->get_logger_name());
+  }
+
+  const char * get_logger_name() const override
+  {
+    return "TestRealtimeCommander";
+  }
+};
+
+
+class MockPortHandler : public h6x_serial_interface::PortHandlerBase
 {
 public:
   MockPortHandler()
-  : mgs1600gy_interface::PortHandlerBase()
+  : h6x_serial_interface::PortHandlerBase()
   {
   }
 
-  MOCK_METHOD(size_t, getBytesAvailable, (), (const override));
-  MOCK_METHOD(size_t, readPort, (char * const, const size_t), (const override));
+  MOCK_METHOD(ssize_t, getBytesAvailable, (), (const override));
+  MOCK_METHOD(ssize_t, readPort, (char * const, const size_t), (const override));
   MOCK_METHOD(
-    size_t, writePort,
+    ssize_t, writePort,
     (const char * const, const size_t), (const override));
 };
 
@@ -46,19 +61,20 @@ public:
 class TestRealtimeCommander : public ::testing::Test
 {
 protected:
-  std::shared_ptr<mgs1600gy_interface::PacketHandler> packet_handler;
-  std::unique_ptr<mgs1600gy_interface::RealtimeCommander> commander;
+  mgs1600gy_interface::PacketHandler::SharedPtr packet_handler;
+  mgs1600gy_interface::RealtimeCommander::UniquePtr commander;
 
   MockPortHandler mock_port_handler;
   virtual void SetUp()
   {
+    const auto logger = std::make_shared<Logger>();
     this->packet_handler =
       std::make_shared<mgs1600gy_interface::PacketHandler>(
-      &mock_port_handler);
+      &mock_port_handler, logger);
 
     this->commander =
       std::make_unique<mgs1600gy_interface::RealtimeCommander>(
-      this->packet_handler, 1ms);
+      this->packet_handler, logger, 1ms);
   }
 };
 

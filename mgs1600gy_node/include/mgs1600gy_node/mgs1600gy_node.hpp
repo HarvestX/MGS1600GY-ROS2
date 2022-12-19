@@ -35,19 +35,15 @@ namespace mgs1600gy_node
 class Mgs1600gyNode : public rclcpp::Node
 {
 private:
-  const float SENSOR_MIN_;
-  const float SENSOR_MAX_;
+  const double SENSOR_MIN_, SENSOR_MAX_;
   const bool FLIP_;
 
-  std::string name_;
-  std::string base_link_;
-  std::string magnet_link_;
+  const std::string NAME_, BASE_LINK_, MAGNET_LINK_;
 
   image_transport::Publisher image_pub_;
   rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imu_pub_;
-  rclcpp::TimerBase::SharedPtr image_timer_;
-  rclcpp::TimerBase::SharedPtr imu_timer_;
-  std::unique_ptr<mgs1600gy_interface::Mgs1600gyInterface> interface_;
+  rclcpp::TimerBase::SharedPtr image_timer_, imu_timer_;
+  mgs1600gy_interface::Mgs1600gyInterface::UniquePtr interface_;
   cv::Mat sensor_data_;
 
 public:

@@ -24,10 +24,12 @@
 
 namespace mgs1600gy_interface
 {
-using namespace std::chrono_literals;
+using namespace std::chrono_literals;  // NOLINT
 class RealtimeCommander
 {
 public:
+  using UniquePtr = std::unique_ptr<RealtimeCommander>;
+
   enum class MODE
   {
     NORMAL,
@@ -35,15 +37,17 @@ public:
   };
 
 private:
-  std::shared_ptr<PacketHandler> packet_handler_;
+  PacketHandler::SharedPtr packet_handler_;
+  rclcpp::node_interfaces::NodeLoggingInterface::SharedPtr logging_interface_;
   rclcpp::Clock::SharedPtr clock_;
-  const rclcpp::Duration TIMEOUT_;
+  const std::chrono::nanoseconds TIMEOUT_;
 
 public:
   RealtimeCommander() = delete;
   explicit RealtimeCommander(
-    std::shared_ptr<PacketHandler>,
-    const rclcpp::Duration &);
+    PacketHandler::SharedPtr,
+    rclcpp::node_interfaces::NodeLoggingInterface::SharedPtr,
+    const std::chrono::nanoseconds &);
 
   RESPONSE_STATE readMZ(std::array<float, 16> &, const MODE) const noexcept;
   RESPONSE_STATE readANG(std::array<float, 3> &, const MODE) const noexcept;
@@ -54,7 +58,7 @@ public:
   RESPONSE_STATE writeANG(const int, const int) const noexcept;
 
 private:
-  static const rclcpp::Logger getLogger() noexcept;
+  const rclcpp::Logger getLogger() noexcept;
   bool waitForResponse(
     const PacketPool::PACKET_TYPE &, std::string &) const noexcept;
 

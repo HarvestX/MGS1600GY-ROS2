@@ -16,37 +16,44 @@
 #include <gtest/gtest.h>
 #include <mgs1600gy_interface/packet_pool.hpp>
 
+class Logger : public rclcpp::node_interfaces::NodeLoggingInterface
+{
+public:
+  rclcpp::Logger get_logger() const override
+  {
+    return rclcpp::get_logger(this->get_logger_name());
+  }
+
+  const char * get_logger_name() const override
+  {
+    return "TestPacketPool";
+  }
+};
+
 class TestPacketPool : public ::testing::Test
 {
 protected:
-  std::unique_ptr<mgs1600gy_interface::PacketPool> pool;
+  mgs1600gy_interface::PacketPool::UniquePtr pool;
   virtual void SetUp()
   {
-    this->pool =
-      std::make_unique<mgs1600gy_interface::PacketPool>();
+    const auto logger = std::make_shared<Logger>();
+    this->pool = std::make_unique<mgs1600gy_interface::PacketPool>(logger);
   }
 };
 
 TEST_F(TestPacketPool, enqueueFineCommands) {
   const std::string MZ_command =
     "MZ=-56:-45:-39:-45:-53:-53:-42:-35:-45:-40:-53:-36:-37:-29:-24:-28\r";
-  const std::string ANG_command =
-    "ANG=17:5:-9\r";
+  const std::string ANG_command = "ANG=17:5:-9\r";
 
-  this->pool->enqueue(
-    MZ_command +
-    ANG_command);
+  this->pool->enqueue(MZ_command + ANG_command);
 
   std::string packet = "";
   using PT = mgs1600gy_interface::PacketPool::PACKET_TYPE;
-  ASSERT_TRUE(
-    this->pool->takePacket(
-      PT::MZ, packet));
+  ASSERT_TRUE(this->pool->takePacket(PT::MZ, packet));
   EXPECT_EQ(packet, MZ_command);
 
-  ASSERT_TRUE(
-    this->pool->takePacket(
-      PT::ANG, packet));
+  ASSERT_TRUE(this->pool->takePacket(PT::ANG, packet));
   EXPECT_EQ(packet, ANG_command);
 
   ASSERT_FALSE(
@@ -79,8 +86,7 @@ TEST(TestPacketPoolParser, parseGoodResponse1) {
 }
 
 TEST(TestPacketPoolParser, parseGoodResponse2) {
-  const std::string ANG_command =
-    "ANG=17:5:-9\r";
+  const std::string ANG_command = "ANG=17:5:-9\r";
   std::vector<float> expected = {
     17, 5, -9};
   std::vector<float> actual;

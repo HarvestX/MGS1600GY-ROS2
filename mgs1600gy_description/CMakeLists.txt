@@ -19,6 +19,5 @@ ament_environment_hooks("${CMAKE_CURRENT_SOURCE_DIR}/env-hooks/${PROJECT_NAME}.d
 
 ament_auto_package(
   INSTALL_TO_SHARE
-    urdf
-    meshes
-)
+  urdf
+  meshes)

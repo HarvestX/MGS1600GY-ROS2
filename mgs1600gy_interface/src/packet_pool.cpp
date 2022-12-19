@@ -18,7 +18,8 @@
 
 namespace mgs1600gy_interface
 {
-PacketPool::PacketPool()
+PacketPool::PacketPool(rclcpp::node_interfaces::NodeLoggingInterface::SharedPtr logger)
+: logging_interface_(logger)
 {
   this->clear();
 }
@@ -30,10 +31,7 @@ PacketPool::~PacketPool()
 
 void PacketPool::clear()
 {
-  for (size_t i = 0;
-    i < static_cast<size_t>(PACKET_TYPE::END_PACKET_TYPE);
-    ++i)
-  {
+  for (size_t i = 0; i < static_cast<size_t>(PACKET_TYPE::END_PACKET_TYPE); ++i) {
     auto queue = this->queue_map_[static_cast<PACKET_TYPE>(i)];
     while (!queue.empty()) {
       queue.pop();
@@ -49,6 +47,18 @@ void PacketPool::enqueue(const std::string & in_packet)
 
   std::vector<std::string> packet_candidates;
 
+  const auto is_special_char = [](const char & it) -> bool
+    {
+      switch (it) {
+        case '?':
+        case '#':
+        case '\r':
+          return true;
+        default:
+          return false;
+      }
+    };
+
   std::string item = "";
   for (char ch : chunk) {
     item += ch;
@@ -60,31 +70,19 @@ void PacketPool::enqueue(const std::string & in_packet)
     }
 
     if (item.rfind("MZ=", 0) == 0) {
-      RCLCPP_DEBUG(
-        this->getLogger(),
-        "MZ packet stocked : %s",
-        item.c_str());
+      RCLCPP_DEBUG(this->getLogger(), "MZ packet stocked : %s", item.c_str());
       this->queue_map_[PACKET_TYPE::MZ].push(item);
     } else if (item.rfind("ANG=", 0) == 0) {
-      RCLCPP_DEBUG(
-        this->getLogger(),
-        "ANG packet stocked : %s",
-        item.c_str());
+      RCLCPP_DEBUG(this->getLogger(), "ANG packet stocked : %s", item.c_str());
       this->queue_map_[PACKET_TYPE::ANG].push(item);
-    } else if (
-      item.at(0) == '?' ||
-      item.at(0) == '#' ||
-      item.at(0) == '\r')
-    {
+    } else if (is_special_char(item.at(0))) {
       // Skip
       // This is echo back from previous packet
     } else {
       RCLCPP_WARN(
-        this->getLogger(),
-        "Command like packet [%s] given. Ignored.",
+        this->getLogger(), "Command like packet [%s] given. Ignored.",
         PacketPool::fixEscapeSequence(item).c_str());
     }
-
 
     item.clear();
   }
@@ -112,8 +110,7 @@ bool PacketPool::takePacket(
 }
 
 bool PacketPool::parseResponse(
-  const std::string & response,
-  std::vector<float> & out) noexcept
+  const std::string & response, std::vector<float> & out) noexcept
 {
   bool scanning_started = false;
   std::string val_candidate;
@@ -129,22 +126,16 @@ bool PacketPool::parseResponse(
     }
     if (ch == '\r' || ch == ':') {
       try {
-        out.emplace_back(
-          std::stof(val_candidate));
-      } catch (std::invalid_argument & e) {
-        RCLCPP_ERROR(
-          PacketPool::getLogger(),
-          "%s", e.what());
+        out.emplace_back(std::stof(val_candidate));
+      } catch (const std::invalid_argument &) {
         out.clear();
         return false;
       }
       val_candidate.clear();
       continue;
     }
-
     val_candidate += ch;
   }
-
   return true;
 }
 
@@ -165,9 +156,9 @@ std::string PacketPool::packetTypeToString(
 }
 
 
-const rclcpp::Logger PacketPool::getLogger() noexcept
+const rclcpp::Logger PacketPool::getLogger() const noexcept
 {
-  return rclcpp::get_logger("PacketPool");
+  return this->logging_interface_->get_logger();
 }
 
 const std::string PacketPool::fixEscapeSequence(const std::string & in)

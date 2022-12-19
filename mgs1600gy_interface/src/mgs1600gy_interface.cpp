@@ -19,21 +19,20 @@ namespace mgs1600gy_interface
 {
 
 Mgs1600gyInterface::Mgs1600gyInterface(
-  const std::string & _port_name,
-  const rclcpp::Duration & _timeout)
-: TIMEOUT_(_timeout)
+  const std::string & port_name,
+  rclcpp::node_interfaces::NodeLoggingInterface::SharedPtr logger,
+  const std::chrono::nanoseconds & timeout)
+: logging_interface_(logger),
+  TIMEOUT_(timeout)
 {
-  this->port_handler_ =
-    std::make_unique<PortHandler>(_port_name);
+  this->port_handler_ = std::make_unique<PortHandler>(port_name, this->logging_interface_);
 }
 
 bool Mgs1600gyInterface::init()
 {
   // Dry run to check can open port or not
   if (!this->port_handler_->openPort()) {
-    RCLCPP_ERROR(
-      this->getLogger(),
-      "Failed to open port");
+    RCLCPP_ERROR(this->getLogger(), "Failed to open port");
     return false;
   }
   this->port_handler_->closePort();
@@ -43,24 +42,20 @@ bool Mgs1600gyInterface::init()
 bool Mgs1600gyInterface::activate()
 {
   if (!this->port_handler_->openPort()) {
-    RCLCPP_ERROR(
-      this->getLogger(),
-      "Failed to open port");
+    RCLCPP_ERROR(this->getLogger(), "Failed to open port");
     return false;
   }
 
   this->packet_handler_ =
     std::make_shared<PacketHandler>(
-    this->port_handler_.get());
+    this->port_handler_.get(), this->logging_interface_);
 
   this->maintenance_commander_ =
     std::make_unique<MaintenanceCommander>(
-    this->packet_handler_,
-    this->TIMEOUT_);
+    this->packet_handler_, this->logging_interface_, this->TIMEOUT_);
   this->realtime_commander_ =
     std::make_unique<RealtimeCommander>(
-    this->packet_handler_,
-    this->TIMEOUT_);
+    this->packet_handler_, this->logging_interface_, this->TIMEOUT_);
 
   this->mode_ = RealtimeCommander::MODE::NORMAL;
   this->queries_.clear();
@@ -87,14 +82,12 @@ bool Mgs1600gyInterface::setQueries(
 {
   if (!this->read(packet_type)) {
     RCLCPP_ERROR(
-      this->getLogger(),
-      "Failed to set query: %s",
+      this->getLogger(), "Failed to set query: %s",
       PacketPool::packetTypeToString(packet_type).c_str());
     return false;
   }
   RCLCPP_INFO(
-    this->getLogger(),
-    "Packet type: %s successfully stocked.",
+    this->getLogger(), "Packet type: %s successfully stocked.",
     PacketPool::packetTypeToString(packet_type).c_str());
   this->queries_.emplace_back(packet_type);
   return true;
@@ -111,13 +104,10 @@ bool Mgs1600gyInterface::startQueries(const uint32_t & every_ms) noexcept
 
   std::stringstream query_ss;
   for (size_t i = 0; i < this->queries_.size(); ++i) {
-    query_ss <<
-      PacketPool::packetTypeToString(this->queries_.at(i)) <<
-      ", ";
+    query_ss << PacketPool::packetTypeToString(this->queries_.at(i)) << ", ";
   }
   RCLCPP_INFO(
-    this->getLogger(),
-    "Following Commands will repeatedly executed [%s]",
+    this->getLogger(), "Following Commands will repeatedly executed [%s]",
     query_ss.str().c_str());
 
   const bool state = this->processResponse(
@@ -263,9 +253,7 @@ bool Mgs1600gyInterface::calibrateMagnet() const noexcept
 
 bool Mgs1600gyInterface::calibrateGyro() const noexcept
 {
-  RCLCPP_WARN(
-    this->getLogger(),
-    "Calibrating for Gyro. Keep the sensor totally immobile...");
+  RCLCPP_WARN(this->getLogger(), "Calibrating for Gyro. Keep the sensor totally immobile...");
   if (!this->processResponse(
       this->maintenance_commander_->writeGZER()))
   {
@@ -277,20 +265,18 @@ bool Mgs1600gyInterface::calibrateGyro() const noexcept
   }
 
   for (int i = 5; i > 0; --i) {
-    RCLCPP_INFO(
-      this->getLogger(),
-      "Waiting for calibration finish %ds ...", i);
+    RCLCPP_INFO(this->getLogger(), "Waiting for calibration finish %ds ...", i);
     rclcpp::sleep_for(1s);
   }
   return true;
 }
 
-const rclcpp::Logger Mgs1600gyInterface::getLogger() noexcept
+const rclcpp::Logger Mgs1600gyInterface::getLogger() const noexcept
 {
-  return rclcpp::get_logger("Mgs1600gyInterface");
+  return this->logging_interface_->get_logger();
 }
 
-bool Mgs1600gyInterface::processResponse(const RESPONSE_STATE & state) noexcept
+bool Mgs1600gyInterface::processResponse(const RESPONSE_STATE & state) const noexcept
 {
   bool ret = false;
   switch (state) {
@@ -298,34 +284,22 @@ bool Mgs1600gyInterface::processResponse(const RESPONSE_STATE & state) noexcept
       ret = true;
       break;
     case RESPONSE_STATE::ERROR_INVALID_INPUT:
-      RCLCPP_ERROR(
-        Mgs1600gyInterface::getLogger(),
-        "Invalid input given.");
+      RCLCPP_ERROR(this->getLogger(), "Invalid input given.");
       break;
     case RESPONSE_STATE::ERROR_NO_RESPONSE:
-      RCLCPP_ERROR(
-        Mgs1600gyInterface::getLogger(),
-        "Mgs1600gy is not responded.");
+      RCLCPP_ERROR(this->getLogger(), "Mgs1600gy is not responded.");
       break;
     case RESPONSE_STATE::ERROR_PARSE_FAILED:
-      RCLCPP_ERROR(
-        Mgs1600gyInterface::getLogger(),
-        "Failed to parse received response.");
+      RCLCPP_ERROR(this->getLogger(), "Failed to parse received response.");
       break;
     case RESPONSE_STATE::ERROR_PARSE_RESULT_INCOMPATIBLE:
-      RCLCPP_ERROR(
-        Mgs1600gyInterface::getLogger(),
-        "Responded parameters length is incompatible.");
+      RCLCPP_ERROR(this->getLogger(), "Responded parameters length is incompatible.");
       break;
     case RESPONSE_STATE::ERROR_UNKNOWN:
-      RCLCPP_ERROR(
-        Mgs1600gyInterface::getLogger(),
-        "Unknown error.");
+      RCLCPP_ERROR(this->getLogger(), "Unknown error.");
       break;
     default:
-      RCLCPP_ERROR(
-        Mgs1600gyInterface::getLogger(),
-        "Invalid state given");
+      RCLCPP_ERROR(this->getLogger(), "Invalid state given");
   }
   return ret;
 }

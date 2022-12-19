@@ -20,7 +20,7 @@
 
 #include "mgs1600gy_interface/commander/common.hpp"
 #include "mgs1600gy_interface/packet_pool.hpp"
-#include "mgs1600gy_interface/port_handler_base.hpp"
+#include <h6x_serial_interface/port_handler_base.hpp>
 
 
 namespace mgs1600gy_interface
@@ -28,18 +28,24 @@ namespace mgs1600gy_interface
 
 class PacketHandler
 {
+public:
+  using SharedPtr = std::shared_ptr<PacketHandler>;
+
 private:
+  using PortHandlerBase = h6x_serial_interface::PortHandlerBase;
+
   PortHandlerBase const * const port_handler_;
-  std::unique_ptr<PacketPool> pool_;
+  PacketPool::UniquePtr pool_;
 
 public:
   PacketHandler() = delete;
   explicit PacketHandler(
-    PortHandlerBase const * const);
+    PortHandlerBase const * const,
+    rclcpp::node_interfaces::NodeLoggingInterface::SharedPtr);
 
-  size_t getBytesAvailable() const;
-  size_t writePort(char const * const, const size_t) const;
-  size_t readPortIntoQueue();
+  ssize_t getBytesAvailable() const;
+  ssize_t writePort(char const * const, const size_t) const;
+  ssize_t readPortIntoQueue();
 
   bool takePacket(const PacketPool::PACKET_TYPE &, std::string &);
 };

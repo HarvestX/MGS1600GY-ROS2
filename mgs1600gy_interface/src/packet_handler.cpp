@@ -18,27 +18,28 @@
 namespace mgs1600gy_interface
 {
 PacketHandler::PacketHandler(
-  PortHandlerBase const * const _port_handler)
-: port_handler_(_port_handler),
-  pool_(std::make_unique<PacketPool>())
+  PortHandlerBase const * const port_handler,
+  rclcpp::node_interfaces::NodeLoggingInterface::SharedPtr logger)
+: port_handler_(port_handler),
+  pool_(std::make_unique<PacketPool>(logger))
 {
 }
 
-size_t PacketHandler::getBytesAvailable() const
+ssize_t PacketHandler::getBytesAvailable() const
 {
   return this->port_handler_->getBytesAvailable();
 }
 
-size_t PacketHandler::writePort(
+ssize_t PacketHandler::writePort(
   char const * const buf, const size_t length) const
 {
   return this->port_handler_->writePort(buf, length);
 }
 
-size_t PacketHandler::readPortIntoQueue()
+ssize_t PacketHandler::readPortIntoQueue()
 {
   char buf[128];
-  size_t ret = this->port_handler_->readPort(buf, sizeof(buf));
+  const ssize_t ret = this->port_handler_->readPort(buf, sizeof(buf));
   this->pool_->enqueue(std::string(buf, ret));
   return ret;
 }

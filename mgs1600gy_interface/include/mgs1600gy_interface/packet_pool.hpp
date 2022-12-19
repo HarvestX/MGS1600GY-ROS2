@@ -19,6 +19,7 @@
 #include <string>
 #include <vector>
 #include <map>
+
 #include <rclcpp/rclcpp.hpp>
 
 namespace mgs1600gy_interface
@@ -27,6 +28,7 @@ namespace mgs1600gy_interface
 class PacketPool
 {
 public:
+  using UniquePtr = std::unique_ptr<PacketPool>;
   enum class PACKET_TYPE
   {
     MZ,
@@ -36,9 +38,11 @@ public:
 
 private:
   std::map<PACKET_TYPE, std::queue<std::string>> queue_map_;
+  rclcpp::node_interfaces::NodeLoggingInterface::SharedPtr logging_interface_;
 
 public:
-  PacketPool();
+  PacketPool() = delete;
+  explicit PacketPool(rclcpp::node_interfaces::NodeLoggingInterface::SharedPtr);
   ~PacketPool();
 
   void clear();
@@ -48,7 +52,7 @@ public:
   static std::string packetTypeToString(const PACKET_TYPE &) noexcept;
 
 private:
-  static const rclcpp::Logger getLogger() noexcept;
+  const rclcpp::Logger getLogger() const noexcept;
   static const std::string fixEscapeSequence(const std::string &);
 };
 }  // namespace mgs1600gy_interface

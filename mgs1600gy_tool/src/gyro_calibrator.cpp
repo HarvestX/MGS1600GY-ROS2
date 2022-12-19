@@ -20,19 +20,20 @@ namespace mgs1600gy_tool
 GyroCalibrator::GyroCalibrator(const rclcpp::NodeOptions & options)
 : rclcpp::Node("gyro_calibrator", options)
 {
-
   const std::string dev = this->declare_parameter(
     "dev", "/dev/serial/by-id/usb-Roboteq_Magnetic_Sensor_48F263793238-if00");
 
-  using namespace std::chrono_literals;
-  this->interface_ =
-    std::make_unique<mgs1600gy_interface::Mgs1600gyInterface>(dev, 500ms);
+  using namespace std::chrono_literals;  // NOLINT
+  this->interface_ = std::make_unique<mgs1600gy_interface::Mgs1600gyInterface>(
+    dev, this->get_node_logging_interface(), 500ms);
 
   if (!this->interface_->init()) {
-    rclcpp::shutdown();
+    exit(EXIT_FAILURE);
+    return;
   }
   if (!this->interface_->activate()) {
-    rclcpp::shutdown();
+    exit(EXIT_FAILURE);
+    return;
   }
 }
 
@@ -43,23 +44,15 @@ GyroCalibrator::~GyroCalibrator()
 
 void GyroCalibrator::calibrate()
 {
-  RCLCPP_INFO(
-    this->get_logger(),
-    "Start gyro calibration...");
+  RCLCPP_INFO(this->get_logger(), "Start gyro calibration...");
   if (!this->interface_->calibrateGyro()) {
-    RCLCPP_ERROR(
-      this->get_logger(),
-      "Calibration failed.");
+    RCLCPP_ERROR(this->get_logger(), "Calibration failed.");
     return;
   }
-  RCLCPP_INFO(
-    this->get_logger(),
-    "Gyro sensor successfully calibrated!");
+  RCLCPP_INFO(this->get_logger(), "Gyro sensor successfully calibrated!");
 
   if (!this->interface_->setAllAngleZero()) {
-    RCLCPP_ERROR(
-      this->get_logger(),
-      "Failed to set ANG zero");
+    RCLCPP_ERROR(this->get_logger(), "Failed to set ANG zero");
     return;
   }
   RCLCPP_INFO(this->get_logger(), "Calibration finished");
