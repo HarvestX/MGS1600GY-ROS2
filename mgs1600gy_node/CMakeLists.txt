@@ -12,28 +12,26 @@ ament_auto_find_build_dependencies()
 ament_auto_add_library(${PROJECT_NAME} SHARED src/${PROJECT_NAME}.cpp)
 rclcpp_components_register_node(
   ${PROJECT_NAME}
-    PLUGIN "mgs1600gy_node::Mgs1600gyNode"
-    EXECUTABLE ${PROJECT_NAME}_exec)
-# End mgs1600gy_node ================================================
+  PLUGIN "mgs1600gy_node::Mgs1600gyNode"
+  EXECUTABLE ${PROJECT_NAME}_exec)
 
 # imu2tf_node =======================================================
 set(TARGET imu2tf_node)
 ament_auto_add_library(${TARGET} SHARED src/${TARGET}.cpp)
 rclcpp_components_register_node(
   ${TARGET}
-    PLUGIN "mgs1600gy_node::Imu2TfNode"
-    EXECUTABLE ${TARGET}_exec)
-# End imu2tf_node ===================================================
+  PLUGIN "mgs1600gy_node::Imu2TfNode"
+  EXECUTABLE ${TARGET}_exec)
 
 # show node =========================================================
 set(TARGET show_node)
 ament_auto_add_library(${TARGET} SHARED src/${TARGET}.cpp)
 rclcpp_components_register_node(
   ${TARGET}
-    PLUGIN "mgs1600gy_node::ShowNode"
-    EXECUTABLE ${TARGET}_exec)
-# End show node =====================================================
+  PLUGIN "mgs1600gy_node::ShowNode"
+  EXECUTABLE ${TARGET}_exec)
 
+# Testing ===========================================================
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   set(ament_cmake_copyright_FOUND TRUE)

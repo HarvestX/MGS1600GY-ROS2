@@ -9,10 +9,11 @@
 
   <buildtool_depend>ament_cmake_auto</buildtool_depend>
 
+  <depend>h6x_serial_interface</depend>
+  <depend>libopencv-dev</depend>
   <depend>rclcpp</depend>
   <depend>sensor_msgs</depend>
   <depend>tf2</depend>
-  <depend>libopencv-dev</depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>

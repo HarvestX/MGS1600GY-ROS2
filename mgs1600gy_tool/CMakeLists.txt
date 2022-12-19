@@ -10,6 +10,7 @@ ament_auto_find_build_dependencies()
 
 set(TOOLS
   gyro_calibrator)
+
 foreach(TARGET ${TOOLS})
   ament_auto_add_executable(${TARGET} ./src/${TARGET}.cpp)
 endforeach()

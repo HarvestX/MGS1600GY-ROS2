@@ -26,7 +26,7 @@ Imu2TfNode::Imu2TfNode(const rclcpp::NodeOptions & options)
 
   this->imu_sub_ =
     this->create_subscription<sensor_msgs::msg::Imu>(
-    "imu", 1,
+    "imu", rclcpp::SensorDataQoS().keep_last(1),
     std::bind(&Imu2TfNode::onImu, this, std::placeholders::_1));
 }
 

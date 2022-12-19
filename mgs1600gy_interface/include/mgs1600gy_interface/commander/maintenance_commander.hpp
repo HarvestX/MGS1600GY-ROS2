@@ -21,19 +21,24 @@
 
 namespace mgs1600gy_interface
 {
-using namespace std::chrono_literals;
+using namespace std::chrono_literals;  // NOLINT
 class MaintenanceCommander
 {
+public:
+  using UniquePtr = std::unique_ptr<MaintenanceCommander>;
+
 private:
-  std::shared_ptr<PacketHandler> packet_handler_;
+  PacketHandler::SharedPtr packet_handler_;
+  rclcpp::node_interfaces::NodeLoggingInterface::SharedPtr logging_interface_;
   rclcpp::Clock::SharedPtr clock_;
-  const rclcpp::Duration TIMEOUT_;
+  const std::chrono::nanoseconds TIMEOUT_;
 
 public:
   MaintenanceCommander() = delete;
   explicit MaintenanceCommander(
-    std::shared_ptr<PacketHandler>,
-    const rclcpp::Duration &);
+    PacketHandler::SharedPtr,
+    rclcpp::node_interfaces::NodeLoggingInterface::SharedPtr,
+    const std::chrono::nanoseconds &);
 
   RESPONSE_STATE writeZERO() const noexcept;
   RESPONSE_STATE writeGZER() const noexcept;
@@ -41,6 +46,6 @@ public:
   RESPONSE_STATE writeCLSAV() const noexcept;
 
 private:
-  static const rclcpp::Logger getLogger() noexcept;
+  const rclcpp::Logger getLogger() noexcept;
 };
 }  // namespace mgs1600gy_interface

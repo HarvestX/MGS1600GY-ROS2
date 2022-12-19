@@ -4,9 +4,10 @@ Panels:
     Name: Displays
     Property Tree Widget:
       Expanded:
-        - /RobotModel1/Links1
-        - /RobotModel1/Links1/mgs1600gy_link1
         - /Image1/Topic1
+        - /Imu1/Box properties1
+        - /Imu1/Axes properties1
+        - /Imu1/Acceleration properties1
       Splitter Ratio: 0.5
     Tree Height: 586
   - Class: rviz_common/Selection
@@ -65,13 +66,9 @@ Visualization Manager:
           Alpha: 1
           Show Axes: false
           Show Trail: false
-        mgs1600gy_gyro_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
         mgs1600gy_link:
           Alpha: 1
-          Show Axes: true
+          Show Axes: false
           Show Trail: false
           Value: true
         mgs1600gy_magnet_link:
@@ -114,16 +111,16 @@ Visualization Manager:
         y_scale: 1
         z_scale: 1
       Class: rviz_imu_plugin/Imu
-      Enabled: false
+      Enabled: true
       Name: Imu
       Topic:
         Depth: 5
         Durability Policy: Volatile
         Filter size: 10
         History Policy: Keep Last
-        Reliability Policy: Reliable
-        Value: /mgs/imu
-      Value: false
+        Reliability Policy: Best Effort
+        Value: imu
+      Value: true
       fixed_frame_orientation: true
   Enabled: true
   Global Options:
@@ -171,25 +168,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 0.08875764906406403
+      Distance: 0.35501301288604736
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.1872255951166153
-        Y: -0.12309238314628601
-        Z: 0.10797958076000214
+        X: 0.1762477457523346
+        Y: -0.12794898450374603
+        Z: 0.11897064745426178
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.5399987697601318
+      Pitch: 0.40999889373779297
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 5.6131911277771
+      Yaw: 5.538191318511963
     Saved:
       - Class: rviz_default_plugins/Orbit
         Distance: 1.9291768074035645

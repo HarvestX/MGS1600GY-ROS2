@@ -19,9 +19,11 @@
 namespace mgs1600gy_interface
 {
 ConfigurationCommander::ConfigurationCommander(
-  std::shared_ptr<PacketHandler> _packet_handler,
-  const rclcpp::Duration & timeout)
-: packet_handler_(_packet_handler),
+  PacketHandler::SharedPtr packet_handler,
+  rclcpp::node_interfaces::NodeLoggingInterface::SharedPtr logger,
+  const std::chrono::nanoseconds & timeout)
+: packet_handler_(packet_handler),
+  logging_interface_(logger),
   clock_(std::make_shared<rclcpp::Clock>(RCL_STEADY_TIME)),
   TIMEOUT_(timeout)
 {
@@ -29,6 +31,6 @@ ConfigurationCommander::ConfigurationCommander(
 
 const rclcpp::Logger ConfigurationCommander::getLogger() noexcept
 {
-  return rclcpp::get_logger("ConfigurationCommander");
+  return this->logging_interface_->get_logger();
 }
 }  // namespace mgs1600gy_interface

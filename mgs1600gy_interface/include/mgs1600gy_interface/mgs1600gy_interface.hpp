@@ -21,26 +21,28 @@
 #include <string>
 #include <vector>
 
+#include <opencv2/opencv.hpp>
+#include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/image.hpp>
 #include <sensor_msgs/msg/imu.hpp>
-#include <rclcpp/rclcpp.hpp>
+#include <h6x_serial_interface/port_handler.hpp>
 
 #include "mgs1600gy_interface/packet_handler.hpp"
-#include "mgs1600gy_interface/port_handler.hpp"
 #include "mgs1600gy_interface/utils.hpp"
 // TODO(m12watanabe1a): Uncomment those after implementation
 // #include "mgs1600gy_interface/commander/configuration_commander.hpp"
 #include "mgs1600gy_interface/commander/maintenance_commander.hpp"
 #include "mgs1600gy_interface/commander/realtime_commander.hpp"
 
-#include <opencv2/opencv.hpp>
-
 
 namespace mgs1600gy_interface
 {
+using namespace std::chrono_literals;  // NOLINT
+
 class Mgs1600gyInterface
 {
 public:
+  using UniquePtr = std::unique_ptr<Mgs1600gyInterface>;
   enum class AxisIndex
   {
     PITCH = 0,
@@ -49,13 +51,15 @@ public:
   };
 
 private:
-  const rclcpp::Duration TIMEOUT_;
+  using PortHandler = h6x_serial_interface::PortHandler;
   RealtimeCommander::MODE mode_;
+  rclcpp::node_interfaces::NodeLoggingInterface::SharedPtr logging_interface_;
+  const std::chrono::nanoseconds TIMEOUT_;
 
-  std::unique_ptr<PortHandler> port_handler_;
-  std::shared_ptr<PacketHandler> packet_handler_;
-  std::unique_ptr<RealtimeCommander> realtime_commander_;
-  std::unique_ptr<MaintenanceCommander> maintenance_commander_;
+  PortHandler::UniquePtr port_handler_;
+  PacketHandler::SharedPtr packet_handler_;
+  RealtimeCommander::UniquePtr realtime_commander_;
+  MaintenanceCommander::UniquePtr maintenance_commander_;
 
   std::vector<PacketPool::PACKET_TYPE> queries_;
 
@@ -68,7 +72,8 @@ public:
   Mgs1600gyInterface() = delete;
   explicit Mgs1600gyInterface(
     const std::string &,
-    const rclcpp::Duration &);
+    rclcpp::node_interfaces::NodeLoggingInterface::SharedPtr,
+    const std::chrono::nanoseconds & = 5s);
 
   bool init();
   bool activate();
@@ -105,7 +110,7 @@ public:
   // End Calibration Commands
 
 private:
-  static const rclcpp::Logger getLogger() noexcept;
-  static bool processResponse(const RESPONSE_STATE &) noexcept;
+  const rclcpp::Logger getLogger() const noexcept;
+  bool processResponse(const RESPONSE_STATE &) const noexcept;
 };
 }  // namespace mgs1600gy_interface

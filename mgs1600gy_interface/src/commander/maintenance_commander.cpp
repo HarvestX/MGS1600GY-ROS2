@@ -14,14 +14,15 @@
 
 #include "mgs1600gy_interface/commander/maintenance_commander.hpp"
 
-
 namespace mgs1600gy_interface
 {
 
 MaintenanceCommander::MaintenanceCommander(
-  std::shared_ptr<PacketHandler> _packet_handler,
-  const rclcpp::Duration & timeout)
-: packet_handler_(_packet_handler),
+  PacketHandler::SharedPtr packet_handler,
+  rclcpp::node_interfaces::NodeLoggingInterface::SharedPtr logger,
+  const std::chrono::nanoseconds & timeout)
+: packet_handler_(packet_handler),
+  logging_interface_(logger),
   clock_(std::make_shared<rclcpp::Clock>(RCL_STEADY_TIME)),
   TIMEOUT_(timeout)
 {
@@ -50,6 +51,6 @@ RESPONSE_STATE MaintenanceCommander::writeCLSAV() const noexcept
 
 const rclcpp::Logger MaintenanceCommander::getLogger() noexcept
 {
-  return rclcpp::get_logger("MaintenanceCommander");
+  return this->logging_interface_->get_logger();
 }
 }  // namespace mgs1600gy_interface

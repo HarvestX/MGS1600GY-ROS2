@@ -14,33 +14,36 @@
 
 #pragma once
 
-
 #include <memory>
 #include <rclcpp/rclcpp.hpp>
-
 
 #include "mgs1600gy_interface/packet_handler.hpp"
 
 
 namespace mgs1600gy_interface
 {
-using namespace std::chrono_literals;
+using namespace std::chrono_literals;  // NOLINT
 // TODO(m12watanabe1a)
 // Not implemented yet
 class ConfigurationCommander
 {
+public:
+  using UniquePtr = std::unique_ptr<ConfigurationCommander>;
+
 private:
-  std::shared_ptr<PacketHandler> packet_handler_;
+  PacketHandler::SharedPtr packet_handler_;
+  rclcpp::node_interfaces::NodeLoggingInterface::SharedPtr logging_interface_;
   rclcpp::Clock::SharedPtr clock_;
-  const rclcpp::Duration TIMEOUT_;
+  const std::chrono::nanoseconds TIMEOUT_;
 
 public:
   ConfigurationCommander() = delete;
   explicit ConfigurationCommander(
-    std::shared_ptr<PacketHandler>,
-    const rclcpp::Duration &);
+    PacketHandler::SharedPtr,
+    rclcpp::node_interfaces::NodeLoggingInterface::SharedPtr,
+    const std::chrono::nanoseconds &);
 
 private:
-  static const rclcpp::Logger getLogger() noexcept;
+  const rclcpp::Logger getLogger() noexcept;
 };
 }  // namespace mgs1600gy_interface
