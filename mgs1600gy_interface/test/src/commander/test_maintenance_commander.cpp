@@ -14,6 +14,7 @@
 
 #include <gmock/gmock.h>
 #include <mgs1600gy_interface/commander/maintenance_commander.hpp>
+#include <h6x_serial_interface/gmock_port_handler.hpp>
 
 using namespace std::chrono_literals;  // NOLINT
 using ::testing::_;
@@ -21,11 +22,6 @@ using ::testing::StrEq;
 using ::testing::Return;
 using ::testing::DoAll;
 using RS = mgs1600gy_interface::RESPONSE_STATE;
-
-
-ACTION_P(StrCpyToArg0, str) {
-  strcpy(arg0, str);  // NOLINT
-}
 
 class Logger : public rclcpp::node_interfaces::NodeLoggingInterface
 {
@@ -40,22 +36,6 @@ public:
     return "TestMaintenanceCommander";
   }
 };
-
-class MockPortHandler : public h6x_serial_interface::PortHandlerBase
-{
-public:
-  MockPortHandler()
-  : h6x_serial_interface::PortHandlerBase()
-  {
-  }
-
-  MOCK_METHOD(ssize_t, getBytesAvailable, (), (const override));
-  MOCK_METHOD(ssize_t, readPort, (char * const, const size_t), (const override));
-  MOCK_METHOD(
-    ssize_t, writePort,
-    (const char * const, const size_t), (const override));
-};
-
 
 class TestMaintenanceCommander : public ::testing::Test
 {
