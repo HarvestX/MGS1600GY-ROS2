@@ -35,9 +35,6 @@ if(BUILD_TESTING)
   set(ament_cmake_cpplint_FOUND TRUE)
   ament_lint_auto_find_test_dependencies()
 
-  find_package(ament_cmake_gtest REQUIRED)
-  find_package(ament_cmake_gmock REQUIRED)
-
   set(TARGET test_packet_pool)
   ament_add_gtest(${TARGET} test/src/${TARGET}.cpp)
   target_include_directories(${TARGET} PRIVATE "include")
