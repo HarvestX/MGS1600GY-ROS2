@@ -194,6 +194,8 @@ Imu::UniquePtr Mgs1600gyInterface::getImu(const std_msgs::msg::Header & header) 
   imu_msg->orientation.x = quat.getX();
   imu_msg->orientation.y = quat.getY();
   imu_msg->orientation.z = quat.getZ();
+  imu_msg->angular_velocity_covariance.at(0) = -1; //UNUSED
+  imu_msg->linear_acceleration_covariance.at(0) = -1; //UNUSED
   return imu_msg;
 }
 
