@@ -53,5 +53,10 @@ source ~/<Your Workspace>/install/setup.bash
 ros2 launch mgs1600gy_bringup mgs1600gy.launch.py dev:=<Your Path to Device>
 ```
 
+## Calibration
+```bash
+ros2 run mgs1600gy_tool gyro_calibrator --ros-args -p dev:=<Your Path to Device>
+```
+
 # References
 - [RoboteQ_MGS1600GY](https://www.roboteq.com/products/navigation-sensors/line-following-sensors/mgs1600cgy-magnetic-sensor-with-gyroscope-detail)
