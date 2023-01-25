@@ -18,11 +18,19 @@ void showImuData(
   sensor_msgs::msg::Imu const * const imu_msg
 )
 {
-  std::cout << "IMU: " << std::setprecision(2);
+  std::cout << std::setprecision(2);
+
+  std::cout << "orientation:" << std::endl;
   std::cout << " x: " << imu_msg->orientation.x;
   std::cout << " y: " << imu_msg->orientation.y;
   std::cout << " z: " << imu_msg->orientation.z;
   std::cout << " w: " << imu_msg->orientation.w;
+  std::cout << std::endl;
+
+  std::cout << "velocity:" << std::endl;
+  std::cout << " x: " << imu_msg->angular_velocity.x;
+  std::cout << " y: " << imu_msg->angular_velocity.y;
+  std::cout << " z: " << imu_msg->angular_velocity.z;
   std::cout << std::endl;
 }
 
@@ -64,13 +72,17 @@ int main(int argc, char ** argv)
     return EXIT_FAILURE;
   }
 
+  if (!mgs1600gy_interface->setQueries(PACKET_TYPE::GY)) {
+    return EXIT_FAILURE;
+  }
+
   mgs1600gy_interface->startQueries(10);
   auto imu_msg = std::make_unique<sensor_msgs::msg::Imu>();
   std_msgs::msg::Header header;
   header.frame_id = "base_link";
 
   for (int i = 0; i < 100; ++i) {
-    if (mgs1600gy_interface->read(PACKET_TYPE::ANG)) {
+    if (mgs1600gy_interface->read(PACKET_TYPE::ANG) && mgs1600gy_interface->read(PACKET_TYPE::GY)) {
       header.stamp = rclcpp::Clock().now();
       const auto imu_msg = mgs1600gy_interface->getImu(header);
       showImuData(imu_msg.get());

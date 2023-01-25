@@ -64,7 +64,7 @@ TEST_F(TestMaintenanceCommander, writeZeroOK)
   const char sending[] = "%ZERO\r";
 
   EXPECT_CALL(
-    mock_port_handler, writePort(StrEq(sending), sizeof(sending))).Times(1);
+    mock_port_handler, writePort(StrEq(sending), strlen(sending))).Times(1);
 
   ASSERT_EQ(this->commander->writeZERO(), RS::OK);
 }
@@ -74,7 +74,7 @@ TEST_F(TestMaintenanceCommander, writeGzerOK)
   const char sending[] = "%GZER\r";
 
   EXPECT_CALL(
-    mock_port_handler, writePort(StrEq(sending), sizeof(sending))).Times(1);
+    mock_port_handler, writePort(StrEq(sending), strlen(sending))).Times(1);
 
   ASSERT_EQ(this->commander->writeGZER(), RS::OK);
 }
@@ -84,7 +84,7 @@ TEST_F(TestMaintenanceCommander, writeClsavOK)
   const char sending[] = "%CLSAV\r";
 
   EXPECT_CALL(
-    mock_port_handler, writePort(StrEq(sending), sizeof(sending))).Times(1);
+    mock_port_handler, writePort(StrEq(sending), strlen(sending))).Times(1);
 
   ASSERT_EQ(this->commander->writeCLSAV(), RS::OK);
 }

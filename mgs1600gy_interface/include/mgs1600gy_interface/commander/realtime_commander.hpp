@@ -51,16 +51,16 @@ public:
 
   RESPONSE_STATE readMZ(std::array<float, 16> &, const MODE) const noexcept;
   RESPONSE_STATE readANG(std::array<float, 3> &, const MODE) const noexcept;
+  RESPONSE_STATE readGY(std::array<float, 3> &, const MODE) const noexcept;
 
-  RESPONSE_STATE startQuery(const uint32_t every_ms) const noexcept;
+  RESPONSE_STATE startQuery(const uint32_t) const noexcept;
   RESPONSE_STATE clearQuery() const noexcept;
 
   RESPONSE_STATE writeANG(const int, const int) const noexcept;
 
 private:
   const rclcpp::Logger getLogger() noexcept;
-  bool waitForResponse(
-    const PacketPool::PACKET_TYPE &, std::string &) const noexcept;
+  bool waitForResponse(const PacketPool::PACKET_TYPE &, std::string &) const noexcept;
 
 };
 }  // namespace mgs1600gy_interface

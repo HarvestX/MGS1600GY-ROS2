@@ -12,7 +12,7 @@
         "${workspaceFolder}/../../install/h6x_serial_interface/include/**",
         "${workspaceFolder}/mgs1600gy_interface/include/**",
         "${workspaceFolder}/mgs1600gy_node/include/**",
-        "${workspaceFolder}/mgs1600gy_tool/include/**",
+        "${workspaceFolder}/mgs1600gy_tool/include/**"
       ],
       "name": "ROS",
       "intelliSenseMode": "clang-x64",

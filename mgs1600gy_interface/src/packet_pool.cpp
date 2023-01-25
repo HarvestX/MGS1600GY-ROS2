@@ -61,7 +61,9 @@ void PacketPool::enqueue(const std::string & in_packet)
 
   std::string item = "";
   for (char ch : chunk) {
-    item += ch;
+    if (ch != '\0') {
+      item += ch;
+    }
     if (ch != '\r') {
       continue;
     }
@@ -75,6 +77,9 @@ void PacketPool::enqueue(const std::string & in_packet)
     } else if (item.rfind("ANG=", 0) == 0) {
       RCLCPP_DEBUG(this->getLogger(), "ANG packet stocked : %s", item.c_str());
       this->queue_map_[PACKET_TYPE::ANG].push(item);
+    } else if (item.rfind("GY=", 0) == 0) {
+      RCLCPP_DEBUG(this->getLogger(), "ANG packet stocked : %s", item.c_str());
+      this->queue_map_[PACKET_TYPE::GY].push(item);
     } else if (is_special_char(item.at(0))) {
       // Skip
       // This is echo back from previous packet
@@ -94,9 +99,7 @@ void PacketPool::enqueue(const std::string & in_packet)
   }
 }
 
-bool PacketPool::takePacket(
-  const PACKET_TYPE & target,
-  std::string & packet)
+bool PacketPool::takePacket(const PACKET_TYPE & target, std::string & packet)
 {
   bool res = false;
   packet.clear();
@@ -109,8 +112,7 @@ bool PacketPool::takePacket(
   return res;
 }
 
-bool PacketPool::parseResponse(
-  const std::string & response, std::vector<float> & out) noexcept
+bool PacketPool::parseResponse(const std::string & response, std::vector<float> & out) noexcept
 {
   bool scanning_started = false;
   std::string val_candidate;

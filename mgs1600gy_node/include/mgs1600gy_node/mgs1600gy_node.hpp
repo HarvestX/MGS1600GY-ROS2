@@ -34,13 +34,17 @@ namespace mgs1600gy_node
 class Mgs1600gyNode : public rclcpp::Node
 {
 private:
+  using Imu = sensor_msgs::msg::Imu;
+  using Image = sensor_msgs::msg::Image;
+  using PT = mgs1600gy_interface::PacketPool::PACKET_TYPE;
+
   const double SENSOR_MIN_, SENSOR_MAX_;
   const bool FLIP_;
 
   const std::string NAME_, BASE_LINK_, MAGNET_LINK_;
 
   image_transport::Publisher image_pub_;
-  rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imu_pub_;
+  rclcpp::Publisher<Imu>::SharedPtr imu_pub_;
   rclcpp::TimerBase::SharedPtr image_timer_, imu_timer_;
   mgs1600gy_interface::Mgs1600gyInterface::UniquePtr interface_;
   cv::Mat sensor_data_;

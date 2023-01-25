@@ -33,7 +33,6 @@ Mgs1600gyNode::Mgs1600gyNode(const rclcpp::NodeOptions & node_options)
   const std::string DEV = this->declare_parameter(
     "dev", "/dev/serial/by-id/usb-Roboteq_Magnetic_Sensor_48F263793238-if00");
 
-
   RCLCPP_INFO(this->get_logger(), "Base link name: %s", this->BASE_LINK_.c_str());
   RCLCPP_INFO(this->get_logger(), "Magnet link name: %s", this->MAGNET_LINK_.c_str());
   RCLCPP_INFO(this->get_logger(), "Selected device: %s", DEV.c_str());
@@ -53,8 +52,7 @@ Mgs1600gyNode::Mgs1600gyNode(const rclcpp::NodeOptions & node_options)
     log_ss << "yaw: " << init_y << " ";
   }
   if (!log_ss.str().empty()) {
-    RCLCPP_INFO_STREAM(
-      this->get_logger(), log_ss.str());
+    RCLCPP_INFO_STREAM(this->get_logger(), log_ss.str());
   }
 
   // Setup Sensor to Read Magnetic data
@@ -74,56 +72,44 @@ Mgs1600gyNode::Mgs1600gyNode(const rclcpp::NodeOptions & node_options)
   using AxisIndex = mgs1600gy_interface::Mgs1600gyInterface::AxisIndex;
   if (!std::isnan(init_r) && !this->interface_->setAngle(AxisIndex::ROLL, init_r)) {
     exit(EXIT_FAILURE);
-    return;
   }
   if (!std::isnan(init_p) && !this->interface_->setAngle(AxisIndex::PITCH, init_p)) {
     exit(EXIT_FAILURE);
-    return;
   }
   if (!std::isnan(init_y) && !this->interface_->setAngle(AxisIndex::YAW, init_y)) {
     exit(EXIT_FAILURE);
-    return;
   }
 
-  if (!this->interface_->setQueries(mgs1600gy_interface::PacketPool::PACKET_TYPE::MZ)) {
-    exit(EXIT_FAILURE);
-    return;
+  this->interface_->stopQueries();
+  const auto queries = {PT::MZ, PT::ANG, PT::GY};
+  for (const auto & query : queries) {
+    if (!this->interface_->setQueries(query)) {
+      exit(EXIT_FAILURE);
+    }
   }
 
-  if (!this->interface_->setQueries(mgs1600gy_interface::PacketPool::PACKET_TYPE::ANG)) {
-    exit(EXIT_FAILURE);
-    return;
-  }
-  if (!this->interface_->startQueries(100)) {
-    exit(EXIT_FAILURE);
-    return;
-  }
-
+  const uint32_t interval = 10;
+  this->interface_->startQueries(interval);
   this->sensor_data_ = cv::Mat(1, 16, CV_8UC3);
 
-  rclcpp::QoS sensor_qos = rclcpp::SensorDataQoS();
   this->image_pub_ = image_transport::create_publisher(
-    this, "image", sensor_qos.get_rmw_qos_profile());
+    this, "image", rclcpp::SensorDataQoS().get_rmw_qos_profile());
 
-  this->imu_pub_ = create_publisher<sensor_msgs::msg::Imu>(
-    "imu", rclcpp::SensorDataQoS());
+  this->imu_pub_ = create_publisher<Imu>("imu", rclcpp::SensorDataQoS());
 
   this->image_timer_ = rclcpp::create_timer(
-    this, this->get_clock(),
-    100ms, std::bind(&Mgs1600gyNode::onImageTimer, this));
+    this, this->get_clock(), std::chrono::milliseconds(interval),
+    std::bind(&Mgs1600gyNode::onImageTimer, this));
 
   this->imu_timer_ = rclcpp::create_timer(
-    this, this->get_clock(),
-    100ms, std::bind(&Mgs1600gyNode::onImuTimer, this));
+    this, this->get_clock(), std::chrono::milliseconds(interval),
+    std::bind(&Mgs1600gyNode::onImuTimer, this));
 }
 
 
 void Mgs1600gyNode::onImageTimer()
 {
-  std::string recv;
-  if (!this->interface_->read(
-      mgs1600gy_interface::PacketPool::PACKET_TYPE::MZ))
-  {
+  if (!this->interface_->read(PT::MZ)) {
     return;
   }
 
@@ -132,17 +118,13 @@ void Mgs1600gyNode::onImageTimer()
   std_msgs::msg::Header header;
   header.frame_id = this->MAGNET_LINK_;
   header.stamp = this->get_clock()->now();
-  sensor_msgs::msg::Image::SharedPtr image_msg =
-    cv_bridge::CvImage(header, "bgr8", this->sensor_data_).toImageMsg();
+  Image::SharedPtr image_msg = cv_bridge::CvImage(header, "bgr8", this->sensor_data_).toImageMsg();
   this->image_pub_.publish(image_msg);
 }
 
 void Mgs1600gyNode::onImuTimer()
 {
-  std::string recv;
-  if (!this->interface_->read(
-      mgs1600gy_interface::PacketPool::PACKET_TYPE::ANG))
-  {
+  if (!this->interface_->read(PT::ANG) || !this->interface_->read(PT::GY)) {
     return;
   }
 
