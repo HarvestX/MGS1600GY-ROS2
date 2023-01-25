@@ -61,7 +61,9 @@ void PacketPool::enqueue(const std::string & in_packet)
 
   std::string item = "";
   for (char ch : chunk) {
-    item += ch;
+    if(ch != '\0') {
+      item += ch;
+    }
     if (ch != '\r') {
       continue;
     }

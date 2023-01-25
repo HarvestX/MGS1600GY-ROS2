@@ -33,7 +33,9 @@ RESPONSE_STATE RealtimeCommander::readMZ(
 {
   if (mode == MODE::NORMAL) {
     static const char write_buf[] = "?MZ\r";
-    this->packet_handler_->writePort(write_buf, sizeof(write_buf));
+    if (this->packet_handler_->writePort(write_buf, strlen(write_buf)) == -1) {
+      return RESPONSE_STATE::ERROR_SENDING;
+    }
   }
 
   static std::string response;
@@ -59,7 +61,9 @@ RESPONSE_STATE RealtimeCommander::readANG(
 {
   if (mode == MODE::NORMAL) {
     static const char write_buf[] = "?ANG\r";
-    this->packet_handler_->writePort(write_buf, sizeof(write_buf));
+    if (this->packet_handler_->writePort(write_buf, strlen(write_buf)) == -1) {
+      return RESPONSE_STATE::ERROR_SENDING;
+    }
   }
 
   static std::string response;
@@ -85,7 +89,7 @@ RESPONSE_STATE RealtimeCommander::readGY(
 {
   if (mode == MODE::NORMAL) {
     static const char write_buf[] = "?GY\r";
-    if (this->packet_handler_->writePort(write_buf, sizeof(write_buf)) == -1) {
+    if (this->packet_handler_->writePort(write_buf, strlen(write_buf)) == -1) {
       return RESPONSE_STATE::ERROR_SENDING;
     }
   }
@@ -142,8 +146,7 @@ RESPONSE_STATE RealtimeCommander::writeANG(
 }
 
 bool RealtimeCommander::waitForResponse(
-  const PacketPool::PACKET_TYPE & type,
-  std::string & response) const noexcept
+  const PacketPool::PACKET_TYPE & type, std::string & response) const noexcept
 {
   bool has_response = false;
   const auto start = this->clock_->now();

@@ -47,20 +47,15 @@ bool Mgs1600gyInterface::activate()
   }
 
   this->packet_handler_ =
-    std::make_shared<PacketHandler>(
-    this->port_handler_.get(), this->logging_interface_);
+    std::make_shared<PacketHandler>(this->port_handler_.get(), this->logging_interface_);
 
-  this->maintenance_commander_ =
-    std::make_unique<MaintenanceCommander>(
-    this->packet_handler_, this->logging_interface_, this->TIMEOUT_);
-  this->realtime_commander_ =
-    std::make_unique<RealtimeCommander>(
+  this->maintenance_commander_ = std::make_unique<MaintenanceCommander>(
     this->packet_handler_, this->logging_interface_, this->TIMEOUT_);
 
-  this->mode_ = RealtimeCommander::MODE::NORMAL;
-  this->queries_.clear();
-  this->realtime_commander_->clearQuery();
+  this->realtime_commander_ = std::make_unique<RealtimeCommander>(
+    this->packet_handler_, this->logging_interface_, this->TIMEOUT_);
 
+  this->stopQueries();
   return true;
 }
 
@@ -77,8 +72,7 @@ bool Mgs1600gyInterface::deactivate()
   return true;
 }
 
-bool Mgs1600gyInterface::setQueries(
-  const PacketPool::PACKET_TYPE & packet_type) noexcept
+bool Mgs1600gyInterface::setQueries(const PacketPool::PACKET_TYPE & packet_type) noexcept
 {
   if (!this->read(packet_type)) {
     RCLCPP_ERROR(
@@ -189,11 +183,15 @@ Imu::UniquePtr Mgs1600gyInterface::getImu(const std_msgs::msg::Header & header) 
   // TODO(m12watanabe1a) : it also can be 1e-1 in case
   static const float GY_COEFF = 1e-2;
 
+  static const size_t Y_IDX = static_cast<size_t>(AxisIndex::YAW);
+  static const size_t P_IDX = static_cast<size_t>(AxisIndex::PITCH);
+  static const size_t R_IDX = static_cast<size_t>(AxisIndex::ROLL);
+
   tf2::Quaternion quat;
   quat.setEuler(
-    fmod(this->ang_data_[static_cast<size_t>(AxisIndex::YAW)] * TO_RADIAN, 2.0 * M_PI),
-    fmod(this->ang_data_[static_cast<size_t>(AxisIndex::PITCH)] * TO_RADIAN, 2.0 * M_PI),
-    fmod(this->ang_data_[static_cast<size_t>(AxisIndex::ROLL)] * TO_RADIAN, 2.0 * M_PI));
+    fmod(this->ang_data_[Y_IDX] * TO_RADIAN, 2.0 * M_PI),
+    fmod(this->ang_data_[P_IDX] * TO_RADIAN, 2.0 * M_PI),
+    fmod(this->ang_data_[R_IDX] * TO_RADIAN, 2.0 * M_PI));
   auto imu_msg = std::make_unique<Imu>();
   imu_msg->header = header;
   imu_msg->orientation.w = quat.getW();
@@ -201,12 +199,11 @@ Imu::UniquePtr Mgs1600gyInterface::getImu(const std_msgs::msg::Header & header) 
   imu_msg->orientation.y = quat.getY();
   imu_msg->orientation.z = quat.getZ();
 
-  imu_msg->angular_velocity.x = this->gy_data_[0] * GY_COEFF;
-  imu_msg->angular_velocity.y = this->gy_data_[1] * GY_COEFF;
-  imu_msg->angular_velocity.z = this->gy_data_[2] * GY_COEFF;
+  imu_msg->angular_velocity.x = this->gy_data_[R_IDX] * GY_COEFF;
+  imu_msg->angular_velocity.y = this->gy_data_[P_IDX] * GY_COEFF;
+  imu_msg->angular_velocity.z = this->gy_data_[Y_IDX] * GY_COEFF;
 
   // TODO(anyone): set covariance from given parameter
-  imu_msg->angular_velocity_covariance.at(0) = -1;  // UNUSED
   imu_msg->linear_acceleration_covariance.at(0) = -1;  // UNUSED
   return imu_msg;
 }

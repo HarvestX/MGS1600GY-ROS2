@@ -48,8 +48,8 @@ public:
   enum class AxisIndex
   {
     PITCH = 0,
-    YAW = 1,
-    ROLL = 2,
+    YAW,
+    ROLL,
   };
 
 private:

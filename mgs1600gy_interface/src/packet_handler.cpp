@@ -30,8 +30,7 @@ ssize_t PacketHandler::getBytesAvailable() const
   return this->port_handler_->getBytesAvailable();
 }
 
-ssize_t PacketHandler::writePort(
-  char const * const buf, const size_t length) const
+ssize_t PacketHandler::writePort(char const * const buf, const size_t length) const
 {
   return this->port_handler_->writePort(buf, length);
 }
@@ -40,13 +39,14 @@ ssize_t PacketHandler::readPortIntoQueue()
 {
   char buf[128];
   const ssize_t ret = this->port_handler_->readPort(buf, sizeof(buf));
-  this->pool_->enqueue(std::string(buf, ret));
+  if (ret != -1) {
+    this->pool_->enqueue(std::string(buf, ret));
+  }
   return ret;
 }
 
 bool PacketHandler::takePacket(
-  const PacketPool::PACKET_TYPE & packet_type,
-  std::string & out)
+  const PacketPool::PACKET_TYPE & packet_type, std::string & out)
 {
   return this->pool_->takePacket(packet_type, out);
 }

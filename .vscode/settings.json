@@ -20,15 +20,6 @@
   "editor.formatOnSave": true,
   "python.linting.enabled": true,
   "python.linting.flake8Enabled": true,
-  "files.exclude": {
-    "**/.git": true,
-    "**/.svn": true,
-    "**/.hg": true,
-    "**/CVS": true,
-    "**/.DS_Store": true,
-    "**/Thumbs.db": true,
-    "/opt/ros/galactic/include/mgs1600gy_*": true
-  },
   "files.associations": {
     "array": "cpp",
     "chrono": "cpp"
