@@ -69,6 +69,7 @@ private:
   cv::Mat img_data_;
 
   std::array<float, 3> ang_data_;
+  std::array<float, 3> gy_data_;
 
 public:
   Mgs1600gyInterface() = delete;
@@ -81,21 +82,22 @@ public:
   bool activate();
   bool deactivate();
 
-  // Query commands
-  bool setQueries(const PacketPool::PACKET_TYPE &) noexcept;
-  bool startQueries(const uint32_t & every_ms) noexcept;
-  bool stopQueries() noexcept;
-
   bool read(const PacketPool::PACKET_TYPE &);
   bool readAll();
 
   void getMzData(std::array<float, 16> &) const noexcept;
   void getAngData(std::array<float, 3> &) const noexcept;
+  void getGyData(std::array<float, 3> &) const noexcept;
 
   Imu::UniquePtr getImu(const std_msgs::msg::Header &) const noexcept;
   void getImage(
     cv::Mat *, const float & = -2000, const float & = 2000,
     const bool & = false) const noexcept;
+
+  // Query commands
+  bool setQueries(const PacketPool::PACKET_TYPE &) noexcept;
+  bool startQueries(const uint32_t &) noexcept;
+  bool stopQueries() noexcept;
   // End Query Commands
 
   // Realtime Commands

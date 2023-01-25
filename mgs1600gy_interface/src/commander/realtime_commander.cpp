@@ -29,20 +29,19 @@ RealtimeCommander::RealtimeCommander(
 
 
 RESPONSE_STATE RealtimeCommander::readMZ(
-  std::array<float, 16> & _out,
-  const MODE mode) const noexcept
+  std::array<float, 16> & _out, const MODE mode) const noexcept
 {
   if (mode == MODE::NORMAL) {
     static const char write_buf[] = "?MZ\r";
     this->packet_handler_->writePort(write_buf, sizeof(write_buf));
   }
 
-  std::string response;
+  static std::string response;
   if (!this->waitForResponse(PacketPool::PACKET_TYPE::MZ, response)) {
     return RESPONSE_STATE::ERROR_NO_RESPONSE;
   }
 
-  std::vector<float> res_vals;
+  static std::vector<float> res_vals;
   if (!PacketPool::parseResponse(response, res_vals)) {
     return RESPONSE_STATE::ERROR_PARSE_FAILED;
   }
@@ -56,20 +55,19 @@ RESPONSE_STATE RealtimeCommander::readMZ(
 }
 
 RESPONSE_STATE RealtimeCommander::readANG(
-  std::array<float, 3> & _out,
-  const MODE mode) const noexcept
+  std::array<float, 3> & _out, const MODE mode) const noexcept
 {
   if (mode == MODE::NORMAL) {
     static const char write_buf[] = "?ANG\r";
     this->packet_handler_->writePort(write_buf, sizeof(write_buf));
   }
 
-  std::string response;
+  static std::string response;
   if (!this->waitForResponse(PacketPool::PACKET_TYPE::ANG, response)) {
     return RESPONSE_STATE::ERROR_NO_RESPONSE;
   }
 
-  std::vector<float> res_vals;
+  static std::vector<float> res_vals;
   if (!PacketPool::parseResponse(response, res_vals)) {
     return RESPONSE_STATE::ERROR_PARSE_FAILED;
   }
@@ -82,8 +80,35 @@ RESPONSE_STATE RealtimeCommander::readANG(
   return RESPONSE_STATE::OK;
 }
 
-RESPONSE_STATE RealtimeCommander::startQuery(
-  const uint32_t every_ms) const noexcept
+RESPONSE_STATE RealtimeCommander::readGY(
+  std::array<float, 3> & _out, const MODE mode) const noexcept
+{
+  if (mode == MODE::NORMAL) {
+    static const char write_buf[] = "?GY\r";
+    if (this->packet_handler_->writePort(write_buf, sizeof(write_buf)) == -1) {
+      return RESPONSE_STATE::ERROR_SENDING;
+    }
+  }
+
+  static std::string response;
+  if (!this->waitForResponse(PacketPool::PACKET_TYPE::GY, response)) {
+    return RESPONSE_STATE::ERROR_NO_RESPONSE;
+  }
+
+  static std::vector<float> res_vals;
+  if (!PacketPool::parseResponse(response, res_vals)) {
+    return RESPONSE_STATE::ERROR_PARSE_FAILED;
+  }
+
+  if (res_vals.size() != _out.size()) {
+    return RESPONSE_STATE::ERROR_PARSE_RESULT_INCOMPATIBLE;
+  }
+
+  std::copy(res_vals.begin(), res_vals.end(), _out.begin());
+  return RESPONSE_STATE::OK;
+}
+
+RESPONSE_STATE RealtimeCommander::startQuery(const uint32_t every_ms) const noexcept
 {
   if (every_ms < 10) {
     return RESPONSE_STATE::ERROR_INVALID_INPUT;

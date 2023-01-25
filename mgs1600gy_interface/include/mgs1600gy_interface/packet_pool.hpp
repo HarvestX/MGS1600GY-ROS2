@@ -33,6 +33,7 @@ public:
   {
     MZ,
     ANG,
+    GY,
     END_PACKET_TYPE
   };
 

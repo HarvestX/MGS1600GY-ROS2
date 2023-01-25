@@ -96,9 +96,7 @@ bool Mgs1600gyInterface::setQueries(
 bool Mgs1600gyInterface::startQueries(const uint32_t & every_ms) noexcept
 {
   if (this->queries_.empty()) {
-    RCLCPP_ERROR(
-      this->getLogger(),
-      "Query is empty");
+    RCLCPP_ERROR(this->getLogger(), "Query is empty");
     return false;
   }
 
@@ -110,8 +108,7 @@ bool Mgs1600gyInterface::startQueries(const uint32_t & every_ms) noexcept
     this->getLogger(), "Following Commands will repeatedly executed [%s]",
     query_ss.str().c_str());
 
-  const bool state = this->processResponse(
-    this->realtime_commander_->startQuery(every_ms));
+  const bool state = this->processResponse(this->realtime_commander_->startQuery(every_ms));
 
   if (state) {
     this->mode_ = RealtimeCommander::MODE::QUERY;
@@ -121,8 +118,7 @@ bool Mgs1600gyInterface::startQueries(const uint32_t & every_ms) noexcept
 
 bool Mgs1600gyInterface::stopQueries() noexcept
 {
-  const bool ret =
-    this->processResponse(this->realtime_commander_->clearQuery());
+  const bool & ret = this->processResponse(this->realtime_commander_->clearQuery());
   if (ret) {
     this->mode_ = RealtimeCommander::MODE::NORMAL;
     this->queries_.clear();
@@ -133,24 +129,26 @@ bool Mgs1600gyInterface::stopQueries() noexcept
 bool Mgs1600gyInterface::read(const PacketPool::PACKET_TYPE & packet_type)
 {
   RESPONSE_STATE state;
+  using PT = PacketPool::PACKET_TYPE;
   switch (packet_type) {
-    case PacketPool::PACKET_TYPE::MZ:
+    case PT::MZ:
       {
-        state = this->realtime_commander_->readMZ(
-          this->mz_data_, this->mode_);
+        state = this->realtime_commander_->readMZ(this->mz_data_, this->mode_);
         break;
       }
-    case PacketPool::PACKET_TYPE::ANG:
+    case PT::ANG:
       {
-        state = this->realtime_commander_->readANG(
-          this->ang_data_, this->mode_);
+        state = this->realtime_commander_->readANG(this->ang_data_, this->mode_);
+        break;
+      }
+    case PT::GY:
+      {
+        state = this->realtime_commander_->readGY(this->gy_data_, this->mode_);
         break;
       }
     default:
       {
-        RCLCPP_ERROR(
-          this->getLogger(),
-          "Invalid packet type given");
+        RCLCPP_ERROR(this->getLogger(), "Invalid packet type given");
         return false;
       }
   }
@@ -160,10 +158,9 @@ bool Mgs1600gyInterface::read(const PacketPool::PACKET_TYPE & packet_type)
 
 bool Mgs1600gyInterface::readAll()
 {
-  for (size_t i = 0;
-    i < static_cast<size_t>(PacketPool::PACKET_TYPE::END_PACKET_TYPE); ++i)
-  {
-    if (!this->read(static_cast<PacketPool::PACKET_TYPE>(i))) {
+  using PT = PacketPool::PACKET_TYPE;
+  for (size_t i = 0; i < static_cast<size_t>(PT::END_PACKET_TYPE); ++i) {
+    if (!this->read(static_cast<PT>(i))) {
       return false;
     }
   }
@@ -180,9 +177,18 @@ void Mgs1600gyInterface::getAngData(std::array<float, 3> & out) const noexcept
   std::copy(this->ang_data_.begin(), this->ang_data_.end(), out.begin());
 }
 
+void Mgs1600gyInterface::getGyData(std::array<float, 3> & out) const noexcept
+{
+  std::copy(this->gy_data_.begin(), this->gy_data_.end(), out.begin());
+}
+
 Imu::UniquePtr Mgs1600gyInterface::getImu(const std_msgs::msg::Header & header) const noexcept
 {
   static const float TO_RADIAN = 0.1 * M_PI / 180.0;
+
+  // TODO(m12watanabe1a) : it also can be 1e-1 in case
+  static const float GY_COEFF = 1e-2;
+
   tf2::Quaternion quat;
   quat.setEuler(
     fmod(this->ang_data_[static_cast<size_t>(AxisIndex::YAW)] * TO_RADIAN, 2.0 * M_PI),
@@ -194,20 +200,21 @@ Imu::UniquePtr Mgs1600gyInterface::getImu(const std_msgs::msg::Header & header) 
   imu_msg->orientation.x = quat.getX();
   imu_msg->orientation.y = quat.getY();
   imu_msg->orientation.z = quat.getZ();
-  imu_msg->angular_velocity_covariance.at(0) = -1;  //UNUSED
-  imu_msg->linear_acceleration_covariance.at(0) = -1;  //UNUSED
+
+  imu_msg->angular_velocity.x = this->gy_data_[0] * GY_COEFF;
+  imu_msg->angular_velocity.y = this->gy_data_[1] * GY_COEFF;
+  imu_msg->angular_velocity.z = this->gy_data_[2] * GY_COEFF;
+
+  // TODO(anyone): set covariance from given parameter
+  imu_msg->angular_velocity_covariance.at(0) = -1;  // UNUSED
+  imu_msg->linear_acceleration_covariance.at(0) = -1;  // UNUSED
   return imu_msg;
 }
 
 void Mgs1600gyInterface::getImage(
-  cv::Mat * out,
-  const float & MIN,
-  const float & MAX,
-  const bool & FLIP
-) const noexcept
+  cv::Mat * out, const float & MIN, const float & MAX, const bool & FLIP) const noexcept
 {
-  Utils::convertBGR(
-    this->mz_data_, out, MIN, MAX, FLIP);
+  Utils::convertBGR(this->mz_data_, out, MIN, MAX, FLIP);
 }
 
 bool Mgs1600gyInterface::setAllAngleZero() const noexcept
@@ -224,8 +231,7 @@ bool Mgs1600gyInterface::setAllAngleZero() const noexcept
   return true;
 }
 
-bool Mgs1600gyInterface::setAngle(
-  const AxisIndex & idx, const float & rad) const noexcept
+bool Mgs1600gyInterface::setAngle(const AxisIndex & idx, const float & rad) const noexcept
 {
   // degree times 100
   static const float RAD2STEP = 100.0 * 180.0 / M_PI;
@@ -243,9 +249,7 @@ bool Mgs1600gyInterface::calibrateMagnet() const noexcept
     this->getLogger(),
     "Calibrating for magnet sensor. "
     "Position the sensor away from any magnetic or ferrous material...");
-  if (!this->processResponse(
-      this->maintenance_commander_->writeZERO()))
-  {
+  if (!this->processResponse(this->maintenance_commander_->writeZERO())) {
     return false;
   }
   rclcpp::sleep_for(10ms);
@@ -258,9 +262,7 @@ bool Mgs1600gyInterface::calibrateMagnet() const noexcept
 bool Mgs1600gyInterface::calibrateGyro() const noexcept
 {
   RCLCPP_WARN(this->getLogger(), "Calibrating for Gyro. Keep the sensor totally immobile...");
-  if (!this->processResponse(
-      this->maintenance_commander_->writeGZER()))
-  {
+  if (!this->processResponse(this->maintenance_commander_->writeGZER())) {
     return false;
   }
   rclcpp::sleep_for(10ms);
