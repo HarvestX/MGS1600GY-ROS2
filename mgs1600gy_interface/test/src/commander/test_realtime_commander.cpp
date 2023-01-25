@@ -63,7 +63,7 @@ TEST_F(TestRealtimeCommander, readMzOK)
     "-56:-45:-39:-45:-53:-53:-42:-35:"
     "-45:-40:-53:-36:-37:-29:-24:-28\r";
 
-  EXPECT_CALL(mock_port_handler, writePort(StrEq(sending), sizeof(sending))).Times(1);
+  EXPECT_CALL(mock_port_handler, writePort(StrEq(sending), strlen(sending))).Times(1);
 
   EXPECT_CALL(mock_port_handler, getBytesAvailable()).WillRepeatedly(Return(response.size()));
 
@@ -89,7 +89,7 @@ TEST_F(TestRealtimeCommander, readMzQueryModeOK)
     "-56:-45:-39:-45:-53:-53:-42:-35:"
     "-45:-40:-53:-36:-37:-29:-24:-28\r";
 
-  EXPECT_CALL(mock_port_handler, writePort(StrEq(sending), sizeof(sending))).Times(0);
+  EXPECT_CALL(mock_port_handler, writePort(StrEq(sending), strlen(sending))).Times(0);
 
   EXPECT_CALL(mock_port_handler, getBytesAvailable())
   .WillRepeatedly(Return(response.size()));
@@ -113,7 +113,7 @@ TEST_F(TestRealtimeCommander, readMzNG)
 {
   const char sending[] = "?MZ\r";
 
-  EXPECT_CALL(mock_port_handler, writePort(StrEq(sending), sizeof(sending))).Times(1);
+  EXPECT_CALL(mock_port_handler, writePort(StrEq(sending), strlen(sending))).Times(1);
   EXPECT_CALL(mock_port_handler, getBytesAvailable()).WillRepeatedly(Return(0));
 
   std::array<float, 16> actual;
@@ -125,7 +125,7 @@ TEST_F(TestRealtimeCommander, readAngOK)
   const char sending[] = "?ANG\r";
   const std::string response = std::string(sending) + "ANG=17:5:-9\r";
 
-  EXPECT_CALL(mock_port_handler, writePort(StrEq(sending), sizeof(sending))).Times(1);
+  EXPECT_CALL(mock_port_handler, writePort(StrEq(sending), strlen(sending))).Times(1);
 
   EXPECT_CALL(mock_port_handler, getBytesAvailable()).WillOnce(Return(response.size()));
 
@@ -148,7 +148,7 @@ TEST_F(TestRealtimeCommander, readAngQueryModeOK)
   const char sending[] = "?ANG\r";
   const std::string response = "ANG=17:5:-9\r";
 
-  EXPECT_CALL(mock_port_handler, writePort(StrEq(sending), sizeof(sending))).Times(0);
+  EXPECT_CALL(mock_port_handler, writePort(StrEq(sending), strlen(sending))).Times(0);
 
   EXPECT_CALL(mock_port_handler, getBytesAvailable())
   .WillRepeatedly(Return(response.size()));
@@ -170,7 +170,7 @@ TEST_F(TestRealtimeCommander, readAngNG)
 {
   const char sending[] = "?ANG\r";
 
-  EXPECT_CALL(mock_port_handler, writePort(StrEq(sending), sizeof(sending))).Times(1);
+  EXPECT_CALL(mock_port_handler, writePort(StrEq(sending), strlen(sending))).Times(1);
 
   EXPECT_CALL(mock_port_handler, getBytesAvailable()).WillRepeatedly(Return(0));
 
@@ -183,7 +183,7 @@ TEST_F(TestRealtimeCommander, readGyOK)
   const char sending[] = "?GY\r";
   const std::string response = std::string(sending) + "GY=17:5:-9\r";
 
-  EXPECT_CALL(mock_port_handler, writePort(StrEq(sending), sizeof(sending))).Times(1);
+  EXPECT_CALL(mock_port_handler, writePort(StrEq(sending), strlen(sending))).Times(1);
 
   EXPECT_CALL(mock_port_handler, getBytesAvailable()).WillOnce(Return(response.size()));
 
