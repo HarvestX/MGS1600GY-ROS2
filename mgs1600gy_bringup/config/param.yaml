@@ -1,0 +1,5 @@
+yaw: 0.0
+roll: 0.0
+pitch: 0.0
+orientation_covariance: [0.1, 0.1, 0.1]
+angular_velocity_covariance: [0.1, 0.1, 0.1]

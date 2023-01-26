@@ -71,6 +71,9 @@ private:
   std::array<float, 3> ang_data_;
   std::array<float, 3> gy_data_;
 
+  std::array<double, 9> imu_orientation_cov_ = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+  std::array<double, 9> imu_angular_vel_cov_ = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+
 public:
   Mgs1600gyInterface() = delete;
   explicit Mgs1600gyInterface(
@@ -89,6 +92,7 @@ public:
   void getAngData(std::array<float, 3> &) const noexcept;
   void getGyData(std::array<float, 3> &) const noexcept;
 
+  void setImuCovariance(const std::vector<double> &, const std::vector<double> &);
   Imu::UniquePtr getImu(const std_msgs::msg::Header &) const noexcept;
   void getImage(
     cv::Mat *, const float & = -2000, const float & = 2000,
