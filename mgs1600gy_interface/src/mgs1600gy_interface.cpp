@@ -176,6 +176,27 @@ void Mgs1600gyInterface::getGyData(std::array<float, 3> & out) const noexcept
   std::copy(this->gy_data_.begin(), this->gy_data_.end(), out.begin());
 }
 
+void Mgs1600gyInterface::setImuCovariance(
+  const std::vector<double> & orient_cov, const std::vector<double> & ang_vel_cov)
+{
+  const auto setter = [](const std::vector<double> & in, std::array<double, 9> & out) {
+      assert(in.size() == 3);
+      for (size_t i = 0; i < in.size(); ++i) {
+        for (size_t j = 0; j < in.size(); ++j) {
+          const size_t idx = i * in.size() + j;
+          if (i == j) {
+            out.at(idx) = in[i];
+          } else {
+            out.at(idx) = 0.0;
+          }
+        }
+      }
+    };
+
+  setter(orient_cov, this->imu_orientation_cov_);
+  setter(ang_vel_cov, this->imu_angular_vel_cov_);
+}
+
 Imu::UniquePtr Mgs1600gyInterface::getImu(const std_msgs::msg::Header & header) const noexcept
 {
   static const float TO_RADIAN = 0.1 * M_PI / 180.0;
@@ -199,11 +220,18 @@ Imu::UniquePtr Mgs1600gyInterface::getImu(const std_msgs::msg::Header & header) 
   imu_msg->orientation.y = quat.getY();
   imu_msg->orientation.z = quat.getZ();
 
+  std::copy(
+    this->imu_orientation_cov_.begin(), this->imu_orientation_cov_.end(),
+    imu_msg->orientation_covariance.begin());
+
   imu_msg->angular_velocity.x = this->gy_data_[R_IDX] * GY_COEFF;
   imu_msg->angular_velocity.y = this->gy_data_[P_IDX] * GY_COEFF;
   imu_msg->angular_velocity.z = this->gy_data_[Y_IDX] * GY_COEFF;
 
-  // TODO(anyone): set covariance from given parameter
+  std::copy(
+    this->imu_angular_vel_cov_.begin(), this->imu_angular_vel_cov_.end(),
+    imu_msg->angular_velocity_covariance.begin());
+
   imu_msg->linear_acceleration_covariance.at(0) = -1;  // UNUSED
   return imu_msg;
 }

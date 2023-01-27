@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from ament_index_python.packages import get_package_share_path
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.conditions import IfCondition
@@ -62,21 +63,19 @@ def generate_launch_description():
         package='mgs1600gy_node',
         name='mgs1600gy',
         plugin='mgs1600gy_node::Mgs1600gyNode',
-        parameters=[{
-            'dev': dev,
-            'sensor_min': sensor_min,
-            'sensor_max': sensor_max,
-            'flip': flip,
-            'yaw': 0.0,
-            'roll': 0.0,
-            'pitch': 0.0,
-        }])
+        parameters=[
+            str(get_package_share_path('mgs1600gy_bringup')/'config'/'param.yaml'),
+            {
+                'dev': dev,
+                'sensor_min': sensor_min,
+                'sensor_max': sensor_max,
+                'flip': flip,
+            }])
     tf_comp_node = ComposableNode(
         package='mgs1600gy_node',
         name='imu2tf_node',
         plugin='mgs1600gy_node::Imu2TfNode',
-        parameters=[{
-            'frame_id': 'base_link'}])
+        parameters=[{'frame_id': 'base_link'}])
 
     mgs_container = ComposableNodeContainer(
         name='mgs_container',

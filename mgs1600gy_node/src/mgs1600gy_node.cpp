@@ -30,6 +30,11 @@ Mgs1600gyNode::Mgs1600gyNode(const rclcpp::NodeOptions & node_options)
   const float init_p = this->declare_parameter("pitch", NAN);
   const float init_y = this->declare_parameter("yaw", NAN);
 
+  const auto & orient_cov = this->declare_parameter<std::vector<double>>(
+    "orientation_covariance", {0.0, 0.0, 0.0});
+  const auto & ang_vel_cov = this->declare_parameter<std::vector<double>>(
+    "angular_velocity_covariance", {0.0, 0.0, 0.0});
+
   const std::string DEV = this->declare_parameter(
     "dev", "/dev/serial/by-id/usb-Roboteq_Magnetic_Sensor_48F263793238-if00");
 
@@ -95,6 +100,7 @@ Mgs1600gyNode::Mgs1600gyNode(const rclcpp::NodeOptions & node_options)
   this->image_pub_ = image_transport::create_publisher(
     this, "image", rclcpp::SensorDataQoS().get_rmw_qos_profile());
 
+  this->interface_->setImuCovariance(orient_cov, ang_vel_cov);
   this->imu_pub_ = create_publisher<Imu>("imu", rclcpp::SensorDataQoS());
 
   this->image_timer_ = rclcpp::create_timer(
