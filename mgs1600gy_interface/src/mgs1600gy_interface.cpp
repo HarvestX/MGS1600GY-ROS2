@@ -201,9 +201,6 @@ Imu::UniquePtr Mgs1600gyInterface::getImu(const std_msgs::msg::Header & header) 
 {
   static const float TO_RADIAN = 0.1 * M_PI / 180.0;
 
-  // TODO(m12watanabe1a) : it also can be 1e-1 in case
-  static const float GY_COEFF = 1e-2;
-
   static const size_t Y_IDX = static_cast<size_t>(AxisIndex::YAW);
   static const size_t P_IDX = static_cast<size_t>(AxisIndex::PITCH);
   static const size_t R_IDX = static_cast<size_t>(AxisIndex::ROLL);
@@ -224,9 +221,9 @@ Imu::UniquePtr Mgs1600gyInterface::getImu(const std_msgs::msg::Header & header) 
     this->imu_orientation_cov_.begin(), this->imu_orientation_cov_.end(),
     imu_msg->orientation_covariance.begin());
 
-  imu_msg->angular_velocity.x = this->gy_data_[R_IDX] * GY_COEFF;
-  imu_msg->angular_velocity.y = this->gy_data_[P_IDX] * GY_COEFF;
-  imu_msg->angular_velocity.z = this->gy_data_[Y_IDX] * GY_COEFF;
+  imu_msg->angular_velocity.x = this->gy_data_[R_IDX] * TO_RADIAN;
+  imu_msg->angular_velocity.y = this->gy_data_[P_IDX] * TO_RADIAN;
+  imu_msg->angular_velocity.z = this->gy_data_[Y_IDX] * TO_RADIAN;
 
   std::copy(
     this->imu_angular_vel_cov_.begin(), this->imu_angular_vel_cov_.end(),
