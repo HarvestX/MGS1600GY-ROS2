@@ -221,9 +221,9 @@ Imu::UniquePtr Mgs1600gyInterface::getImu(const std_msgs::msg::Header & header) 
     this->imu_orientation_cov_.begin(), this->imu_orientation_cov_.end(),
     imu_msg->orientation_covariance.begin());
 
-  imu_msg->angular_velocity.x = this->gy_data_[R_IDX] * TO_RADIAN;
-  imu_msg->angular_velocity.y = this->gy_data_[P_IDX] * TO_RADIAN;
-  imu_msg->angular_velocity.z = this->gy_data_[Y_IDX] * TO_RADIAN;
+  imu_msg->angular_velocity.x = this->gy_data_[P_IDX] * TO_RADIAN;
+  imu_msg->angular_velocity.y = this->gy_data_[Y_IDX] * TO_RADIAN;
+  imu_msg->angular_velocity.z = this->gy_data_[R_IDX] * TO_RADIAN;
 
   std::copy(
     this->imu_angular_vel_cov_.begin(), this->imu_angular_vel_cov_.end(),
