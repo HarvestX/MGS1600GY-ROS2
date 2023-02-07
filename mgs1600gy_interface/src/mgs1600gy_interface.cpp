@@ -25,7 +25,7 @@ Mgs1600gyInterface::Mgs1600gyInterface(
 : logging_interface_(logger),
   TIMEOUT_(timeout)
 {
-  this->port_handler_ = std::make_unique<PortHandler>(port_name, this->logging_interface_);
+  this->port_handler_ = std::make_unique<PortHandler>(port_name, 115200, this->logging_interface_);
 }
 
 bool Mgs1600gyInterface::init()
