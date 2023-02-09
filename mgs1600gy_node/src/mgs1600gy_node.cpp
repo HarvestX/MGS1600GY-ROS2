@@ -21,7 +21,6 @@ Mgs1600gyNode::Mgs1600gyNode(const rclcpp::NodeOptions & node_options)
 : rclcpp::Node("mgs1600gy_node", node_options),
   SENSOR_MIN_(this->declare_parameter("sensor_min", -2000)),
   SENSOR_MAX_(this->declare_parameter("sensor_max", 2000)),
-  FLIP_(this->declare_parameter("flip", false)),
   NAME_(this->declare_parameter("name", "mgs1600gy")),
   BASE_LINK_(this->NAME_ + "_link"),
   MAGNET_LINK_(this->NAME_ + "_magnet_link")
@@ -42,9 +41,6 @@ Mgs1600gyNode::Mgs1600gyNode(const rclcpp::NodeOptions & node_options)
   RCLCPP_INFO(this->get_logger(), "Magnet link name: %s", this->MAGNET_LINK_.c_str());
   RCLCPP_INFO(this->get_logger(), "Selected device: %s", DEV.c_str());
   RCLCPP_INFO(this->get_logger(), "Read range: %.0f - %.0f", this->SENSOR_MIN_, this->SENSOR_MAX_);
-  if (this->FLIP_) {
-    RCLCPP_INFO(this->get_logger(), "Flip enabled");
-  }
 
   std::stringstream log_ss;
   if (!std::isnan(init_p)) {
@@ -119,8 +115,7 @@ void Mgs1600gyNode::onImageTimer()
     return;
   }
 
-  this->interface_->getImage(
-    &this->sensor_data_, this->SENSOR_MIN_, this->SENSOR_MAX_, this->FLIP_);
+  this->interface_->getImage(&this->sensor_data_, this->SENSOR_MIN_, this->SENSOR_MAX_);
   std_msgs::msg::Header header;
   header.frame_id = this->MAGNET_LINK_;
   header.stamp = this->get_clock()->now();

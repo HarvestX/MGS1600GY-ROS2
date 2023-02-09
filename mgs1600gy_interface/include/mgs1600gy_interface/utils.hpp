@@ -24,8 +24,6 @@ namespace mgs1600gy_interface
 class Utils
 {
 public:
-  static void convertBGR(
-    const std::array<float, 16> &, cv::Mat *,
-    const float, const float, const bool = true);
+  static void convertBGR(const std::array<float, 16> &, cv::Mat *, const float, const float);
 };
 }  // namespace mgs1600gy_interface

@@ -18,8 +18,7 @@ namespace mgs1600gy_interface
 {
 
 void Utils::convertBGR(
-  const std::array<float, 16> & in, cv::Mat * out,
-  const float MIN, const float MAX, const bool FLIP)
+  const std::array<float, 16> & in, cv::Mat * out, const float MIN, const float MAX)
 {
   for (size_t i = 0; i < in.size(); ++i) {
     const float target = in.at(i);
@@ -41,12 +40,8 @@ void Utils::convertBGR(
           static_cast<uint8_t>(255.0 * target / MIN);
       }
     }
-    int idx_assign = i;
 
-    if (FLIP) {
-      idx_assign = in.size() - i - 1;
-    }
-    out->at<cv::Vec3b>(0, idx_assign) = {val_S, 0, val_N};  // B G R
+    out->at<cv::Vec3b>(0, i) = {val_S, 0, val_N};  // B G R
   }
 }
 }  // namespace mgs1600gy_interface

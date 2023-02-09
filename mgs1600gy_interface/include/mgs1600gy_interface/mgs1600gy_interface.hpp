@@ -94,9 +94,7 @@ public:
 
   void setImuCovariance(const std::vector<double> &, const std::vector<double> &);
   Imu::UniquePtr getImu(const std_msgs::msg::Header &) const noexcept;
-  void getImage(
-    cv::Mat *, const float & = -2000, const float & = 2000,
-    const bool & = false) const noexcept;
+  void getImage(cv::Mat *, const float & = -2000, const float & = 2000) const noexcept;
 
   // Query commands
   bool setQueries(const PacketPool::PACKET_TYPE &) noexcept;
