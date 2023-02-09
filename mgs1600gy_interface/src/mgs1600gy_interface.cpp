@@ -234,9 +234,9 @@ Imu::UniquePtr Mgs1600gyInterface::getImu(const std_msgs::msg::Header & header) 
 }
 
 void Mgs1600gyInterface::getImage(
-  cv::Mat * out, const float & MIN, const float & MAX, const bool & FLIP) const noexcept
+  cv::Mat * out, const float & MIN, const float & MAX) const noexcept
 {
-  Utils::convertBGR(this->mz_data_, out, MIN, MAX, FLIP);
+  Utils::convertBGR(this->mz_data_, out, MIN, MAX);
 }
 
 bool Mgs1600gyInterface::setAllAngleZero() const noexcept

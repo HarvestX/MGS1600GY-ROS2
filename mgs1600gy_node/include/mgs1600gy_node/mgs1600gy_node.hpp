@@ -39,7 +39,6 @@ private:
   using PT = mgs1600gy_interface::PacketPool::PACKET_TYPE;
 
   const double SENSOR_MIN_, SENSOR_MAX_;
-  const bool FLIP_;
 
   const std::string NAME_, BASE_LINK_, MAGNET_LINK_;
 

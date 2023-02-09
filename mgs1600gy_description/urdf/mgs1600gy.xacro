@@ -10,7 +10,7 @@
 
   <xacro:macro
       name="mgs1600gy"
-      params="parent prefix is_gazebo:=False flip:=False use_nominal_extrinsics:=False *origin">
+      params="parent prefix is_gazebo:=False use_nominal_extrinsics:=False *origin">
 
     <!-- Links -->
     <link name="${prefix}mgs1600gy_link">
@@ -77,12 +77,7 @@
           <always_on>true</always_on>
           <visualize>true</visualize>
           <topic>/mgs/${prefix}</topic>
-          <xacro:if value="${flip}">
-            <pose>0 0 0.18 0 ${90.0 * const.TO_RADIAN} ${180.0 * const.TO_RADIAN}</pose>
-          </xacro:if>
-          <xacro:unless value="${flip}">
-            <pose>0 0 0.18 0 ${90.0 * const.TO_RADIAN} 0</pose>
-          </xacro:unless>
+          <pose>0 0 0.18 0 ${90.0 * const.TO_RADIAN} 0</pose>
           <camera>
             <segmentation_type>semantic</segmentation_type>
             <image>

@@ -49,14 +49,9 @@ def generate_launch_description():
         'namespace',
         default_value=TextSubstitution(text='mgs'))
     namespace = LaunchConfiguration('namespace')
-    flip_arg = DeclareLaunchArgument(
-        'flip',
-        default_value=TextSubstitution(text='False'))
-    flip = LaunchConfiguration('flip')
     rviz_arg = DeclareLaunchArgument(
         'rviz',
-        default_value=TextSubstitution(text='True')
-    )
+        default_value=TextSubstitution(text='True'))
     rviz = LaunchConfiguration('rviz')
 
     mgs_comp_node = ComposableNode(
@@ -69,7 +64,6 @@ def generate_launch_description():
                 'dev': dev,
                 'sensor_min': sensor_min,
                 'sensor_max': sensor_max,
-                'flip': flip,
             }])
     tf_comp_node = ComposableNode(
         package='mgs1600gy_node',
@@ -112,7 +106,6 @@ def generate_launch_description():
     ld.add_action(sensor_max_arg)
     ld.add_action(rviz_arg)
     ld.add_action(namespace_arg)
-    ld.add_action(flip_arg)
     ld.add_action(mgs_container)
     ld.add_action(rsp_node)
     ld.add_action(rviz_node)
