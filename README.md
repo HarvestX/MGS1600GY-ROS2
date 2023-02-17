@@ -1,7 +1,7 @@
 # MGS1600GY-ROS2
 RoboteQ line sensor module controller for ROS2.
 
-![Image](https://github.com/HarvestX/MGS1600GY-ROS2/blob/main/media/MGS1600GY.png?raw=true)
+![Image](./media/MGS1600GY.png)
 
 
 | ROS2 Distro  | Build status                                                                                                                                                                           |
