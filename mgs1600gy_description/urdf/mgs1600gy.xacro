@@ -10,7 +10,7 @@
 
   <xacro:macro
       name="mgs1600gy"
-      params="parent prefix is_gazebo:=False use_nominal_extrinsics:=False *origin">
+      params="parent prefix use_nominal_extrinsics:=False *origin">
 
     <!-- Links -->
     <link name="${prefix}mgs1600gy_link">
@@ -65,33 +65,5 @@
       <child link="${prefix}mgs1600gy_link" />
       <xacro:insert_block name="origin" />
     </joint>
-
-
-    <!-- Gazebo -->
-    <xacro:if value="${is_gazebo}">
-      <gazebo reference="${prefix}mgs1600gy_link">
-        <sensor
-            type="segmentation"
-            name="${prefix}mgs1600gy">
-          <update_rate>10.0</update_rate>
-          <always_on>true</always_on>
-          <visualize>true</visualize>
-          <topic>/mgs/${prefix}</topic>
-          <pose>0 0 0.18 0 ${90.0 * const.TO_RADIAN} 0</pose>
-          <camera>
-            <segmentation_type>semantic</segmentation_type>
-            <image>
-              <width>16</width>
-              <height>1</height>
-              <format>R8G8B8</format>
-            </image>
-            <clip>
-              <near>0.19</near>
-              <far>300</far>
-            </clip>
-          </camera>
-        </sensor>
-      </gazebo>
-    </xacro:if>
   </xacro:macro>
 </robot>
