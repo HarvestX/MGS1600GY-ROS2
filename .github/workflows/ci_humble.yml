@@ -39,4 +39,4 @@ jobs:
             mgs1600gy_interface
             mgs1600gy_node
             mgs1600gy_tool
-          vcs-repo-file-url: mgs1600gy.repos
+          vcs-repo-file-url: build_depends.repos
