@@ -32,6 +32,7 @@ jobs:
           target-ros2-distro: ${{ matrix.ros_distribution }}
           import-token: ${{ secrets.GITHUB_TOKEN }}
           package-name: |
+            mgs1600gy
             mgs1600gy_bringup
             mgs1600gy_description
             mgs1600gy_interface
