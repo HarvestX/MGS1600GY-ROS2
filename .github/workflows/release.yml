@@ -1,0 +1,36 @@
+name: release
+on:
+  workflow_dispatch:
+    inputs:
+      fragment:
+        type: choice
+        description: Semantic version target
+        options:
+          - bug
+          - feature
+          - major
+      target:
+        type: choice
+        description: Release target package name
+        options:
+          - mgs1600gy
+          - mgs1600gy_bringup
+          - mgs1600gy_description
+          - mgs1600gy_interface
+          - mgs1600gy_node
+          - mgs1600gy_tool
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Upgrade version
+        id: upgrade
+        uses: HarvestX/ros2-release-ci-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          base_pkg: mgs1600gy
+        with:
+          target-package: ${{ github.event.inputs.target }}
+          version-fragment: ${{ github.event.inputs.fragment }}
+          create-release: ${{ github.event.inputs.target == env.base_pkg }}

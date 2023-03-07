@@ -6,8 +6,8 @@
         "limitSymbolsToIncludedHeaders": false
       },
       "includePath": [
-        "/opt/ros/galactic/include/**",
-        "/opt/ros/galactic/src/gmock_vendor/include/**",
+        "/opt/ros/humble/include/**",
+        "/opt/ros/humble/src/gmock_vendor/include/**",
         "/usr/include/**",
         "${workspaceFolder}/../../install/h6x_serial_interface/include/**",
         "${workspaceFolder}/mgs1600gy_interface/include/**",
