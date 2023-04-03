@@ -8,7 +8,7 @@ package_name = 'mgs1600gy_bringup'
 
 setup(
     name=package_name,
-    version='0.0.0',
+    version='1.1.5',
     packages=[
         package_name,
     ],
