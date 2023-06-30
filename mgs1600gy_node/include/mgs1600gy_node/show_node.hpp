@@ -27,6 +27,8 @@ namespace mgs1600gy_node
 class ShowNode : public rclcpp::Node
 {
 private:
+  using Image = sensor_msgs::msg::Image;
+
   std::string window_name_;
   image_transport::Subscriber image_sub_;
 
@@ -37,6 +39,3 @@ private:
   void onImage(const sensor_msgs::msg::Image::ConstSharedPtr);
 };
 }  // namespace mgs1600gy_node
-
-#include "rclcpp_components/register_node_macro.hpp"
-RCLCPP_COMPONENTS_REGISTER_NODE(mgs1600gy_node::ShowNode)

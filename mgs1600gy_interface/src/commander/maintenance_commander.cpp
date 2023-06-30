@@ -18,11 +18,8 @@ namespace mgs1600gy_interface
 {
 
 MaintenanceCommander::MaintenanceCommander(
-  PacketHandler::SharedPtr packet_handler,
-  rclcpp::node_interfaces::NodeLoggingInterface::SharedPtr logger,
-  const std::chrono::nanoseconds & timeout)
+  PacketHandler::SharedPtr packet_handler, const std::chrono::nanoseconds & timeout)
 : packet_handler_(packet_handler),
-  logging_interface_(logger),
   clock_(std::make_shared<rclcpp::Clock>(RCL_STEADY_TIME)),
   TIMEOUT_(timeout)
 {
@@ -51,6 +48,6 @@ RESPONSE_STATE MaintenanceCommander::writeCLSAV() const noexcept
 
 const rclcpp::Logger MaintenanceCommander::getLogger() noexcept
 {
-  return this->logging_interface_->get_logger();
+  return rclcpp::get_logger("MaintenanceCommander");
 }
 }  // namespace mgs1600gy_interface

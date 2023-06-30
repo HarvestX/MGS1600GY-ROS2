@@ -14,7 +14,6 @@
 
 #pragma once
 
-#include <memory>
 #include <rclcpp/rclcpp.hpp>
 
 #include "mgs1600gy_interface/packet_handler.hpp"
@@ -28,22 +27,18 @@ using namespace std::chrono_literals;  // NOLINT
 class ConfigurationCommander
 {
 public:
-  using UniquePtr = std::unique_ptr<ConfigurationCommander>;
+  RCLCPP_UNIQUE_PTR_DEFINITIONS(ConfigurationCommander)
 
 private:
   PacketHandler::SharedPtr packet_handler_;
-  rclcpp::node_interfaces::NodeLoggingInterface::SharedPtr logging_interface_;
   rclcpp::Clock::SharedPtr clock_;
   const std::chrono::nanoseconds TIMEOUT_;
 
 public:
   ConfigurationCommander() = delete;
-  explicit ConfigurationCommander(
-    PacketHandler::SharedPtr,
-    rclcpp::node_interfaces::NodeLoggingInterface::SharedPtr,
-    const std::chrono::nanoseconds &);
+  explicit ConfigurationCommander(PacketHandler::SharedPtr, const std::chrono::nanoseconds &);
 
 private:
-  const rclcpp::Logger getLogger() noexcept;
+  static const rclcpp::Logger getLogger() noexcept;
 };
 }  // namespace mgs1600gy_interface

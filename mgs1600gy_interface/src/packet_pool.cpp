@@ -18,8 +18,7 @@
 
 namespace mgs1600gy_interface
 {
-PacketPool::PacketPool(rclcpp::node_interfaces::NodeLoggingInterface::SharedPtr logger)
-: logging_interface_(logger)
+PacketPool::PacketPool()
 {
   this->clear();
 }
@@ -158,9 +157,9 @@ std::string PacketPool::packetTypeToString(
 }
 
 
-const rclcpp::Logger PacketPool::getLogger() const noexcept
+const rclcpp::Logger PacketPool::getLogger() noexcept
 {
-  return this->logging_interface_->get_logger();
+  return rclcpp::get_logger("PacketPool");
 }
 
 const std::string PacketPool::fixEscapeSequence(const std::string & in)

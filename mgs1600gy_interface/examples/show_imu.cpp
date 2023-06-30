@@ -34,30 +34,16 @@ void showImuData(
   std::cout << std::endl;
 }
 
-class Logger : public rclcpp::node_interfaces::NodeLoggingInterface
-{
-public:
-  rclcpp::Logger get_logger() const override
-  {
-    return rclcpp::get_logger(this->get_logger_name());
-  }
-
-  const char * get_logger_name() const override
-  {
-    return "ShowImu";
-  }
-};
-
 int main(int argc, char ** argv)
 {
   using namespace std::chrono_literals;  // NOLINT
+  using namespace mgs1600gy_interface;  // NOLINT
   rclcpp::init(argc, argv);
 
   const std::string port_name = "/dev/ttyACM0";
 
-  const auto logger = std::make_shared<Logger>();
   auto mgs1600gy_interface =
-    std::make_unique<mgs1600gy_interface::Mgs1600gyInterface>(port_name, logger, 500ms);
+    std::make_unique<Mgs1600gyInterface>(port_name, 500ms);
 
   if (!mgs1600gy_interface->init()) {
     return EXIT_FAILURE;
@@ -66,7 +52,7 @@ int main(int argc, char ** argv)
     return EXIT_FAILURE;
   }
 
-  using PACKET_TYPE = mgs1600gy_interface::PacketPool::PACKET_TYPE;
+  using PACKET_TYPE = PacketPool::PACKET_TYPE;
 
   if (!mgs1600gy_interface->setQueries(PACKET_TYPE::ANG)) {
     return EXIT_FAILURE;

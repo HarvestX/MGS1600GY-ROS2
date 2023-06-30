@@ -19,10 +19,8 @@ namespace  mgs1600gy_interface
 {
 RealtimeCommander::RealtimeCommander(
   PacketHandler::SharedPtr packet_handler,
-  rclcpp::node_interfaces::NodeLoggingInterface::SharedPtr logger,
   const std::chrono::nanoseconds & timeout)
 : packet_handler_(packet_handler),
-  logging_interface_(logger),
   clock_(std::make_shared<rclcpp::Clock>(RCL_STEADY_TIME)),
   TIMEOUT_(timeout)
 {}
@@ -132,8 +130,7 @@ RESPONSE_STATE RealtimeCommander::clearQuery() const noexcept
   return RESPONSE_STATE::OK;
 }
 
-RESPONSE_STATE RealtimeCommander::writeANG(
-  const int idx, const int val) const noexcept
+RESPONSE_STATE RealtimeCommander::writeANG(const int idx, const int val) const noexcept
 {
   if (idx < 1 || idx > 3) {
     return RESPONSE_STATE::ERROR_INVALID_INPUT;
@@ -151,10 +148,6 @@ bool RealtimeCommander::waitForResponse(
   bool has_response = false;
   const auto start = this->clock_->now();
   while (this->clock_->now() - start < this->TIMEOUT_) {
-    if (this->packet_handler_->getBytesAvailable() < 1) {
-      rclcpp::sleep_for(10ms);
-      continue;
-    }
     this->packet_handler_->readPortIntoQueue();
     if (this->packet_handler_->takePacket(type, response)) {
       has_response = true;
@@ -168,7 +161,7 @@ bool RealtimeCommander::waitForResponse(
 
 const rclcpp::Logger RealtimeCommander::getLogger() noexcept
 {
-  return this->logging_interface_->get_logger();
+  return rclcpp::get_logger("RealtimeCommander");
 }
 
 }  // namespace  mgs1600gy_interface

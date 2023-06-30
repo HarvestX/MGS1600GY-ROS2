@@ -21,40 +21,22 @@ using ::testing::_;
 using ::testing::StrEq;
 using ::testing::Return;
 using ::testing::DoAll;
-using RS = mgs1600gy_interface::RESPONSE_STATE;
 
-class Logger : public rclcpp::node_interfaces::NodeLoggingInterface
-{
-public:
-  rclcpp::Logger get_logger() const override
-  {
-    return rclcpp::get_logger(this->get_logger_name());
-  }
-
-  const char * get_logger_name() const override
-  {
-    return "TestMaintenanceCommander";
-  }
-};
+using namespace mgs1600gy_interface;  // NOLINT
+using RS = RESPONSE_STATE;
 
 class TestMaintenanceCommander : public ::testing::Test
 {
 protected:
-  std::shared_ptr<mgs1600gy_interface::PacketHandler> packet_handler;
-  std::unique_ptr<mgs1600gy_interface::MaintenanceCommander> commander;
+  PacketHandler::SharedPtr packet_handler;
+  MaintenanceCommander::UniquePtr commander;
 
   MockPortHandler mock_port_handler;
 
   virtual void SetUp()
   {
-    const auto logger = std::make_shared<Logger>();
-
-    this->packet_handler =
-      std::make_shared<mgs1600gy_interface::PacketHandler>(
-      &mock_port_handler, logger);
-    this->commander =
-      std::make_unique<mgs1600gy_interface::MaintenanceCommander>(
-      this->packet_handler, logger, 1ms);
+    this->packet_handler = std::make_shared<PacketHandler>(&mock_port_handler);
+    this->commander = std::make_unique<MaintenanceCommander>(this->packet_handler, 1ms);
   }
 };
 
@@ -63,8 +45,7 @@ TEST_F(TestMaintenanceCommander, writeZeroOK)
 {
   const char sending[] = "%ZERO\r";
 
-  EXPECT_CALL(
-    mock_port_handler, writePort(StrEq(sending), strlen(sending))).Times(1);
+  EXPECT_CALL(mock_port_handler, write(StrEq(sending), strlen(sending))).Times(1);
 
   ASSERT_EQ(this->commander->writeZERO(), RS::OK);
 }
@@ -73,8 +54,7 @@ TEST_F(TestMaintenanceCommander, writeGzerOK)
 {
   const char sending[] = "%GZER\r";
 
-  EXPECT_CALL(
-    mock_port_handler, writePort(StrEq(sending), strlen(sending))).Times(1);
+  EXPECT_CALL(mock_port_handler, write(StrEq(sending), strlen(sending))).Times(1);
 
   ASSERT_EQ(this->commander->writeGZER(), RS::OK);
 }
@@ -83,8 +63,7 @@ TEST_F(TestMaintenanceCommander, writeClsavOK)
 {
   const char sending[] = "%CLSAV\r";
 
-  EXPECT_CALL(
-    mock_port_handler, writePort(StrEq(sending), strlen(sending))).Times(1);
+  EXPECT_CALL(mock_port_handler, write(StrEq(sending), strlen(sending))).Times(1);
 
   ASSERT_EQ(this->commander->writeCLSAV(), RS::OK);
 }

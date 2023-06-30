@@ -14,31 +14,15 @@
 
 #include "mgs1600gy_interface/mgs1600gy_interface.hpp"
 
-class Logger : public rclcpp::node_interfaces::NodeLoggingInterface
-{
-public:
-  rclcpp::Logger get_logger() const override
-  {
-    return rclcpp::get_logger(this->get_logger_name());
-  }
-
-  const char * get_logger_name() const override
-  {
-    return "ShowImage";
-  }
-};
-
-
 int main(int argc, char ** argv)
 {
   using namespace std::chrono_literals;  // NOLINT
+  using namespace mgs1600gy_interface;  // NOLINT
   rclcpp::init(argc, argv);
 
   const std::string port_name = "/dev/ttyUSB0";
 
-  const auto logger = std::make_shared<Logger>();
-  auto mgs1600gy_interface =
-    std::make_unique<mgs1600gy_interface::Mgs1600gyInterface>(port_name, logger, 500ms);
+  auto mgs1600gy_interface = std::make_unique<Mgs1600gyInterface>(port_name, 500ms);
 
   if (!mgs1600gy_interface->init()) {
     return EXIT_FAILURE;
@@ -47,9 +31,7 @@ int main(int argc, char ** argv)
     return EXIT_FAILURE;
   }
 
-  if (!mgs1600gy_interface->setQueries(
-      mgs1600gy_interface::PacketPool::PACKET_TYPE::MZ))
-  {
+  if (!mgs1600gy_interface->setQueries(PacketPool::PACKET_TYPE::MZ)) {
     return EXIT_FAILURE;
   }
 
@@ -59,9 +41,7 @@ int main(int argc, char ** argv)
   cv::resizeWindow("MGS1600gy", cv::Size(640, 120));
   cv::Mat img(1, 16, CV_8UC3);
   for (int i = 0; i < 1000; ++i) {
-    if (mgs1600gy_interface->read(
-        mgs1600gy_interface::PacketPool::PACKET_TYPE::MZ))
-    {
+    if (mgs1600gy_interface->read(PacketPool::PACKET_TYPE::MZ)) {
       mgs1600gy_interface->getImage(&img);
       cv::imshow("MGS1600gy", img);
       cv::waitKey(1);

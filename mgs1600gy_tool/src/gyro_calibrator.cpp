@@ -25,7 +25,7 @@ GyroCalibrator::GyroCalibrator(const rclcpp::NodeOptions & options)
 
   using namespace std::chrono_literals;  // NOLINT
   this->interface_ = std::make_unique<mgs1600gy_interface::Mgs1600gyInterface>(
-    dev, this->get_node_logging_interface(), 500ms);
+    dev, 500ms);
 
   if (!this->interface_->init()) {
     exit(EXIT_FAILURE);

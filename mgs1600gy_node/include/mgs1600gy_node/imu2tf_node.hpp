@@ -31,16 +31,15 @@ namespace mgs1600gy_node
 class Imu2TfNode : public rclcpp::Node
 {
 private:
+  using Imu = sensor_msgs::msg::Imu;
+
   std::string frame_id_;
-  rclcpp::Subscription<sensor_msgs::msg::Imu>::SharedPtr imu_sub_;
+  rclcpp::Subscription<Imu>::SharedPtr imu_sub_;
   std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
 
 public:
   explicit Imu2TfNode(const rclcpp::NodeOptions &);
 
-  void onImu(const sensor_msgs::msg::Imu::ConstSharedPtr);
+  void onImu(const Imu::ConstSharedPtr);
 };
 }  // namespace mgs1600gy_node
-
-#include <rclcpp_components/register_node_macro.hpp>
-RCLCPP_COMPONENTS_REGISTER_NODE(mgs1600gy_node::Imu2TfNode)

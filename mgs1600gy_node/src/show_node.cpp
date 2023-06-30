@@ -29,7 +29,7 @@ ShowNode::ShowNode(const rclcpp::NodeOptions & node_options)
   cv::resizeWindow(this->window_name_, cv::Size(480, 10));
 }
 
-void ShowNode::onImage(const sensor_msgs::msg::Image::ConstSharedPtr msg)
+void ShowNode::onImage(const Image::ConstSharedPtr msg)
 {
   cv::Mat cv_image;
   try {
@@ -42,3 +42,6 @@ void ShowNode::onImage(const sensor_msgs::msg::Image::ConstSharedPtr msg)
   cv::waitKey(1);
 }
 }  // namespace mgs1600gy_node
+
+#include "rclcpp_components/register_node_macro.hpp"
+RCLCPP_COMPONENTS_REGISTER_NODE(mgs1600gy_node::ShowNode)
