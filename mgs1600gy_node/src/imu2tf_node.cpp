@@ -25,12 +25,12 @@ Imu2TfNode::Imu2TfNode(const rclcpp::NodeOptions & options)
     std::make_unique<tf2_ros::TransformBroadcaster>(*this);
 
   this->imu_sub_ =
-    this->create_subscription<sensor_msgs::msg::Imu>(
+    this->create_subscription<Imu>(
     "imu", rclcpp::SensorDataQoS().keep_last(1),
     std::bind(&Imu2TfNode::onImu, this, std::placeholders::_1));
 }
 
-void Imu2TfNode::onImu(const sensor_msgs::msg::Imu::ConstSharedPtr imu_msg)
+void Imu2TfNode::onImu(const Imu::ConstSharedPtr imu_msg)
 {
   geometry_msgs::msg::TransformStamped tf;
   tf.header.frame_id = this->frame_id_;
@@ -46,3 +46,6 @@ void Imu2TfNode::onImu(const sensor_msgs::msg::Imu::ConstSharedPtr imu_msg)
   this->tf_broadcaster_->sendTransform(tf);
 }
 }  // namespace mgs1600gy_node
+
+#include <rclcpp_components/register_node_macro.hpp>
+RCLCPP_COMPONENTS_REGISTER_NODE(mgs1600gy_node::Imu2TfNode)

@@ -25,11 +25,10 @@
 
 namespace mgs1600gy_interface
 {
-
 class PacketHandler
 {
 public:
-  using SharedPtr = std::shared_ptr<PacketHandler>;
+  RCLCPP_SHARED_PTR_DEFINITIONS(PacketHandler)
 
 private:
   using PortHandlerBase = h6x_serial_interface::PortHandlerBase;
@@ -39,11 +38,8 @@ private:
 
 public:
   PacketHandler() = delete;
-  explicit PacketHandler(
-    PortHandlerBase const * const,
-    rclcpp::node_interfaces::NodeLoggingInterface::SharedPtr);
+  explicit PacketHandler(PortHandlerBase const * const);
 
-  ssize_t getBytesAvailable() const;
   ssize_t writePort(char const * const, const size_t) const;
   ssize_t readPortIntoQueue();
 

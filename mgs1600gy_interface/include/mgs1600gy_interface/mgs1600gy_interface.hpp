@@ -43,7 +43,7 @@ using Imu = sensor_msgs::msg::Imu;
 class Mgs1600gyInterface
 {
 public:
-  using UniquePtr = std::unique_ptr<Mgs1600gyInterface>;
+  RCLCPP_UNIQUE_PTR_DEFINITIONS(Mgs1600gyInterface)
 
   enum class AxisIndex
   {
@@ -55,7 +55,6 @@ public:
 private:
   using PortHandler = h6x_serial_interface::PortHandler;
   RealtimeCommander::MODE mode_;
-  rclcpp::node_interfaces::NodeLoggingInterface::SharedPtr logging_interface_;
   const std::chrono::nanoseconds TIMEOUT_;
 
   PortHandler::UniquePtr port_handler_;
@@ -77,9 +76,7 @@ private:
 public:
   Mgs1600gyInterface() = delete;
   explicit Mgs1600gyInterface(
-    const std::string &,
-    rclcpp::node_interfaces::NodeLoggingInterface::SharedPtr,
-    const std::chrono::nanoseconds & = 5s);
+    const std::string &, const std::chrono::nanoseconds & = 5s);
 
   bool init();
   bool activate();
@@ -113,7 +110,7 @@ public:
   // End Calibration Commands
 
 private:
-  const rclcpp::Logger getLogger() const noexcept;
-  bool processResponse(const RESPONSE_STATE &) const noexcept;
+  static const rclcpp::Logger getLogger() noexcept;
+  static bool processResponse(const RESPONSE_STATE &) noexcept;
 };
 }  // namespace mgs1600gy_interface

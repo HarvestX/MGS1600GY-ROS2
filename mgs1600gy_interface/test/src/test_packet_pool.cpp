@@ -16,28 +16,16 @@
 #include <gtest/gtest.h>
 #include <mgs1600gy_interface/packet_pool.hpp>
 
-class Logger : public rclcpp::node_interfaces::NodeLoggingInterface
-{
-public:
-  rclcpp::Logger get_logger() const override
-  {
-    return rclcpp::get_logger(this->get_logger_name());
-  }
-
-  const char * get_logger_name() const override
-  {
-    return "TestPacketPool";
-  }
-};
+using namespace mgs1600gy_interface;  // NOLINT
+using PT = PacketPool::PACKET_TYPE;
 
 class TestPacketPool : public ::testing::Test
 {
 protected:
-  mgs1600gy_interface::PacketPool::UniquePtr pool;
+  PacketPool::UniquePtr pool;
   virtual void SetUp()
   {
-    const auto logger = std::make_shared<Logger>();
-    this->pool = std::make_unique<mgs1600gy_interface::PacketPool>(logger);
+    this->pool = std::make_unique<PacketPool>();
   }
 };
 
@@ -48,7 +36,6 @@ TEST_F(TestPacketPool, enqueueFineCommands) {
   const std::string GY_command = "GY=10:10:10\r";
 
   std::string packet = "";
-  using PT = mgs1600gy_interface::PacketPool::PACKET_TYPE;
   // Queue is empty initially
   ASSERT_FALSE(this->pool->takePacket(PT::MZ, packet));
   ASSERT_FALSE(this->pool->takePacket(PT::ANG, packet));
@@ -83,8 +70,7 @@ TEST(TestPacketPoolParser, parseGoodResponse1) {
   };
   std::vector<float> actual;
 
-  ASSERT_TRUE(
-    mgs1600gy_interface::PacketPool::parseResponse(MZ_command, actual));
+  ASSERT_TRUE(PacketPool::parseResponse(MZ_command, actual));
 
 
   ASSERT_EQ(expected.size(), actual.size());
@@ -98,7 +84,7 @@ TEST(TestPacketPoolParser, parseGoodResponse2) {
   std::vector<float> expected = {17, 5, -9};
   std::vector<float> actual;
 
-  ASSERT_TRUE(mgs1600gy_interface::PacketPool::parseResponse(ANG_command, actual));
+  ASSERT_TRUE(PacketPool::parseResponse(ANG_command, actual));
 
   ASSERT_EQ(expected.size(), actual.size());
   for (size_t i = 0; i < expected.size(); ++i) {
@@ -111,7 +97,7 @@ TEST(TestPacketPoolParser, parseGoodResponse3) {
   std::vector<float> expected = {18, 6, -9};
   std::vector<float> actual;
 
-  ASSERT_TRUE(mgs1600gy_interface::PacketPool::parseResponse(GY_command, actual));
+  ASSERT_TRUE(PacketPool::parseResponse(GY_command, actual));
 
   ASSERT_EQ(expected.size(), actual.size());
   for (size_t i = 0; i < expected.size(); ++i) {
@@ -124,6 +110,5 @@ TEST(TestPacketPoolParser, parseBADResponse) {
     "MZ=-56:-45:foo:-45:-53:-53:-42:-35:-45:-40:-53:-36:-37:-29:-24:-28\r";
   std::vector<float> actual;
 
-  ASSERT_FALSE(
-    mgs1600gy_interface::PacketPool::parseResponse(MZ_command, actual));
+  ASSERT_FALSE(PacketPool::parseResponse(MZ_command, actual));
 }

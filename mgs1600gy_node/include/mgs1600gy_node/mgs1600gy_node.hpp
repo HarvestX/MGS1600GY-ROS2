@@ -56,6 +56,3 @@ private:
   void onImuTimer();
 };
 }  // namespace mgs1600gy_node
-
-#include "rclcpp_components/register_node_macro.hpp"
-RCLCPP_COMPONENTS_REGISTER_NODE(mgs1600gy_node::Mgs1600gyNode)

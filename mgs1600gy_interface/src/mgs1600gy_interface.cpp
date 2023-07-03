@@ -19,41 +19,33 @@ namespace mgs1600gy_interface
 {
 
 Mgs1600gyInterface::Mgs1600gyInterface(
-  const std::string & port_name,
-  rclcpp::node_interfaces::NodeLoggingInterface::SharedPtr logger,
-  const std::chrono::nanoseconds & timeout)
-: logging_interface_(logger),
-  TIMEOUT_(timeout)
+  const std::string & port_name, const std::chrono::nanoseconds & timeout)
+: TIMEOUT_(timeout)
 {
-  this->port_handler_ = std::make_unique<PortHandler>(port_name, 115200, this->logging_interface_);
+  this->port_handler_ = std::make_unique<PortHandler>(port_name);
 }
 
 bool Mgs1600gyInterface::init()
 {
   // Dry run to check can open port or not
-  if (!this->port_handler_->openPort()) {
-    RCLCPP_ERROR(this->getLogger(), "Failed to open port");
-    return false;
-  }
-  this->port_handler_->closePort();
-  return true;
+  return this->port_handler_->configure(115200);
 }
 
 bool Mgs1600gyInterface::activate()
 {
-  if (!this->port_handler_->openPort()) {
+  if (!this->port_handler_->open()) {
     RCLCPP_ERROR(this->getLogger(), "Failed to open port");
     return false;
   }
 
   this->packet_handler_ =
-    std::make_shared<PacketHandler>(this->port_handler_.get(), this->logging_interface_);
+    std::make_shared<PacketHandler>(this->port_handler_.get());
 
   this->maintenance_commander_ = std::make_unique<MaintenanceCommander>(
-    this->packet_handler_, this->logging_interface_, this->TIMEOUT_);
+    this->packet_handler_, this->TIMEOUT_);
 
   this->realtime_commander_ = std::make_unique<RealtimeCommander>(
-    this->packet_handler_, this->logging_interface_, this->TIMEOUT_);
+    this->packet_handler_, this->TIMEOUT_);
 
   this->stopQueries();
   return true;
@@ -65,7 +57,7 @@ bool Mgs1600gyInterface::deactivate()
     this->stopQueries();
   }
 
-  this->port_handler_->closePort();
+  this->port_handler_->close();
   this->packet_handler_ = nullptr;
   this->realtime_commander_ = nullptr;
 
@@ -299,12 +291,12 @@ bool Mgs1600gyInterface::calibrateGyro() const noexcept
   return true;
 }
 
-const rclcpp::Logger Mgs1600gyInterface::getLogger() const noexcept
+const rclcpp::Logger Mgs1600gyInterface::getLogger() noexcept
 {
-  return this->logging_interface_->get_logger();
+  return rclcpp::get_logger("Mgs1600gyInterface");
 }
 
-bool Mgs1600gyInterface::processResponse(const RESPONSE_STATE & state) const noexcept
+bool Mgs1600gyInterface::processResponse(const RESPONSE_STATE & state) noexcept
 {
   bool ret = false;
   switch (state) {
@@ -312,22 +304,22 @@ bool Mgs1600gyInterface::processResponse(const RESPONSE_STATE & state) const noe
       ret = true;
       break;
     case RESPONSE_STATE::ERROR_INVALID_INPUT:
-      RCLCPP_ERROR(this->getLogger(), "Invalid input given.");
+      RCLCPP_ERROR(Mgs1600gyInterface::getLogger(), "Invalid input given.");
       break;
     case RESPONSE_STATE::ERROR_NO_RESPONSE:
-      RCLCPP_ERROR(this->getLogger(), "Mgs1600gy is not responded.");
+      RCLCPP_ERROR(Mgs1600gyInterface::getLogger(), "Mgs1600gy is not responded.");
       break;
     case RESPONSE_STATE::ERROR_PARSE_FAILED:
-      RCLCPP_ERROR(this->getLogger(), "Failed to parse received response.");
+      RCLCPP_ERROR(Mgs1600gyInterface::getLogger(), "Failed to parse received response.");
       break;
     case RESPONSE_STATE::ERROR_PARSE_RESULT_INCOMPATIBLE:
-      RCLCPP_ERROR(this->getLogger(), "Responded parameters length is incompatible.");
+      RCLCPP_ERROR(Mgs1600gyInterface::getLogger(), "Responded parameters length is incompatible.");
       break;
     case RESPONSE_STATE::ERROR_UNKNOWN:
-      RCLCPP_ERROR(this->getLogger(), "Unknown error.");
+      RCLCPP_ERROR(Mgs1600gyInterface::getLogger(), "Unknown error.");
       break;
     default:
-      RCLCPP_ERROR(this->getLogger(), "Invalid state given");
+      RCLCPP_ERROR(Mgs1600gyInterface::getLogger(), "Invalid state given");
   }
   return ret;
 }

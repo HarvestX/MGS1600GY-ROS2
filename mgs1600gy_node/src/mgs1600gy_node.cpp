@@ -58,8 +58,7 @@ Mgs1600gyNode::Mgs1600gyNode(const rclcpp::NodeOptions & node_options)
 
   // Setup Sensor to Read Magnetic data
   using namespace std::chrono_literals;  // NOLINT
-  this->interface_ = std::make_unique<mgs1600gy_interface::Mgs1600gyInterface>(
-    DEV, this->get_node_logging_interface(), 500ms);
+  this->interface_ = std::make_unique<mgs1600gy_interface::Mgs1600gyInterface>(DEV, 500ms);
   if (!this->interface_->init()) {
     exit(EXIT_FAILURE);
     return;
@@ -129,7 +128,7 @@ void Mgs1600gyNode::onImuTimer()
     return;
   }
 
-  auto imu_msg = std::make_shared<sensor_msgs::msg::Imu>();
+  auto imu_msg = std::make_shared<Imu>();
   std_msgs::msg::Header header;
   header.frame_id = this->BASE_LINK_;
   header.stamp = this->get_clock()->now();
@@ -138,3 +137,6 @@ void Mgs1600gyNode::onImuTimer()
 }
 
 }  // namespace mgs1600gy_node
+
+#include "rclcpp_components/register_node_macro.hpp"
+RCLCPP_COMPONENTS_REGISTER_NODE(mgs1600gy_node::Mgs1600gyNode)
