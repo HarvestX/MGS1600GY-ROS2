@@ -88,7 +88,10 @@ bool Mgs1600gyInterface::startQueries(const uint32_t & every_ms) noexcept
 
   std::stringstream query_ss;
   for (size_t i = 0; i < this->queries_.size(); ++i) {
-    query_ss << PacketPool::packetTypeToString(this->queries_.at(i)) << ", ";
+    query_ss << PacketPool::packetTypeToString(this->queries_.at(i));
+    if (i < this->queries_.size() - 1) {
+      query_ss << ", ";
+    }
   }
   RCLCPP_INFO(
     this->getLogger(), "Following Commands will repeatedly executed [%s]",
