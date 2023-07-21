@@ -1,0 +1,21 @@
+controller_manager:
+  ros__parameters:
+    update_rate: 20
+    image_sensor_broadcaster:
+      type: "image_sensor_broadcaster/ImageSensorBroadcaster"
+
+    imu_sensor_broadcaster:
+      type: "imu_sensor_broadcaster/IMUSensorBroadcaster"
+
+image_sensor_broadcaster:
+  ros__parameters:
+    sensor_name: "image_sensor"
+    frame_id: "base_link"
+    encoding: "rgb8"
+    height: 1
+    width: 16
+
+imu_sensor_broadcaster:
+  ros__parameters:
+    sensor_name: "imu_sensor"
+    frame_id: "base_link"
