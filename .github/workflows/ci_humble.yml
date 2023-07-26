@@ -1,4 +1,3 @@
-name: ci_humble
 
 on:
   push:
@@ -23,13 +22,14 @@ jobs:
         os: [ubuntu-22.04]
         ros_distribution: [humble]
     steps:
-      - uses: actions/checkout@v3
-      - uses: ros-tooling/setup-ros@0.6.1
+      - uses: actions/checkout@v2
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y wget python3-vcstool python3-colcon-coveragepy-result
       - name: Build and Test
-        uses: ros-tooling/action-ros-ci@v0.3
+        uses: ros-tooling/action-ros-ci@v0.2
         with:
           target-ros2-distro: ${{ matrix.ros_distribution }}
-          import-token: ${{ secrets.H6X_REPO_TOKEN }}
+          import-token: ${{ secrets.GITHUB_TOKEN }}
           package-name: |
             mgs1600gy
             mgs1600gy_bringup
