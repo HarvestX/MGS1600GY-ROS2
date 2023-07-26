@@ -15,19 +15,19 @@ jobs:
       ((github.event.action == 'synchronize') && (github.base_ref == 'humble') && contains(github.event.pull_request.labels.*.name, 'TESTING')) ||
       (github.ref_name == 'humble')
     container:
-      image: osrf/ros:${{ matrix.ros_distribution }}-desktop
+      image: rostooling/setup-ros-docker:ubuntu-${{ matrix.os_distro }}-ros-${{ matrix.ros_distribution }}-ros-base-latest
     timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-22.04]
+        os_distro: [jammy]
         ros_distribution: [humble]
     steps:
-      - uses: actions/checkout@v2
-      - name: Install dependencies
-        run: sudo apt-get update && sudo apt-get install -y wget python3-vcstool python3-colcon-coveragepy-result
+      - uses: actions/checkout@v3
+      - uses: ros-tooling/setup-ros@0.6.1
       - name: Build and Test
-        uses: ros-tooling/action-ros-ci@v0.2
+        uses: ros-tooling/action-ros-ci@v0.3
         with:
           target-ros2-distro: ${{ matrix.ros_distribution }}
           import-token: ${{ secrets.GITHUB_TOKEN }}
