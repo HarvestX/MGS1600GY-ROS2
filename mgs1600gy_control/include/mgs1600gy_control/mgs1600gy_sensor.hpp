@@ -50,6 +50,8 @@ private:
 
   double SENSOR_MIN_, SENSOR_MAX_;
   std::string NAME_, BASE_LINK_, MAGNET_LINK_;
+  bool imu_included_;
+  const uint32_t update_rate_ = 30;
 
   std::vector<double> imu_states_;
 

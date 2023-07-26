@@ -3,7 +3,7 @@
 
   <xacro:macro
       name="MGS1600GY_ros2_control"
-      params="prefix dev">
+      params="prefix dev sensor_max sensor_min">
 
     <ros2_control
         name="MGS1600GY"
@@ -11,17 +11,17 @@
       <hardware>
         <plugin>mgs1600gy_control/Mgs1600gySensor</plugin>
         <param name="dev">${dev}</param>
-        <param name="sensor_max">2000</param>
-        <param name="sensor_min">-2000</param>
+        <param name="sensor_max">${sensor_max}</param>
+        <param name="sensor_min">${sensor_min}</param>
         <param name="name">mgs1600gy</param>
         <param name="roll">0</param>
         <param name="pitch">0</param>
         <param name="yaw">0</param>
       </hardware>
-      <sensor name="image_sensor">
+      <sensor name="${prefix}image_sensor">
         <state_interface name="image"/>
       </sensor>
-      <sensor name="imu_sensor">
+      <sensor name="${prefix}imu_sensor">
         <state_interface name="orientation.x"/>
         <state_interface name="orientation.y"/>
         <state_interface name="orientation.z"/>

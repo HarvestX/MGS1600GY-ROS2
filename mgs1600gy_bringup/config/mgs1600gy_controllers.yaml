@@ -1,6 +1,6 @@
 controller_manager:
   ros__parameters:
-    update_rate: 20
+    update_rate: 30
     image_sensor_broadcaster:
       type: "image_sensor_broadcaster/ImageSensorBroadcaster"
 
