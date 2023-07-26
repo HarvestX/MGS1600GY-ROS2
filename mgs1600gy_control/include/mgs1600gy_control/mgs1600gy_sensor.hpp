@@ -15,10 +15,10 @@
 #pragma once
 
 #include <cv_bridge/cv_bridge.h>
+#include <limits>
 #include <memory>
 #include <string>
 #include <vector>
-#include <limits>
 
 #include <boost/interprocess/shared_memory_object.hpp>
 #include <boost/interprocess/mapped_region.hpp>

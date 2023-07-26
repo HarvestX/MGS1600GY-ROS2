@@ -8,10 +8,10 @@
   <license>Apache License 2.0</license>
 
   <exec_depend>controller_manager</exec_depend>
-  <exec_depend>image_sensor_broadcaster</exec_depend>
-  <exec_depend>mgs1600gy_description</exec_depend>
   <exec_depend>h6x_bringup_common</exec_depend>
+  <exec_depend>image_sensor_broadcaster</exec_depend>
   <exec_depend>mgs1600gy_control</exec_depend>
+  <exec_depend>mgs1600gy_description</exec_depend>
   <exec_depend>mgs1600gy_node</exec_depend>
   <exec_depend>robot_state_publisher</exec_depend>
   <exec_depend>ros2_control</exec_depend>

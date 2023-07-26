@@ -29,14 +29,14 @@ def generate_launch_description():
             text='/dev/serial/by-id/'
             'usb-Roboteq_Magnetic_Sensor_48F263793238-if00'))
     dev = LaunchConfiguration('dev')
-    sensor_min_arg = DeclareLaunchArgument(
-        'sensor_min',
-        default_value=TextSubstitution(text='-2000'))
-    sensor_min = LaunchConfiguration('sensor_min')
     sensor_max_arg = DeclareLaunchArgument(
         'sensor_max',
         default_value=TextSubstitution(text='2000'))
     sensor_max = LaunchConfiguration('sensor_max')
+    sensor_min_arg = DeclareLaunchArgument(
+        'sensor_min',
+        default_value=TextSubstitution(text='-2000'))
+    sensor_min = LaunchConfiguration('sensor_min')
 
     xacro_filepath = get_package_share_path(
         'mgs1600gy_description') / 'urdf' / 'mgs1600gy.urdf.xacro'
@@ -77,8 +77,8 @@ def generate_launch_description():
     ld = LaunchDescription()
 
     ld.add_action(dev_arg)
-    ld.add_action(sensor_min_arg)
     ld.add_action(sensor_max_arg)
+    ld.add_action(sensor_min_arg)
 
     ld.add_action(rsp_node)
     ld.add_action(image_broadcaster_spawner)
