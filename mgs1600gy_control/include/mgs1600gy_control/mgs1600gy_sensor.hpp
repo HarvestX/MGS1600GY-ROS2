@@ -48,8 +48,8 @@ class Mgs1600gySensor : public hardware_interface::SensorInterface
 private:
   using Interface = mgs1600gy_interface::Mgs1600gyInterface;
 
-  double SENSOR_MIN_, SENSOR_MAX_;
-  std::string NAME_, BASE_LINK_, MAGNET_LINK_;
+  double sensor_min_, sensor_max_;
+  std::string image_frame_id, imu_frame_id_;
   bool imu_included_;
   const uint32_t update_rate_ = 30;
 
