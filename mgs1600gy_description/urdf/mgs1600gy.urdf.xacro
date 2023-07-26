@@ -20,6 +20,15 @@
   <xacro:arg
       name="sensor_max"
       default="2000" />
+  <xacro:arg
+      name="yaw"
+      default="0.0" />
+  <xacro:arg
+      name="roll"
+      default="0.0" />
+  <xacro:arg
+      name="pitch"
+      default="0.0" />
 
   <!-- ros2_control-components -->
   <xacro:include filename="$(find mgs1600gy_description)/ros2_control/mgs1600gy.ros2_control.xacro" />
@@ -39,5 +48,8 @@
       prefix="$(arg prefix)"
       dev="$(arg dev)"
       sensor_max="$(arg sensor_max)"
-      sensor_min="$(arg sensor_min)" />
+      sensor_min="$(arg sensor_min)"
+      yaw="$(arg yaw)"
+      roll="$(arg roll)"
+      pitch="$(arg pitch)" />
 </robot>

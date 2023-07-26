@@ -3,7 +3,7 @@
 
   <xacro:macro
       name="MGS1600GY_ros2_control"
-      params="prefix dev sensor_max sensor_min">
+      params="prefix dev sensor_max sensor_min roll pitch yaw">
 
     <ros2_control
         name="MGS1600GY"
@@ -14,9 +14,9 @@
         <param name="sensor_max">${sensor_max}</param>
         <param name="sensor_min">${sensor_min}</param>
         <param name="name">mgs1600gy</param>
-        <param name="roll">0</param>
-        <param name="pitch">0</param>
-        <param name="yaw">0</param>
+        <param name="roll">${roll}</param>
+        <param name="pitch">${pitch}</param>
+        <param name="yaw">${yaw}</param>
       </hardware>
       <sensor name="${prefix}image_sensor">
         <state_interface name="image"/>

@@ -34,9 +34,13 @@ CallbackReturn Mgs1600gySensor::on_init(const hardware_interface::HardwareInfo &
   BASE_LINK_ = NAME_ + "_link";
   MAGNET_LINK_ = NAME_ + "_magnet_link";
 
+  // TODO : set parameters
   const float init_r = std::stof(info.hardware_parameters.at("roll"));
   const float init_p = std::stof(info.hardware_parameters.at("pitch"));
   const float init_y = std::stof(info.hardware_parameters.at("yaw"));
+
+  const auto orient_cov = {0.1, 0.1, 0.1};
+  const auto ang_vel_cov = {0.1, 0.1, 0.1};
 
   const std::string DEV = info.hardware_parameters.at("dev");
 
@@ -119,13 +123,13 @@ CallbackReturn Mgs1600gySensor::on_init(const hardware_interface::HardwareInfo &
     // Initialize angles
     using AxisIndex = mgs1600gy_interface::Mgs1600gyInterface::AxisIndex;
     if (!std::isnan(init_r) && !this->interface_->setAngle(AxisIndex::ROLL, init_r)) {
-      // return CallbackReturn::ERROR;
+      return CallbackReturn::ERROR;
     }
     if (!std::isnan(init_p) && !this->interface_->setAngle(AxisIndex::PITCH, init_p)) {
-      // return CallbackReturn::ERROR;
+      return CallbackReturn::ERROR;
     }
     if (!std::isnan(init_y) && !this->interface_->setAngle(AxisIndex::YAW, init_y)) {
-      // return CallbackReturn::ERROR;
+      return CallbackReturn::ERROR;
     }
 
     // Add queries
@@ -147,6 +151,7 @@ CallbackReturn Mgs1600gySensor::on_init(const hardware_interface::HardwareInfo &
 
   this->sensor_data_ = cv::Mat(1, 16, CV_8UC3);
 
+  this->interface_->setImuCovariance(orient_cov, ang_vel_cov);
 
   return CallbackReturn::SUCCESS;
 }
