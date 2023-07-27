@@ -10,10 +10,8 @@ RoboteQ line sensor module controller for ROS2.
 
 ## Requirements
 - Linux OS
-  - [Ubuntu 20.04](https://releases.ubuntu.com/20.04/)
   - [Ubuntu 22.04](https://releases.ubuntu.com/22.04/)
 - ROS 2
-  - Galactic
   - Humble
 
 ## Setup
