@@ -28,44 +28,17 @@ CallbackReturn Mgs1600gySensor::on_init(const hardware_interface::HardwareInfo &
     return CallbackReturn::ERROR;
   }
 
-  SENSOR_MIN_ = std::stof(info.hardware_parameters.at("sensor_min"));
-  SENSOR_MAX_ = std::stof(info.hardware_parameters.at("sensor_max"));
-  NAME_ = info.hardware_parameters.at("name");
-  BASE_LINK_ = NAME_ + "_link";
-  MAGNET_LINK_ = NAME_ + "_magnet_link";
+  this->sensor_min_ = std::stof(info.hardware_parameters.at("sensor_min"));
+  this->sensor_max_ = std::stof(info.hardware_parameters.at("sensor_max"));
 
-  // TODO : set parameters
-  const float init_r = std::stof(info.hardware_parameters.at("roll"));
-  const float init_p = std::stof(info.hardware_parameters.at("pitch"));
-  const float init_y = std::stof(info.hardware_parameters.at("yaw"));
+  const std::string dev = info.hardware_parameters.at("dev");
 
-  const auto orient_cov = {0.1, 0.1, 0.1};
-  const auto ang_vel_cov = {0.1, 0.1, 0.1};
-
-  const std::string DEV = info.hardware_parameters.at("dev");
-
-  RCLCPP_INFO(this->getLogger(), "Base link name: %s", this->BASE_LINK_.c_str());
-  RCLCPP_INFO(this->getLogger(), "Magnet link name: %s", this->MAGNET_LINK_.c_str());
-  RCLCPP_INFO(this->getLogger(), "Selected device: %s", DEV.c_str());
-  RCLCPP_INFO(this->getLogger(), "Read range: %.0f - %.0f", this->SENSOR_MIN_, this->SENSOR_MAX_);
-
-  std::stringstream log_ss;
-  if (!std::isnan(init_p)) {
-    log_ss << "pitch: " << init_p << " ";
-  }
-  if (!std::isnan(init_r)) {
-    log_ss << "roll: " << init_r << " ";
-  }
-  if (!std::isnan(init_y)) {
-    log_ss << "yaw: " << init_y << " ";
-  }
-  if (!log_ss.str().empty()) {
-    RCLCPP_INFO_STREAM(this->getLogger(), log_ss.str());
-  }
+  RCLCPP_INFO(this->getLogger(), "Selected device: %s", dev.c_str());
+  RCLCPP_INFO(this->getLogger(), "Read range: %.0f - %.0f", this->sensor_min_, this->sensor_max_);
 
   // Setup Sensor to Read Magnetic data
   using namespace std::chrono_literals;  // NOLINT
-  this->interface_ = std::make_unique<mgs1600gy_interface::Mgs1600gyInterface>(DEV, 500ms);
+  this->interface_ = std::make_unique<mgs1600gy_interface::Mgs1600gyInterface>(dev, 500ms);
   if (!this->interface_->init()) {
     RCLCPP_ERROR(
       this->getLogger(), "can't initialize interface");
@@ -79,8 +52,9 @@ CallbackReturn Mgs1600gySensor::on_init(const hardware_interface::HardwareInfo &
 
   // Check if imu is included or not
   this->imu_included_ = false;
-  for (const auto & sensor :info.sensors) {
+  for (const auto & sensor : info.sensors) {
     if (sensor.name == "imu_sensor") {
+      this->imu_frame_id_ = sensor.name;
       this->imu_included_ = true;
       break;
     }
@@ -90,6 +64,7 @@ CallbackReturn Mgs1600gySensor::on_init(const hardware_interface::HardwareInfo &
   for (const auto & sensor : info.sensors) {
     for (const auto & state_interface : sensor.state_interfaces) {
       if (state_interface.name == "image") {
+        this->image_frame_id = sensor.name;
         this->shm_key_ = sensor.name + "-" + state_interface.name;
         break;
       }
@@ -120,18 +95,6 @@ CallbackReturn Mgs1600gySensor::on_init(const hardware_interface::HardwareInfo &
       std::numeric_limits<double>::quiet_NaN());
     // END: IMU sensor
 
-    // Initialize angles
-    using AxisIndex = mgs1600gy_interface::Mgs1600gyInterface::AxisIndex;
-    if (!std::isnan(init_r) && !this->interface_->setAngle(AxisIndex::ROLL, init_r)) {
-      return CallbackReturn::ERROR;
-    }
-    if (!std::isnan(init_p) && !this->interface_->setAngle(AxisIndex::PITCH, init_p)) {
-      return CallbackReturn::ERROR;
-    }
-    if (!std::isnan(init_y) && !this->interface_->setAngle(AxisIndex::YAW, init_y)) {
-      return CallbackReturn::ERROR;
-    }
-
     // Add queries
     queries.push_back(PT::ANG);
     queries.push_back(PT::GY);
@@ -150,8 +113,6 @@ CallbackReturn Mgs1600gySensor::on_init(const hardware_interface::HardwareInfo &
   // END: Set up interface
 
   this->sensor_data_ = cv::Mat(1, 16, CV_8UC3);
-
-  this->interface_->setImuCovariance(orient_cov, ang_vel_cov);
 
   return CallbackReturn::SUCCESS;
 }
@@ -224,9 +185,9 @@ return_type Mgs1600gySensor::read(const rclcpp::Time & time, const rclcpp::Durat
     return return_type::ERROR;
   }
 
-  this->interface_->getImage(&this->sensor_data_, this->SENSOR_MIN_, this->SENSOR_MAX_);
+  this->interface_->getImage(&this->sensor_data_, this->sensor_min_, this->sensor_max_);
   std_msgs::msg::Header image_header;
-  image_header.frame_id = this->MAGNET_LINK_;
+  image_header.frame_id = this->image_frame_id;
   image_header.stamp = time;
   Image::SharedPtr image_msg =
     cv_bridge::CvImage(image_header, "bgr8", this->sensor_data_).toImageMsg();
@@ -244,7 +205,6 @@ return_type Mgs1600gySensor::read(const rclcpp::Time & time, const rclcpp::Durat
 
   // BEGIN: IMU sensor
   if (this->imu_included_) {
-
     if (!this->interface_->read(PT::ANG) || !this->interface_->read(PT::GY)) {
       RCLCPP_ERROR(
         this->getLogger(), "can't read imu data");
@@ -252,7 +212,7 @@ return_type Mgs1600gySensor::read(const rclcpp::Time & time, const rclcpp::Durat
     }
 
     std_msgs::msg::Header imu_header;
-    imu_header.frame_id = this->BASE_LINK_;
+    imu_header.frame_id = this->imu_frame_id_;
     imu_header.stamp = time;
     Imu::UniquePtr imu_msg = this->interface_->getImu(imu_header);
 
