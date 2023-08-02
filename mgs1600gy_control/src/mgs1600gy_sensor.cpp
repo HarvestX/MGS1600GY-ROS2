@@ -53,7 +53,7 @@ CallbackReturn Mgs1600gySensor::on_init(const hardware_interface::HardwareInfo &
   // Check if imu is included or not
   this->imu_included_ = false;
   for (const auto & sensor : info.sensors) {
-    if (sensor.name == "imu_sensor") {
+    if (sensor.name == "mgs1600gy_link") {
       this->imu_frame_id_ = sensor.name;
       this->imu_included_ = true;
       break;

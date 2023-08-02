@@ -44,4 +44,35 @@ void Utils::convertBGR(
     out->at<cv::Vec3b>(0, i) = {val_S, 0, val_N};  // B G R
   }
 }
+
+void Utils::convertBGR(
+  const std::array<float, 16> & in, std::array<float, 16 * 3> * out, const float MIN,
+  const float MAX)
+{
+  for (size_t i = 0; i < in.size(); ++i) {
+    const float target = in.at(i);
+    uint8_t val_S = 0, val_N = 0;
+    if (target > 0.0) {
+      // S pole
+      if (target > MAX) {
+        val_S = 255.0;
+      } else {
+        val_S =
+          static_cast<uint8_t>(255.0 * target / MAX);
+      }
+    } else {
+      // N pole
+      if (target < MIN) {
+        val_N = 255.0;
+      } else {
+        val_N =
+          static_cast<uint8_t>(255.0 * target / MIN);
+      }
+    }
+
+    out->at(i * 3) = val_S;
+    out->at(i * 3 + 1) = 0;
+    out->at(i * 3 + 2) = val_N;
+  }
+}
 }  // namespace mgs1600gy_interface

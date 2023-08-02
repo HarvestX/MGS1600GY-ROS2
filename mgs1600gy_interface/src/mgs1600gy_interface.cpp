@@ -234,6 +234,12 @@ void Mgs1600gyInterface::getImage(
   Utils::convertBGR(this->mz_data_, out, MIN, MAX);
 }
 
+void Mgs1600gyInterface::getImage(
+  std::array<float, 16 * 3> out, const float & MIN, const float & MAX) const noexcept
+{
+  Utils::convertBRG(this->mz_data_, out, MIN, MAX);
+}
+
 bool Mgs1600gyInterface::setAllAngleZero() const noexcept
 {
   if (!this->setAngle(AxisIndex::PITCH, 0.0)) {
