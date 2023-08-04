@@ -53,7 +53,6 @@ CallbackReturn Mgs1600gySensor::on_init(const hardware_interface::HardwareInfo &
   // Check if imu is included or not
   this->imu_included_ = false;
   for (const auto & sensor : info.sensors) {
-    RCLCPP_INFO(this->getLogger(), "%s", sensor.name.c_str());
     for (const auto & state_interface : sensor.state_interfaces) {
       if (state_interface.name == "orientation.x") {
         this->imu_frame_id_ = sensor.name;
