@@ -14,7 +14,6 @@
 
 #pragma once
 
-#include <cv_bridge/cv_bridge.h>
 #include <limits>
 #include <memory>
 #include <string>
@@ -63,7 +62,6 @@ private:
   std::unique_ptr<boost::interprocess::mapped_region> map_;
 
   Interface::UniquePtr interface_;
-  cv::Mat sensor_data_;
 
 public:
   RCLCPP_SHARED_PTR_DEFINITIONS(Mgs1600gySensor)

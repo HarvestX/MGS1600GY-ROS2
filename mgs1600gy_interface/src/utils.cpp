@@ -46,7 +46,7 @@ void Utils::convertBGR(
 }
 
 void Utils::convertBGR(
-  const std::array<float, 16> & in, std::array<float, 16 * 3> * out, const float MIN,
+  const std::array<float, 16> & in, std::array<uint8_t, 16 * 3> & out, const float MIN,
   const float MAX)
 {
   for (size_t i = 0; i < in.size(); ++i) {
@@ -70,9 +70,9 @@ void Utils::convertBGR(
       }
     }
 
-    out->at(i * 3) = val_S;
-    out->at(i * 3 + 1) = 0;
-    out->at(i * 3 + 2) = val_N;
+    out.at(i * 3) = val_S;
+    out.at(i * 3 + 1) = 0;
+    out.at(i * 3 + 2) = val_N;
   }
 }
 }  // namespace mgs1600gy_interface

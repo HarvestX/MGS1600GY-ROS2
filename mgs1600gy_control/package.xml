@@ -9,7 +9,6 @@
 
   <buildtool_depend>ament_cmake_auto</buildtool_depend>
 
-  <depend>cv_bridge</depend>
   <depend>hardware_interface</depend>
   <depend>mgs1600gy_interface</depend>
   <depend>pluginlib</depend>

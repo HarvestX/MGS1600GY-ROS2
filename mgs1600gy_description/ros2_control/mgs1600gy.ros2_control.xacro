@@ -10,7 +10,7 @@
         type="sensor">
       <hardware>
         <plugin>mgs1600gy_control/Mgs1600gySensor</plugin>
-        <!-- TODO: Add main loop update rate to deceide Query Interval -->
+        <!-- TODO Add main loop update rate to deceide Query Interval -->
         <param name="dev">${dev}</param>
         <param name="sensor_max">${sensor_max}</param>
         <param name="sensor_min">${sensor_min}</param>

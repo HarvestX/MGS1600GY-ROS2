@@ -9,7 +9,7 @@ controller_manager:
 
 image_sensor_broadcaster:
   ros__parameters:
-    sensor_name: "image_sensor"
+    sensor_name: "mgs1600gy_magnet_link"
     frame_id: "base_link"
     encoding: "rgb8"
     height: 1
@@ -17,5 +17,5 @@ image_sensor_broadcaster:
 
 imu_sensor_broadcaster:
   ros__parameters:
-    sensor_name: "imu_sensor"
+    sensor_name: "mgs1600gy_link"
     frame_id: "base_link"

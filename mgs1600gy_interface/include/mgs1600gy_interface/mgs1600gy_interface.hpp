@@ -93,7 +93,7 @@ public:
   Imu::UniquePtr getImu(const std_msgs::msg::Header &) const noexcept;
   void getImage(cv::Mat *, const float & = -2000, const float & = 2000) const noexcept;
   void getImage(
-    std::array<float, 16 * 3>, const float & = -2000,
+    std::array<uint8_t, 16 * 3> &, const float & = -2000,
     const float & = 2000) const noexcept;
 
   // Query commands

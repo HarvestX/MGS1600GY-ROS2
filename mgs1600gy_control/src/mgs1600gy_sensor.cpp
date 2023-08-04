@@ -53,10 +53,13 @@ CallbackReturn Mgs1600gySensor::on_init(const hardware_interface::HardwareInfo &
   // Check if imu is included or not
   this->imu_included_ = false;
   for (const auto & sensor : info.sensors) {
-    if (sensor.name == "mgs1600gy_link") {
-      this->imu_frame_id_ = sensor.name;
-      this->imu_included_ = true;
-      break;
+    RCLCPP_INFO(this->getLogger(), "%s", sensor.name.c_str());
+    for (const auto & state_interface : sensor.state_interfaces) {
+      if (state_interface.name == "orientation.x") {
+        this->imu_frame_id_ = sensor.name;
+        this->imu_included_ = true;
+        break;
+      }
     }
   }
 
@@ -111,8 +114,6 @@ CallbackReturn Mgs1600gySensor::on_init(const hardware_interface::HardwareInfo &
 
   this->interface_->startQueries(interval);
   // END: Set up interface
-
-  this->sensor_data_ = cv::Mat(1, 16, CV_8UC3);
 
   return CallbackReturn::SUCCESS;
 }
@@ -185,16 +186,7 @@ return_type Mgs1600gySensor::read(const rclcpp::Time & time, const rclcpp::Durat
     return return_type::ERROR;
   }
 
-  this->interface_->getImage(&this->sensor_data_, this->sensor_min_, this->sensor_max_);
-  std_msgs::msg::Header image_header;
-  image_header.frame_id = this->image_frame_id;
-  image_header.stamp = time;
-  Image::SharedPtr image_msg =
-    cv_bridge::CvImage(image_header, "bgr8", this->sensor_data_).toImageMsg();
-
-  for (size_t i = 0; i < image_msg->data.size(); i++) {
-    this->img_data_.at(i) = image_msg->data.at(i);
-  }
+  this->interface_->getImage(this->img_data_, this->sensor_min_, this->sensor_max_);
 
   if (this->map_) {
     this->state_if_val_ = 0.0;
