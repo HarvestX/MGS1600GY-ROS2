@@ -1,0 +1,10 @@
+<library path="mgs1600gy_control">
+  <class
+      name="mgs1600gy_control/Mgs1600gySensor"
+      type="mgs1600gy_control::Mgs1600gySensor"
+      base_class_type="hardware_interface::SensorInterface">
+    <description>
+      mgs1600gy hardware plugin for the ros2_control.
+    </description>
+  </class>
+</library>

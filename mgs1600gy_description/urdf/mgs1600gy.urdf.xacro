@@ -8,6 +8,21 @@
   <xacro:arg
       name="use_nominal_extrinsics"
       default="False" />
+  <xacro:arg
+      name="prefix"
+      default="" />
+  <xacro:arg
+      name="dev"
+      default="/dev/serial/by-id/usb-Roboteq_Magnetic_Sensor_48F263793238-if00" />
+  <xacro:arg
+      name="sensor_min"
+      default="-2000" />
+  <xacro:arg
+      name="sensor_max"
+      default="2000" />
+
+  <!-- ros2_control-components -->
+  <xacro:include filename="$(find mgs1600gy_description)/ros2_control/mgs1600gy.ros2_control.xacro" />
 
   <link name="base_link" />
 
@@ -19,4 +34,10 @@
         xyz="0 0 0"
         rpy="0 0 0" />
   </xacro:mgs1600gy>
+
+  <xacro:MGS1600GY_ros2_control
+      prefix="$(arg prefix)"
+      dev="$(arg dev)"
+      sensor_max="$(arg sensor_max)"
+      sensor_min="$(arg sensor_min)" />
 </robot>

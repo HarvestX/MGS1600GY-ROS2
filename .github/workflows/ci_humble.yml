@@ -1,4 +1,3 @@
-name: ci_humble
 
 on:
   push:
@@ -34,6 +33,7 @@ jobs:
           package-name: |
             mgs1600gy
             mgs1600gy_bringup
+            mgs1600gy_control
             mgs1600gy_description
             mgs1600gy_interface
             mgs1600gy_node

@@ -10,6 +10,7 @@
         "/opt/ros/humble/src/gmock_vendor/include/**",
         "/usr/include/**",
         "${workspaceFolder}/../../install/h6x_serial_interface/include/**",
+        "${workspaceFolder}/mgs1600gy_control/include/**",
         "${workspaceFolder}/mgs1600gy_interface/include/**",
         "${workspaceFolder}/mgs1600gy_node/include/**",
         "${workspaceFolder}/mgs1600gy_tool/include/**"

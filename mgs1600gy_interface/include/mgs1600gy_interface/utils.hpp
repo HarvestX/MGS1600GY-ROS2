@@ -25,5 +25,8 @@ class Utils
 {
 public:
   static void convertBGR(const std::array<float, 16> &, cv::Mat *, const float, const float);
+  static void convertBGR(
+    const std::array<float, 16> &, std::array<uint8_t, 16 * 3> &, const float,
+    const float);
 };
 }  // namespace mgs1600gy_interface

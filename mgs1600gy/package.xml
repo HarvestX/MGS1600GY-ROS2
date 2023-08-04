@@ -10,6 +10,7 @@
   <buildtool_depend>ament_cmake</buildtool_depend>
 
   <depend>mgs1600gy_bringup</depend>
+  <depend>mgs1600gy_control</depend>
   <depend>mgs1600gy_description</depend>
   <depend>mgs1600gy_interface</depend>
   <depend>mgs1600gy_node</depend>

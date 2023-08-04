@@ -149,6 +149,8 @@ std::string PacketPool::packetTypeToString(
       return "MZ";
     case PACKET_TYPE::ANG:
       return "ANG";
+    case PACKET_TYPE::GY:
+      return "GY";
     default:
       // Do nothing
       break;

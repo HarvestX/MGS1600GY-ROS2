@@ -11,6 +11,7 @@
     "extrinsics",
     "GZER",
     "m12watanabe1a",
+    "PLUGINLIB",
     "rclcpp",
     "roboteq",
     "rosdep",
